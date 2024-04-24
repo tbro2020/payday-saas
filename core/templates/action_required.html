@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% load core %}
+{% load i18n %}
+{% load static %}
+{% load humanize %}
+{% load mathfilters %}
+{% load crispy_forms_filters %}
+
+{% block content %}
+<div class="page-heading">
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col text-start">
+                    <h3 class="m-0">{% trans 'Action requise' %}</h3>
+                    {% include 'components/breadcrumb.html' %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-content">
+    <div class="row">
+        
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr class="text-uppercase">
+                                    <th>#</th>
+                                    <th>{% trans 'Modèle' %}</th>
+                                    <th>{% trans 'Demandeur' %}</th>
+                                    <th>{% trans 'Description' %}</th>
+                                    <th>{% trans 'Créé à' %}</th>
+                                    <th>{% trans 'Action' %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for obj in qs %}
+                                <tr data-id="{{ obj.id }}">
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>
+                                        <span class="badge bg-warning">
+                                            {{ obj }}
+                                        </span>
+                                    </td>
+                                    <td>{{ obj.created_by|default:'-' }}</td>
+                                    <td>{% trans 'Requérir votre approbation pour cette demande' %} #{{ obj.object_id }}</td>
+                                    <td>{{ obj.created_at }}</td>
+                                    <td>
+                                        <a class="text-decoration-none" href="{{ obj.content_object.get_absolute_url }}">{% trans 'Voir' %}</a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="{{ list_display|length|add:6 }}" class="text-center">
+                                        {% trans 'Oupps... Nous n avons rien trouvé' %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+        
+        {% if list_filter %}
+        <div class="col-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-title">
+                        <h5>{% trans 'Filtre' %}</h5>
+                    </div>
+                    <form name="GET">
+                        {{ qs_filter.form|crispy }}
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

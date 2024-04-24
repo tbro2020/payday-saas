@@ -1,0 +1,52 @@
+{% load core %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% with model_name=model|getattr:'_meta'|getattr:'model_name' model_verbose_name=model|getattr:'_meta'|getattr:'verbose_name' %}
+<fieldset class="page-content" id="form-{{ model_name }}" disabled>
+    <div class="card">
+        <div class="card-body">
+            <ul class="nav nav-tabs" id="myTab" role="tablist" id="content-tab">
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link active"
+                       data-bs-toggle="tab" href="#{{ model_name }}">
+                       {{ model_verbose_name|title }}</a>
+                </li>
+
+                {% for formset in formsets %}
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link"
+                            data-bs-toggle="tab" href="#{{ formset.model|getattr:'_meta'|getattr:'model_name' }}">
+                            {{ formset.model|getattr:'_meta'|getattr:'verbose_name_plural'|title }}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+
+            <div class="tab-content">
+                <div class="tab-pane fade active show" id="{{ model_name }}">
+                    <div class="mt-2 pt-2">
+                        {% crispy form %}
+                    </div>
+                </div>
+
+                {% for formset in formsets %}
+                <div class="tab-pane fade" id="{{ formset.model|getattr:'_meta'|getattr:'model_name' }}">
+                    <div class="mt-2 pt-2" id="formset-{{ forloop.counter }}">
+                        {{ formset.non_form_errors }}
+                        {% crispy formset self.inline_formset_helper %}
+                    </div>
+
+                    {% if not formset.fk.unique %}
+                    <script>$(function(){$('#formset-{{ forloop.counter }} tbody tr').formset({prefix: '{{ formset.prefix }}'});})</script>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</fieldset>
+<script>
+    $(document).ready(() => setTimeout(() => $('select').select2({disabled: true}), 100));    
+</script>
+{% endwith %}

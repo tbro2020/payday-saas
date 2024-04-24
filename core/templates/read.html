@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% load core %}
+{% load i18n %}
+{% load static %}
+{% load mathfilters %}
+{% load crispy_forms_filters %}
+
+{% block content %}
+<div class="page-heading">
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col text-start">
+                    <h3 class="m-0">{{ model|getattr:'_meta'|getattr:'verbose_name'|title }} #{{ obj.id }}</h3>
+                    {% include 'components/breadcrumb.html' %}
+                </div>
+
+                {% with approbations=self.approbations %}
+                <div class="col text-end">
+                    {% if approbations.is_fully_approved %}
+                        <a target="_blank" href="{% url 'core:print' app model|getattr:'_meta'|getattr:'model_name' obj.pk %}" class="btn btn-info btn-lg"><i class="bi bi-printer-fill"></i></a>
+                    {% endif %}
+
+                    {% if request.user.id in approbations.pending.users %}
+                        <a href="{% url 'core:approbation' 'approved' app model|getattr:'_meta'|getattr:'model_name' obj.pk %}" class="btn btn-warning btn-lg">{% trans 'Approve' %}</a>
+                        <a href="{% url 'core:approbation' 'rejected' app model|getattr:'_meta'|getattr:'model_name' obj.pk %}" class="btn btn-danger btn-lg">{% trans 'Désapprouver' %}</a>
+                    {% endif %}
+                        
+                    <a href="{% url 'core:delete' app model|getattr:'_meta'|getattr:'model_name' obj.pk %}" class="btn btn-light-danger btn-lg">{% trans 'Delete' %}</a>
+                    <button type="submit" form="form-{{ model|getattr:'_meta'|getattr:'model_name' }}" class="btn btn-light-success btn-lg">{% trans 'Save' %}</button>
+                </div>
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-content">
+    
+    <section>
+        <div class="card">
+            <div class="card-body">
+                {% include 'components/timeline.html' %}
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-body">
+                {% include 'components/read_form.html' %}
+            </div>
+        </div>
+    </section>
+</div>
+
+<div class="page-footer">
+    <div class="card">
+        <div class="card-body">
+            <div class="card-title">
+                <h4>{% trans 'Activities' %}</h4>
+            </div>
+
+            <ul>
+                {% for activity in self.activities %}
+                    <li>{{ activity }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

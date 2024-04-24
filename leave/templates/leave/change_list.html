@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% load core %}
+{% load i18n %}
+{% load static %}
+{% load humanize %}
+{% load mathfilters %}
+{% load crispy_forms_filters %}
+
+{% block content %}
+
+<div class="page-heading">
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col text-start">
+                    <h3 class="m-0">{{ model|getattr:'_meta'|getattr:'verbose_name_plural'|title }}</h3>
+                    {% include 'components/breadcrumb.html' %}
+                </div>
+
+                <div class="col text-end">
+                    <a href="{% url 'core:create' app model|getattr:'_meta'|getattr:'model_name' %}" class="btn btn-light-success">{% trans 'Créer' %}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-content">
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+    
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <form method="get" class="input-group mb-0">
+                        <span class="input-group-text" id="search-button"><i class="bi bi-search"></i></span>
+                        <input type="text" name="q" class="form-control" placeholder="{% trans 'Search' %}" aria-label="Search" aria-describedby="search-button" value="{{ request.GET.q }}">
+                    </form>
+                </div>
+                <div class="card-body">
+                    <div id='calendar'></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{ filter.hard_filter|qs_to_values:'id,employee__first_name,employee__last_name,start_dt,end_dt,reason,type_of_leave__name'|json_script:"leaves" }}
+
+<script>
+    const leaves = JSON.parse(document.getElementById('leaves').textContent);
+    document.addEventListener('DOMContentLoaded', function() {
+      var calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+        initialView: 'dayGridMonth',
+        locale: 'fr',
+        nowIndicator: true,
+        businessHours: [
+            {
+                daysOfWeek: [1,2,3,4,5],
+                startTime: '08:00',
+                endTime: '16:00'
+            }
+        ],
+        events: leaves.map(leave => {
+            const url = "{% url 'core:change' 'leave' 'leave' 0 %}".replace('0', leave.id);
+          return {
+            title: leave.employee__first_name + ' ' + leave.employee__last_name + '(Approuvé)',
+            start: leave.start_dt,
+            end: leave.end_dt,
+            url: url,
+            description: leave.reason,
+            color: 'green',
+          };
+        }),
+        headerToolbar: {
+            left: 'prev,next',
+            center: 'title',
+            right: 'listWeek,dayGridMonth,multiMonthYear' // user can switch between the two
+        }
+      });
+      calendar.render();
+    });
+</script>
+{% endblock %}

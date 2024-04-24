@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% load static %}
+
+{% block content %}
+{% get_current_language as LANGUAGE_CODE %}
+<script src="{% static 'assets/extensions/apexcharts/apexcharts.min.js' %}"></script>
+
+<div class="page-content">
+    <div class="row">
+        {% for widget in widgets %}
+            <div class="{{ widget.column }}">
+                <div class="card">
+                    {{ widget.render|safe }}
+                </div>
+            </div>
+        {% empty %}
+            <h4 class="text-center">{% trans "Aucun widget trouver" %}</h4>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

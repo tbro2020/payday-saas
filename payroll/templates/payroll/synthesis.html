@@ -1,0 +1,101 @@
+{% load core %}
+{% load i18n %}
+{% load static %}
+{% load humanize %}
+{% load mathfilters %}
+{% get_current_language as LANGUAGE_CODE %}
+
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+
+      <title>Synthesis</title>
+
+      <style>
+        body{
+            font-size: 12px;
+        }
+        .watermark{
+            z-index: -1 !important;
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            color:  rgba(0,0,0, 0.1) !important;
+            transform: rotate(-45deg);
+        }
+        .watermark-title-text{
+            font-size: 3.5rem !important;
+        }
+      </style>
+   </head>
+   <body>
+
+    {% if not obj.approved %}
+    <div class="watermark">
+        <h1 class="watermark-title-text">{% trans 'Unapproved' %}</h1>
+    </div>
+    {% endif %}
+
+    <div class="container-fluid">
+
+        <div class="row">
+            <div class="col">
+                <div>
+                    <h3>{{ organization.name|default:'Payday' }}</h3>
+                </div>
+                <div>
+                    <h6 class="mb-0">{% trans 'Direction des ressources humaines' %}</h6>
+                </div>
+            </div>
+            <div class="col text-end">
+                <h3 class="mb-0">{% trans 'Synthesis' %}</h3>
+                <small>{% trans 'Generated on' %} {% now 'M d, Y' %}</small>
+            </div>
+        </div>
+
+        <div class="col text-center">
+            <h2 class="mb-0">{{ obj.name }}</h2>
+            <small>
+                <b>{{ obj.start_dt }}</b>
+                to
+                <b>{{ obj.end_dt }}</b>
+            </small>
+        </div>
+
+        <div class="col">
+            <table class="table table-striped">
+                <thead style="font-weight: bolder">
+                    <tr>
+                        <td>{{ model|getattr:'_meta'|getattr:'verbose_name'|default:'#'|title }}</td>
+                        <td>{% trans 'AGENTS' %}</td>
+                        {% for branch in self.branches %}
+                        <td>{{ branch.name }}</td>
+                        {% endfor %}
+                        <td>{% trans 'TOTAL' %}</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for group, branches in groupby.items %}
+                        <tr>
+                            <td>
+                                <b>{{ group }}</b>
+                            </td>
+                            <td>{{ branches.AGENT|toint }}</td>
+                            {% for branch in self.branches %}
+                                <td>{{ branches|getattr:branch.name|default:'0'|intcomma }}</td>
+                            {% endfor %}
+                            <td>{{ branches.TOTAL|intcomma }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+
+   </body>
+</html>

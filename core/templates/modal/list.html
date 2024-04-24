@@ -1,0 +1,49 @@
+{% load core %}
+{% load i18n %}
+{% load static %}
+{% load humanize %}
+{% load mathfilters %}
+{% load crispy_forms_filters %}
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr class="text-uppercase">
+                {% for field in list_display %}
+                    <th>{{ field.verbose_name }}</th>
+                {% empty %}
+                    <th>{% trans 'PK' %}</th>
+                    <th>{% trans 'Name' %}</th>
+                {% endfor %}
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for obj in self.qs %}
+            <tr data-id="{{ obj.id }}">
+                {% for field in list_display %}
+                    {% if field.get_internal_type == 'FloatField' %}
+                        <td>{{ obj|getattr:field.name|intcomma|default:'-' }}</td>
+                    {% else %}
+                        <td>{{ obj|getattr:field.name|default:'-' }}</td>
+                    {% endif %}
+                {% empty %}
+                    <td>{{ obj.pk }}</td>
+                    <td>{{ obj }}</td>
+                {% endfor %}
+                
+                <td>
+                    <a class="text-decoration-none" hx-get="{% url 'core:change-modal' 'core' 'flowstep' obj.id %}" hx-target="#dialog" href="#">{% trans 'Voir' %}</a> |
+                    <a class="text-decoration-none" hx-get="{% url 'core:delete-modal' 'core' 'flowstep' obj.id %}" hx-target="#dialog" href="#">{% trans 'Supprimer' %}</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="{{ list_display|length|add:3 }}" class="text-center">
+                    {% trans 'Oupps... We found nothing' %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,22 @@
+{% load i18n %}
+
+<div class="col">
+    <h4>{% trans 'Approbation' %}</h4>
+    <ul class="timeline">
+        {% for approval in self.approbations %}
+            <li>
+                {{ approval.user.employee|default:approval.user }}
+                <span class="text-info" 
+                    data-bs-toggle="tooltip" 
+                    data-bs-placement="bottom"
+                    data-bs-original-title="{{ approval.comment }}"
+                    title="{{ approval.comment }}"
+                    style="cursor: pointer;"
+                    >({{ approval.get_action_display|default:'aucune action' }})</span>
+            </li>
+        {% endfor %}
+    </ul>
+    <script>
+        $(() => $('[data-bs-toggle="tooltip"]').tooltip());
+    </script>
+</div>

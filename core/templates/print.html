@@ -1,0 +1,83 @@
+{% load core %}
+{% load i18n %}
+{% load static %}
+{% load qr_code %}
+{% get_current_language as LANGUAGE_CODE %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <title></title>
+    <style>
+      p{
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      header{
+        margin-bottom: 25px !important;
+      }
+      footer{
+        margin-top: 25px !important;
+      }
+      .watermark{
+        z-index: -1 !important;
+        position: fixed !important;
+        top: 50% !important;
+        left: 25% !important;
+        color:  rgba(0,0,0, 0.1) !important;
+        transform: rotate(-45deg);
+      }
+      .watermark-title-text{
+        font-size: 5rem !important;
+      }
+    </style>
+  </head>
+
+  {% with self.organization as organization %}
+  <body class="container-fluid">
+
+    <header>
+      {% static 'assets/images/logo/logo.svg' as logo_url %}
+      <div class="row">
+        <div class="col">
+          <img src="{{ obj.payroll.organization.logo.url|default:logo_url }}" alt="Logo" class="float-start" width="128"> 
+        </div>
+        <div class="col text-end" style="font-size: 12px;">
+          {% url 'core:change' app model|getattr:'_meta'|getattr:'model_name' obj.pk as qr_url %}
+          {% qr_from_text qr_url size="T" %}
+        </div>
+      </div>
+    </header>
+
+    {% if not obj.approved %}
+    <div class="watermark">
+        <h1 class="watermark-title-text">{% trans 'Unapproved' %}</h1>
+    </div>
+    {% endif %}
+
+    {{ template }}
+
+    <footer class="fw-bold" style="font-size: 12px;">
+      <div class="row">
+        <div class="col">
+          <p>{{ organization.name }}</p>
+          <p>{{ organization.physical_address }}</p>
+        </div>
+        <div class="col text-end">
+          <p>{{ organization.commercial_register_number }}</p>
+          <p>{{ organization.national_id }}</p>
+        </div>
+      </div>
+    </footer>
+  </body>
+  {% endwith %}
+  <script>
+    // on page ready print page
+    window.onload = function() {
+      window.print();
+    }
+  </script>
+</html>
