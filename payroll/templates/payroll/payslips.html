@@ -33,15 +33,14 @@
     <div class="card">
         <div class="card-body">
             <div class="row">
-                <div class="col text-start">
+                <div class="col-md-4 col-sm-12 text-start">
                     <h3 class="m-0">{{ model|getattr:'_meta'|getattr:'verbose_name'|title }} #{{ obj.id }}</h3>
                     {% include 'components/breadcrumb.html' %}
                 </div>
 
-                <div class="col-8 text-end">
-
+                <div class="col-md-8 col-sm-12 text-end">
                     <span>
-                        <button class="btn btn-light-danger dropdown-toggle" id="dropdown-duty-listing" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Synthesis' %}</button>
+                        <button class="btn btn-light-warning dropdown-toggle" id="dropdown-duty-listing" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Synthesis' %}</button>
                         <div class="dropdown-menu" aria-labelledby="dropdown-duty-listing">
                             <a class="dropdown-item" href="{% url 'payroll:synthesis' obj.pk %}?by_item=all">Global</a>
                             <div class="dropdown-divider"></div>
@@ -57,10 +56,12 @@
                             {% for duty in self.duties %}
                                 <a target="_blank" class="dropdown-item text-uppercase" href="{% url 'payroll:listing' obj.pk %}?duty_item={{ duty.pk }}">{{ duty.name }}</a>
                             {% endfor %}
+                            {% comment %}                            
                             <div class="dropdown-divider"></div>
                             {% for item in self.items %}
                                 <a target="_blank" class="dropdown-item text-uppercase" href="{% url 'payroll:listing' obj.pk %}?item={{ item.pk }}">{{ item.name }}</a>
                             {% endfor %}
+                            {% endcomment %}
                         </div>
                     </span>
 
@@ -75,12 +76,8 @@
                         </div>
                     </span>
 
-                    {% if obj|getattr:'approvers' %}
-                        <a href="{% url 'core:approve' app model|getattr:'_meta'|getattr:'model_name' obj.pk %}" class="btn btn-light-warning">{% trans 'Approve' %}</a>
-                    {% endif %}
-
-                    <a href="{% url 'core:delete' app model|getattr:'_meta'|getattr:'model_name' obj.pk %}" class="btn btn-light-danger">{% trans 'Delete' %}</a>
-                    <button type="submit" form="form-{{ model|getattr:'_meta'|getattr:'model_name' }}" class="btn btn-light-success">{% trans 'Save' %}</button>
+                    <a href="#" class="btn btn-light-success">{% trans 'Envoyer les fiches de paie par email' %}</a>
+                    <a href="{% url 'core:delete' app model|getattr:'_meta'|getattr:'model_name' obj.pk %}" class="btn btn-light-danger">{% trans 'Supprimer' %}</a>
                 </div>
             </div>
         </div>
@@ -89,10 +86,6 @@
 
 <div class="page-content">
     <section>
-    
-        {% if obj.approvers %}
-            {% include 'components/approvals.html' %}
-        {% endif %}
 
         {% for error in obj.metadata.errors %}
             <div class="alert alert-light-warning fw-bold mb-3" role="alert">
@@ -104,19 +97,19 @@
             <div class="card-body">
                 <div class="card-title mb-0">
                     <div class="row">
-                        <div class="col">
-                            <h3 class="mb-0 {% if obj.status != 'SUCCESS' %}blink{% endif %}">{{ obj.get_status_display }}</h3>
+                        <div class="col-md-4 col-sm-12 mb-2">
+                            <h3 class="mb-0 {% if obj.status != 'SUCCESS' %}blink{% endif %}">{{ obj.get_status_display|title }}</h3>
                             <small>{% trans 'Status' %}</small>
                         </div>
 
-                        <div class="col">
+                        <div class="col-md-4 col-sm-12 mb-2">
                             <h3 class="mb-0">{{ count }}</h3>
-                            <small>{% trans 'Payslips' %}</small>
+                            <small>{% trans 'Fiches de paie' %}</small>
                         </div>
                         
-                        <div class="col">
+                        <div class="col-md-4 col-sm-12 mb-2">
                             <h3 class="mb-0">{{ obj.overall_net|intcomma }}</h3>
-                            <small>{% trans 'Global net' %}</small>
+                            <small>{% trans 'Net à payer global' %}</small>
                         </div>
                     </div>
                 </div>
@@ -163,11 +156,41 @@
                         </div>
             
                     </div>
+
+                    <div class="card">
+                        <div class="card-body text-center">
+                             <nav aria-label="Page navigation example">
+                               <ul class="pagination justify-content-center mb-0">
+                                 {% if qs.has_previous %}
+                                     <li class="page-item"><a class="page-link" href="?page={{ qs.previous_page_number }}">{% trans 'Prev' %}</a></li>
+                                 {% else %}
+                                     <li class="page-item disabled"><a class="page-link">{% trans 'Prev' %}</a></li>
+                                 {% endif %}
+             
+                                 {% if qs.page > 10 %}
+                                     {% for i in qs.paginator.page_range %}
+                                       {% if qs.number == i %}
+                                         <li class="page-item active"><a class="page-link">{{ i }}</a></li>
+                                       {% else %}
+                                         <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                                       {% endif %}
+                                     {% endfor %}
+                                 {% endif %}
+             
+                                 {% if qs.has_next %}
+                                   <li class="page-item"><a class="page-link" href="?page={{ qs.next_page_number }}">{% trans 'Next' %}</a></li>
+                                 {% else %}
+                                   <li class="page-item disabled"><a class="page-link">{% trans 'Next' %}</a></li>
+                                 {% endif %}
+                               </ul>
+                             </nav>
+                         </div>
+                     </div>
                 
                 </div>
                 
                 {% if list_filter %}
-                <div class="col-md-3 col-xs-12">
+                <div class="col-md-3 col-sm-12 col-xs-12">
                     <div class="card">
                         <div class="card-body">
                             <div class="card-title row">
@@ -175,14 +198,7 @@
                                     <h3 class="mb-0">{% trans 'Filter' %}</h3>
                                 </div>
                                 <div class="col text-end">
-                                    <div class="row">
-                                        <div class="col-6">
-                                            <button form="filter-form" class="btn btn-warning">Reset</button>
-                                        </div>
-                                        <div class="col-6">
-                                            <button type="submit" form="filter-form"  class="btn btn-primary">Filter</button>
-                                        </div>
-                                    </div>
+                                    <button type="submit" form="filter-form"  class="btn btn-primary btn-sm">Filtre</button>
                                 </div>
                             </div>
                             <hr>
@@ -195,45 +211,11 @@
                 {% endif %}
             </div>
         </div>
-        
-        <div class="card">
-           <div class="card-body text-center">
-                <nav aria-label="Page navigation example">
-                  <ul class="pagination justify-content-center mb-0">
-                    {% if qs.has_previous %}
-                        <li class="page-item"><a class="page-link" href="?page={{ qs.previous_page_number }}">{% trans 'Prev' %}</a></li>
-                    {% else %}
-                        <li class="page-item disabled"><a class="page-link">{% trans 'Prev' %}</a></li>
-                    {% endif %}
-
-                    {% if qs.page > 10 %}
-                        {% for i in qs.paginator.page_range %}
-                          {% if qs.number == i %}
-                            <li class="page-item active"><a class="page-link">{{ i }}</a></li>
-                          {% else %}
-                            <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
-                          {% endif %}
-                        {% endfor %}
-                    {% endif %}
-
-                    {% if qs.has_next %}
-                      <li class="page-item"><a class="page-link" href="?page={{ qs.next_page_number }}">{% trans 'Next' %}</a></li>
-                    {% else %}
-                      <li class="page-item disabled"><a class="page-link">{% trans 'Next' %}</a></li>
-                    {% endif %}
-                  </ul>
-                </nav>
-            </div>
-        </div>
     </section>
 </div>
 
 {% if obj.status == 'PROGRESS' %}
-<script>
-    setTimeout(function(){
-        window.location.reload(1);
-     }, 5000);
-</script>
+<script>setTimeout(() => window.location.reload(1), 5000)</script>
 {% endif %}
 
 {% endblock %}

@@ -33,7 +33,7 @@ class Employee(Base):
     MARITAl_STATUS = (('Maried', _('Marié')), ('Single', _('Célibataire')), ('Widower', _('Veuf')))
     PAYMENT_METHODS = (('Cash', _('Cash')), ('Bank', _('Bank')), ('Mobile Money', _('Mobile Money')))
 
-    registration_number = models.CharField(_('matricule'), max_length=50, unique=True)
+    registration_number = models.CharField(_('matricule'), max_length=50, unique=True, db_index=True, primary_key=True)
     social_security_number = models.CharField(_('numéro de sécurité sociale'), max_length=50, blank=True, null=True, default=None)
     
     agreement = ModelSelect(Agreement, verbose_name=_('type de contrat'), on_delete=models.CASCADE)
@@ -137,7 +137,7 @@ class Employee(Base):
         return self.short_name()
     
     def get_absolute_url(self):
-        return reverse_lazy("employee:change", kwargs={"pk": self.pk})
+        return reverse_lazy("employee:change", kwargs={"pk": self.registration_number})
     
     # To Do : Improve this method to filter according to range of period
     def attendances(self, period=None):
@@ -165,3 +165,4 @@ class Employee(Base):
     class Meta:
         verbose_name = _('employé')
         verbose_name_plural = _('employés')
+        ordering = ('registration_number',)

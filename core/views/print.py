@@ -15,7 +15,7 @@ class Print(BaseView):
         obj = get_object_or_404(model, id=pk)
 
         if not obj.template:
-            messages.error(request, _('Impossible de trouver le modèle du document'))
+            messages.warning(request, _('Impossible de trouver le modèle du document'))
             return redirect(request.META.get('HTTP_REFERER'))
 
         template = Template(obj.template.content)

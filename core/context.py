@@ -1,11 +1,10 @@
 from django.utils.translation import gettext as _
-from core.models import Organization
 from django.urls import reverse_lazy
 from core.models import Menu
 
 
 def base(request):
-    if not request.user.is_authenticated: return {'organization':Organization.objects.first()}
+    if not request.user.is_authenticated: return {'organization': request.organization}
     modules = Menu.objects.all().order_by('created_at')
     
     menu = [{
@@ -41,6 +40,10 @@ def base(request):
         'children': [item for item in [{
             'title': _('Menus'),
             'href': reverse_lazy('core:list', kwargs={'app': 'core', 'model': 'menu'}),
+            'permission': 'core.view_menu'
+        }, {
+            'title': _('Importeur'),
+            'href': reverse_lazy('core:list', kwargs={'app': 'core', 'model': 'importer'}),
             'permission': 'core.view_menu'
         }, {
             'title': _('Modèle de document'),
@@ -81,7 +84,7 @@ def base(request):
             'href': reverse_lazy('logout')
         }]
     }))
-    return {'menus': menu, 'organization': Organization.objects.first()}
+    return {'menus': menu, 'organization': request.organization}
 
 def action_required(request):
     if not request.user.is_authenticated: return {}

@@ -1,6 +1,6 @@
 from django.shortcuts import redirect, reverse, get_object_or_404
 from django.utils.translation import gettext as _
-from django.contrib import messages
+from django.shortcuts import HttpResponse
 from core.views import BaseView
 
 from payroll.models import *
@@ -11,6 +11,15 @@ class Sheet(BaseView):
     def get(self, request, pk):
         obj = get_object_or_404(Payroll, id=pk)
         group_by = request.GET.get('group_by', None)
-        sheet.delay(obj.id, request.user.id, group_by)
-        messages.success(request, _('Votre demande a été programmé, nous vous préviendrons lorsque votre feuille sera prête.'))
-        return redirect(request.META.get('HTTP_REFERER', reverse('payroll:payslips', args=[obj.pk])))
+
+        output = io.BytesIO()
+        df = pd.read_json(json.dumps(obj.sheet()))
+        df = df.groupby(group_by) if group_by else df
+
+        response = HttpResponse(content_type='application/xlsx')
+        response['Content-Disposition'] = f'attachment; filename="sheet_{group_by if group_by else 'global'}.xlsx"'
+
+        with pd.ExcelWriter(response) as writer:
+            [group.to_excel(writer, sheet_name=slugify(str(row)), index=False) 
+                for row, group in df] if group_by else df.to_excel(writer, index=False)
+        return response

@@ -4,5 +4,5 @@ from employee.views import *
 app_name = 'employee'
 
 urlpatterns = [
-    path('change/<int:pk>', Employee.as_view(), name='change'),
+    path('change/<str:pk>', Employee.as_view(), name='change'),
 ]

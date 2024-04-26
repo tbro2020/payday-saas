@@ -24,19 +24,21 @@ class Synthesis(BaseView):
         obj = get_object_or_404(Payroll, id=pk)
 
         groupby, branches = dict(), self.branches
-        qs = obj.payslip_set.select_related().all()
-
-        items = PayItem.objects.filter(payslip__payroll=obj).values('code', 'name').distinct()
+        items = ItemPaid.objects \
+                    .exclude(amount_qp_employee=0) \
+                    .filter(payslip__payroll=obj).values('code', 'name').distinct()
         
         for item in items:
             group = item.get('name')
             if group not in groupby: groupby[group] = {}
             
-            _obj = PayItem.objects.filter(payslip__payroll=obj, code=item.get('code', None))
-            groupby[group]['AGENT'] = _obj.count()
+            paid = ItemPaid.objects.filter(payslip__payroll=obj, code=item.get('code', None))
+            groupby[group]['AGENT'] = paid.count()
 
             for branch in branches:
-                amount = _obj.filter(payslip__employee__branch_id=branch.get('id')).aggregate(amount=Sum('amount')).get('amount', 0)
+                amount = paid.filter(payslip__employee__branch_id=branch.get('id')) \
+                            .aggregate(amount=Sum('amount_qp_employee')).get('amount', 0)
+                if amount == 0.0: continue
                 groupby[group][branch.get('name')] = round(amount or 0.0, 2)
             groupby[group]['TOTAL'] = round(sum([o for o in groupby[group].values()]) or 0.0, 2)
 

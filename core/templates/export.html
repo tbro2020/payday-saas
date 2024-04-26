@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% load core %}
+{% load i18n %}
+{% load static %}
+{% load mathfilters %}
+{% load crispy_forms_filters %}
+
+{% block content %}
+<div class="page-heading mb-4">
+    <div class="col mb-3">
+        <div class="row">
+            <div class="col text-start">
+                <h3 class="m-0">{% trans 'Exporter' %} {{ model|getattr:'_meta'|getattr:'verbose_name'|title }}</h3>
+                {% include 'components/breadcrumb.html' %}
+            </div>
+
+            <div class="col text-end">
+                <a href="{% url 'core:list' app model|getattr:'_meta'|getattr:'model_name' %}" class="btn btn-danger">{% trans 'Annuler' %}</a>
+                <button type="submit" form="form-{{ model|getattr:'_meta'|getattr:'model_name' }}" class="btn btn-success">{% trans 'Exporter' %}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-content">
+    <section>
+        <div class="card">
+            <div class="card-body">
+                <h6>{% trans "Veuillez sélectionner le champ que vous souhaitez voir figurer dans le rapport" %}</h6>
+
+                <form method="post" id="form-{{ model|getattr:'_meta'|getattr:'model_name' }}">
+                    {% csrf_token %}
+                    <ol>
+                        {% for field in model|getattr:'_meta'|getattr:'fields' %}
+                            <li>
+                                {% if field.get_internal_type == 'ModelSelect' %}
+                                    <ol>
+                                        <li><h6>{{ field.verbose_name|title }}</h6></li>
+                                        {% for subfield in field|getattr:'remote_field'|getattr:'model'|getattr:'_meta'|getattr:'fields' %}
+                                        <li>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="{{ field.name }}__{{ subfield }}" id="{{ field.name }}__{{ subfield }}">
+                                                <label class="form-check-label" for="{{ field.name }}__{{ subfield }}"> {{ subfield.verbose_name|title }} </label>
+                                            </div>
+                                        </li>
+                                        {% endfor %}
+                                    </ol>
+                                {% else %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="{{ field.name }}" id="{{ field.name }}">
+                                    <label class="form-check-label" for="{{ field.name }}"> {{ field.verbose_name|title }} </label>
+                                </div>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ol>
+                </form>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

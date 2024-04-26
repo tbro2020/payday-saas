@@ -10,13 +10,14 @@ from payroll import models
 
 class Payslip(BaseView):
     payer = Payer()
-    
+    template_name = "payroll/payslip.html"
+
     def get(self, request, pk):
         payslip = models.Payslip
         obj = get_object_or_404(payslip, pk=pk)
-        items = obj.payitem_set.all().order_by('code')
+        items = obj.itempaid_set.all().order_by('code')
 
-        form = modelform_factory(models.PayItem, fields='__all__')
+        form = modelform_factory(models.ItemPaid, fields='__all__')
         form = form()
 
         return render(request, 'payroll/payslip.html', locals())
@@ -24,15 +25,26 @@ class Payslip(BaseView):
     def post(self, request, pk):
         payslip = models.Payslip
         obj = get_object_or_404(payslip, pk=pk)
-        items = obj.payitem_set.all().order_by('code')
+        items = obj.itempaid_set.all().order_by('code')
 
-        fields = ['type_of_item', 'code', 'name', 'amount', 'taxable_amount', 'social_security_amount']
-        form = modelform_factory(models.PayItem, fields=fields)
+        fields = [
+            'type_of_item', 
+            'code', 
+            'name', 
+            
+            'amount_qp_employee', 
+            'amount_qp_employer', 
+            
+            'taxable_amount', 
+            'social_security_amount'
+        ]
+        
+        form = modelform_factory(models.ItemPaid, fields=fields)
         form = form(request.POST)
 
         if not form.is_valid():
             messages.add_message(request, messages.WARNING, message=_(f'Remplissez correctement le formulaire'))
-            return render(request, 'payroll/payslip.html', locals())
+            return render(request, self.template_name, locals())
 
         instance = form.save(commit=False)
         instance.amount = abs(instance.amount) * instance.type_of_item

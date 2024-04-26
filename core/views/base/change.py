@@ -19,7 +19,7 @@ class Change(BaseView):
 
     def get(self, request, app, model, pk):
         model = apps.get_model(app, model_name=model)
-        obj = get_object_or_404(model, pk=pk)
+        obj = get_object_or_404(model, **{model._meta.pk.name: pk})
         
         fields = getattr(model, 'layout', '__all__')
         fields = [field.name for field in fields.get_field_names()] if isinstance(fields, Layout) else fields

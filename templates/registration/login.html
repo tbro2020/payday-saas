@@ -20,6 +20,18 @@
     <form method="post">
         {% csrf_token %}
 
+        {% if form.errors %}
+          <div class="alert alert-light-danger fw-bold mb-1 mt-0" role="alert">
+            {% trans 'Username/Email or password incorrect' %}
+          </div>
+        {% endif %}
+
+        {% for message in messages %}
+        <div class="alert alert-light-info fw-bold mb-2 mt-0" role="alert">
+          {{ message }}
+        </div>
+        {% endfor %}
+
         {% for field in form.visible_fields %}
         <div class="form-group position-relative has-icon-left mb-4">
               {% if form.is_bound %}

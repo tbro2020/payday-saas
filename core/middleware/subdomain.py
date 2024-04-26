@@ -22,4 +22,8 @@ class SubdomainMiddleware:
         request.subdomain = self.subdomain(request)
         request.organization = self.organization(request.subdomain)
 
+        # if non sub domain redirect to the page of create new organization
+        if request.organization == None and request.path != reverse_lazy('core:create-organization'):
+            return redirect(reverse_lazy('core:create-organization')+"?next="+request.path)
+
         return self.get_response(request)

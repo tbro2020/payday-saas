@@ -1,6 +1,6 @@
-from .duty_item import DutyItem
+from .legal_item import LegalItem
 from .item import Item
 
-from .pay_item import PayItem
-from .payroll import Payroll
+from .payroll import Payroll, PayrollStatus
+from .item_paid import ItemPaid
 from .payslip import Payslip

@@ -12,28 +12,8 @@
       <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
       
       <title>Listing</title>
-      
-      <style>
-        .watermark{
-            z-index: -1 !important;
-            position: fixed !important;
-            top: 50% !important;
-            left: 50% !important;
-            color:  rgba(0,0,0, 0.1) !important;
-            transform: rotate(-45deg);
-        }
-        .watermark-title-text{
-            font-size: 3.5rem !important;
-        }
-      </style>
    </head>
    <body>
-   
-    {% if not obj.approved %}
-    <div class="watermark">
-        <h1 class="watermark-title-text">{% trans 'Unapproved' %}</h1>
-    </div>
-    {% endif %}
    
     <div class="container-fluid">
     
@@ -65,10 +45,15 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <td>#</td>
-                        <td>{% trans 'Registration number' %}</td>
-                        <td>{% trans 'Full name' %}</td>
-                        <td>{{ item }}</td>
+                        <th>#</th>
+                        <th>{% trans 'Registration number' %}</th>
+                        <th>{% trans 'Full name' %}</th>
+                        <th colspan="2">{{ item }}</th>
+                    </tr>
+                    <tr>
+                        <th colspan="3"></th>
+                        <th>QPE</th>
+                        <th>QPP</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -77,9 +62,8 @@
                         <td>{{ forloop.counter }}</td>
                         <td>{{ obj.registration_number }}</td>
                         <td>{{ obj.full_name }}</td>
-                        <td>
-                            {{ obj.amount|intcomma }}
-                        </td>
+                        <td>{{ obj.amount_qp_employee|intcomma }}</td>
+                        <td>{{ obj.amount_qp_employer|intcomma }}</td>
                     </tr>
                     {% endfor %}
                     <tr>
@@ -91,9 +75,8 @@
                             <h5>{{ qs|length }} {% trans 'Employees' %}</h5>
                         </td>
 
-                        <td>
-                            <h5>{{ total|intcomma }}</h5>
-                        </td>
+                        <td><h5>{{ total.amount_qp_employee|intcomma }}</h5></td>
+                        <td><h5>{{ total.amount_qp_employer|intcomma }}</h5></td>
                     </tr>
                 </tbody>
             </table>

@@ -9,29 +9,21 @@ from payday.celery import app
 
 class Payer(Task):
     errors = []
+    name = 'payer'
     ignore_result = True
-    name = 'payday.payroll.payer.Payer'
 
-    items = Item.objects.all()
-    duty_items = DutyItem.objects.all()
+    legal_items = LegalItem.objects.all()
+    items = Item.objects.filter(is_payable=True)
     employees = Employee.objects.select_related().all()
 
     def run(self, payroll, *args, **kwargs):
-        if not isinstance(payroll, Payroll):
-            payroll = get_object_or_404(Payroll, pk=payroll)
-        self.payroll = payroll
-
-        # fetch employees
-        employees = self.payroll.metadata.get('employee', {})
-        self.employees = self.employees.filter(**employees)
-        self.employees = self.employees.filter(**kwargs.get('employee', {}))
+        self.payroll = get_object_or_404(Payroll, pk=payroll)
         
         payroll_employee_filter = {
-            'grade__in': self.payroll.grade.all(),
-            'branch__in': self.payroll.branch.all(),
-            'direction__in': self.payroll.direction.all(),
-            #'payer_name__in': self.payroll.payer_name.all(),
-            #'status__in': self.payroll.employee_status.all()
+            'grade__in': self.payroll.employee_grade.all(),
+            'status__in': self.payroll.employee_status.all(),
+            'branch__in': self.payroll.employee_branch.all(),
+            'direction__in': self.payroll.employee_direction.all()
         }
         
         self.employees = self.employees.filter(**{key:value for key, value in payroll_employee_filter.items() if value})
@@ -44,13 +36,16 @@ class Payer(Task):
                 self._duty(payslip)
             overall_net = self.payroll.payslip_set.all().aggregate(amount=Sum('net')).get('amount', 0)
             self.payroll.overall_net = round(overall_net, 2) if overall_net else 0
-            self.payroll.status = 'SUCCESS'
+            self.payroll.status = PayrollStatus.SUCCESS
             self.payroll.save()
+            # send email that the payroll is done
+
         except Exception as ex:
-            self.payroll.status = 'WARNING'
+            self.payroll.status = PayrollStatus.WARNING
             self.payroll.metadata['errors'].append({'message': str(ex), 'tag': 'error'})
             self.payroll.created_by.email_user(_(f"Il semble que quelque chose n'a pas fonctionné dans votre système de paie {self.payroll.name}"), str(ex))
             self.payroll.save()
+            # generate error
 
     def _payslip(self, employee: Employee):
         pay_items = []
@@ -59,30 +54,48 @@ class Payer(Task):
         for item in self.items:
             condition = eval(item.condition, locals())
             if not condition: continue
-
             time = eval(item.time, locals())
-            amount = round(eval(item.formula, locals()), 2)
-            amount = abs(amount) * item.type_of_item
-            if amount == 0: continue
 
-            rate = (amount / time) if time > 0 else amount
+            # formula qp employee
+            formula_qp_employee = round(eval(item.formula_qp_employee, locals()), 2)
+            formula_qp_employee = abs(formula_qp_employee) * item.type_of_item
+
+            # formula qp employer
+            formula_qp_employer = round(eval(item.formula_qp_employer, locals()), 2)
+            formula_qp_employer = abs(formula_qp_employer) * item.type_of_item
+
+            if formula_qp_employee == 0 and formula_qp_employer: continue
+
+            rate = (formula_qp_employee / time) if time > 0 else formula_qp_employee
             rate = round(abs(rate), 2)
 
-            pay_item: PayItem = PayItem.objects.create(
-                **{'code': item.code, 'type_of_item': item.type_of_item, 
-                   'name': item.name, 'time': time, 'rate': rate,
-                   'amount': amount, 'taxable_amount': amount if item.is_taxable else 0,
-                   'social_security_amount': amount if item.is_social_security else 0, 'payslip': payslip})
+            # Generate item paid
+            pay_item: ItemPaid = ItemPaid.objects.create(
+                **{'code': item.code, 
+                    'type_of_item': item.type_of_item, 
+
+                    'name': item.name, 
+                    'time': time, 
+                    'rate': rate,
+
+                    'amount_qp_employer': formula_qp_employer, 
+                    'amount_qp_employee': formula_qp_employee, 
+
+                    'taxable_amount': formula_qp_employee if item.is_taxable else 0,
+                    'social_security_amount': formula_qp_employee if item.is_social_security else 0,
+                    
+                    'payslip': payslip})
             pay_items.append(pay_item)
 
         if not created:
-            payslip.payitem_set.filter(code__in=[item.code for item in pay_items]).delete()
+            payslip.itempaid_set.filter(code__in=[item.code for item in pay_items]).delete()
 
         # Calculate the fixed value
-        payslip.net = round(payslip.payitem_set.all().aggregate(amount=Sum('amount')).get('amount', 0), 2)
-        payslip.gross = round(payslip.payitem_set.all().aggregate(amount=Sum('amount')).get('amount', 0), 2)
-        payslip.taxable_gross = round(payslip.payitem_set.all().aggregate(amount=Sum('taxable_amount')).get('amount', 0), 2)
-        payslip.social_security_threshold = round(payslip.payitem_set.all().aggregate(amount=Sum('social_security_amount')).get('amount', 0), 2)
+        payslip.net = round(payslip.itempaid_set.all().aggregate(amount=Sum('amount_qp_employee')).get('amount', 0), 2)
+        payslip.gross = round(payslip.itempaid_set.all().aggregate(amount=Sum('amount_qp_employee')).get('amount', 0), 2)
+
+        payslip.taxable_gross = round(payslip.itempaid_set.all().aggregate(amount=Sum('taxable_amount')).get('amount', 0), 2)
+        payslip.social_security_threshold = round(payslip.itempaid_set.all().aggregate(amount=Sum('social_security_amount')).get('amount', 0), 2)
         payslip.save()
 
         return payslip
@@ -90,30 +103,40 @@ class Payer(Task):
     def _duty(self, payslip: Payslip):
         pay_items = []
 
-        for duty in self.duty_items:
-            print(duty)
-            condition = eval(duty.condition, locals())
+        for legal in self.legal_items:
+            condition = eval(legal.condition, locals())
             if not condition: continue
 
-            time = eval(duty.time)
+            # formula qp employee
+            formula_qp_employee = round(eval(legal.formula_qp_employee, locals()), 2)
+            formula_qp_employee = abs(formula_qp_employee) * legal.type_of_item
 
-            amount = round(eval(duty.formula, locals()), 2)
-            amount = abs(amount) * duty.type_of_item
+            # formula qp employer
+            formula_qp_employer = round(eval(legal.formula_qp_employer, locals()), 2)
+            formula_qp_employer = abs(formula_qp_employer) * legal.type_of_item
 
-            pay_item: PayItem = PayItem.objects.create(**{
-                'code': duty.code, 'type_of_item': duty.type_of_item, 
-                'name': duty.name, 'time': time, 'amount': amount, 'payslip': payslip})
+            pay_item: ItemPaid = ItemPaid.objects.create(**{
+                'code': legal.code, 
+                'name': legal.name,
+                'type_of_item': legal.type_of_item, 
+        
+                'amount_qp_employer': formula_qp_employer, 
+                'amount_qp_employee': formula_qp_employee, 
+
+                'payslip': payslip})
             pay_items.append(pay_item)
 
         # Calculate the fixed value
-        payslip.net = round(payslip.payitem_set.all().aggregate(amount=Sum('amount')).get('amount', 0), 2)
-        payslip.gross = round(payslip.payitem_set.all().aggregate(amount=Sum('amount')).get('amount', 0), 2)
-        payslip.taxable_gross = round(payslip.payitem_set.all().aggregate(amount=Sum('taxable_amount')).get('amount', 0), 2)
-        payslip.social_security_threshold = round(payslip.payitem_set.all().aggregate(amount=Sum('social_security_amount')).get('amount', 0), 2)
+        payslip.net = round(payslip.itempaid_set.all().aggregate(amount=Sum('amount_qp_employee')).get('amount', 0), 2)
+        payslip.gross = round(payslip.itempaid_set.all().aggregate(amount=Sum('amount_qp_employee')).get('amount', 0), 2)
+
+        payslip.taxable_gross = round(payslip.itempaid_set.all().aggregate(amount=Sum('taxable_amount')).get('amount', 0), 2)
+        payslip.social_security_threshold = round(payslip.itempaid_set.all().aggregate(amount=Sum('social_security_amount')).get('amount', 0), 2)
+        
         payslip.save()
         return payslip
 
-    def _ipr(self, payslip, **kwargs):
+    def tax(self, payslip, **kwargs):
         tranches = {
             0.03: [0, 162000],
             0.15: [162001, 1800000],

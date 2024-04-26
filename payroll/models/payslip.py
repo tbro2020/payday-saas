@@ -18,6 +18,7 @@ class Payslip(Base):
 
     list_filter = ('employee__branch', 'employee__grade', 'employee__designation', 'employee__payment_method', 'employee__payer_name', 'employee__status')
     search_fields = ['employee__registration_number', 'employee__first_name', 'employee__middle_name', 'employee__last_name']
+    list_display = ('id', 'employee', 'gross', 'taxable_gross', 'net')
 
     @property
     def name(self):

@@ -18,7 +18,23 @@
                 </div>
 
                 <div class="col text-end">
-                    <a href="{% url 'core:create' app model|getattr:'_meta'|getattr:'model_name' %}" class="btn btn-light-success">{% trans 'Créer' %}</a>
+
+                    <div class="btn-group mb-1">
+                        <div class="dropdown">
+                            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Action(s)
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <a class="dropdown-item btn-list-action" data-href="#">Suprimer(s)</a>
+                                {% for action in model.list_actions %}
+                                    <a class="dropdown-item btn-list-action" data-href="#">{{ action.title }}</a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <a href="{% url 'core:create' app model|getattr:'_meta'|getattr:'model_name' %}" class="btn btn-light-success">{% trans 'Ajouter' %}</a>
+                        <a href="{% url 'core:exporter' app model|getattr:'_meta'|getattr:'model_name' %}" class="btn btn-light-primary">{% trans 'Exporter' %}</a>
+                    </div>
+                    
                 </div>
             </div>
         </div>
@@ -41,6 +57,7 @@
                         <table class="table table-striped">
                             <thead>
                                 <tr class="text-uppercase">
+                                    <th><input type="checkbox" class="form-check-input" id="check-all-id"/></th>
                                     {% for field in list_display %}
                                         <th>{{ field.verbose_name }}</th>
                                     {% empty %}
@@ -53,6 +70,7 @@
                             <tbody>
                                 {% for obj in qs %}
                                 <tr data-id="{{ obj.id }}">
+                                    <td><input type="checkbox" class="form-check-input" value="{{ obj.id }}" /></td>
                                     {% for field in list_display %}
                                         {% if field.get_internal_type == 'FloatField' %}
                                             <td>{{ obj|getattr:field.name|intcomma|default:'-' }}</td>
@@ -112,7 +130,7 @@
         </div>
         
         {% if list_filter %}
-        <div class="col-3">
+        <div class="col-md-3 col-sm-12">
             <div class="card">
                 <div class="card-body">
                     <div class="card-title row">
@@ -137,4 +155,22 @@
         {% endif %}
     </div>
 </div>
+
+<script>
+    $(function() {
+        $("#check-all-id").change(function() {
+            let value = $(this).is(":checked");
+            $("input[type='checkbox']").attr("checked", value);
+        });
+
+        $(".btn-list-action").click(function(){
+            let checked = $('input:checked').map((_, el) => el.value).get();
+            if(checked.length == 0) return;
+
+            let url = $(this).data('href');
+            alert(url);
+        });
+    });
+</script>
+
 {% endblock %}

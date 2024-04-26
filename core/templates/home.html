@@ -4,20 +4,35 @@
 {% load static %}
 
 {% block content %}
+{% load static slick_reporting_tags %}
 {% get_current_language as LANGUAGE_CODE %}
+
 <script src="{% static 'assets/extensions/apexcharts/apexcharts.min.js' %}"></script>
 
 <div class="page-content">
     <div class="row">
-        {% for widget in widgets %}
-            <div class="{{ widget.column }}">
-                <div class="card">
-                    {{ widget.render|safe }}
+        <div class="col-3">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Employee(s)</h4>
+                </div>
+                <div class="card-body text-center">
+                    <h4 class="fw-bolder">10000</h4>
+                    <hr />
+                    <h6 class="text-primary">5,123,123 FC</h6>
                 </div>
             </div>
-        {% empty %}
-            <h4 class="text-center">{% trans "Aucun widget trouver" %}</h4>
-        {% endfor %}
+        </div>
+    </div>
+    
+    <div class="col">
+        <div class="div-holder">
+            {% get_widget_from_url url_name="core:report" %}
+        </div>
+        {% block extrajs %}
+            {% include "slick_reporting/js_resources.html" %}
+            {% get_charts_media "all" %}
+        {% endblock %}
     </div>
 </div>
 {% endblock %}

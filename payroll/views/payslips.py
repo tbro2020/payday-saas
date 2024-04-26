@@ -8,32 +8,31 @@ from employee.models import Employee
 from payroll.models import *
 
 class Payslips(BaseView):
+    template_name = 'payroll/payslips.html'
     
     def sheet_fields(self):
         return [field for field in Employee._meta.fields if field.name == 'payer_name' or
                                                             field.choices or field.get_internal_type() == 'ModelSelect']
     
     def duties(self):
-        return DutyItem.objects.values('name', 'pk')
+        return ItemPaid.objects.values('name', 'pk')
     
     def items(self):
-        return Item.objects.filter(Q(is_taxable=True)
-                                   |Q(is_social_security=True)).values('name', 'pk')
+        return Item.objects.filter(Q(is_taxable=True) | Q(is_social_security=True)).values('name', 'pk')
     
     def get(self, request, pk):
-        app = 'payroll'
-        model = Payroll
-        
+        app, model = 'payroll', Payroll
+
         obj = get_object_or_404(Payroll, id=pk)
         qs = Payslip.objects.filter(payroll=obj)
         count = qs.count()
         
         list_filter = getattr(Payslip, 'list_filter', [])
+
         qs_filter = filter_set_factory(Payslip, fields=list_filter)
-        qs_filter = qs_filter(request.GET, queryset=qs)
-        qs = qs_filter.qs
+        qs = qs_filter(request.GET, queryset=qs).qs
         
         paginator = Paginator(qs, 25)
         qs = paginator.page(int(request.GET.dict().get('page', 1)))
         
-        return render(request, 'payroll/payslips.html', locals())
+        return render(request, self.template_name, locals())
