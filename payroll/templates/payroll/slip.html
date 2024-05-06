@@ -87,7 +87,7 @@
 
 
             <div class="row">
-                {% with obj.payitem_set.all as items %}
+                {% with obj.itempaid_set.all as items %}
                 <div class="col">
                     <table class="table table-striped table-hover">
                         <thead>
@@ -107,7 +107,7 @@
                                     <td>{{ item.name }}</td>
                                     <td>{{ item.rate }}</td>
                                     <td>{{ item.time }}</td>
-                                    <td>{{ item.amount }}</td>
+                                    <td>{{ item.amount_qp_employee }}</td>
                                 </tr>
                                 {% endif %}
                             {% endfor %}
@@ -126,11 +126,11 @@
                         </thead>
                         <tbody>
                             {% for item in items %}
-                                {% if item.type_of_item == -1 %}
+                                {% if item.type_of_item == -1 and item.amount_qp_employee != 0 %}
                                 <tr>
                                     <td>{{ item.code }}</td>
-                                    <td>{{ item.element }}</td>
-                                    <td>{{ item.amount|default:0|abs|floatformat:"0"|intcomma }}</td>
+                                    <td>{{ item.name }}</td>
+                                    <td>{{ item.amount_qp_employee|default:0|abs|floatformat:"0"|intcomma }}</td>
                                 </tr>
                                 {% endif %}
                             {% endfor %}

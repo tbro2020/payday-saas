@@ -2,26 +2,22 @@ from django.utils.translation import gettext as _
 from django.shortcuts import render
 from .base import BaseView
 
-from core.models import Widget
+from django.db.models import Sum
+from employee.models import *
+from payroll.models import *
 from datetime import date
-
 
 
 class Home(BaseView):
     today = date.today()
 
     def get(self, request):
-        permissions = [permission.split('.')[-1] for permission in request.user.get_all_permissions()]
-        widgets = Widget.objects.filter(permissions__codename__in=permissions).distinct().order_by('id')
-        
-        from django.db.models import Count
-        from django.apps import apps
-        from datetime import date
+        employees = Employee.objects.all()
+        itempaid = ItemPaid.objects.filter(created_at__year=self.today.year)
+        payrolls = Payroll.objects.filter(created_at__year=self.today.year)
+        at_this_day = payrolls.aggregate(total=Sum('overall_net'))
 
-        attendances = apps.get_model('employee', 'attendance')
-        attendances = attendances.objects.filter(date__year=date.today().year)
-        attendances = attendances.filter(direction='OUT').values('employee', 'date')
-        attendances = list(attendances.values('date').annotate(count=Count('employee')))
-        print(attendances)
-        
+        ipr = itempaid.filter(name__icontains='ipr').aggregate(total=Sum('amount_qp_employee'))
+        cnss = itempaid.filter(name__icontains='cnss').aggregate(total=Sum('amount_qp_employer'))
+
         return render(request, "home.html", locals())

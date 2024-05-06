@@ -76,7 +76,13 @@
                         </div>
                     </span>
 
-                    <a href="#" class="btn btn-light-success">{% trans 'Envoyer les fiches de paie par email' %}</a>
+                    {% if obj.approved or not obj.approvers.all %}
+                        <a href="#" class="btn btn-light-success">{% trans 'Envoyer par e-mail à tous' %}</a>
+                    {% else %}
+                        {% if request.user in obj.approvers.all %}
+                            <a href="#" class="btn btn-danger">{% trans 'Approuver' %}</a>
+                        {% endif %}
+                    {% endif %}
                     <a href="{% url 'core:delete' app model|getattr:'_meta'|getattr:'model_name' obj.pk %}" class="btn btn-light-danger">{% trans 'Supprimer' %}</a>
                 </div>
             </div>
@@ -115,6 +121,19 @@
                 </div>
             </div>
         </div>
+
+        {% if obj.approvers.all %}
+        <div class="card">
+            <div class="card-body">
+                <h4>{% trans "Approbateur(s)" %}</h4>
+                <ul>
+                    {% for approver in obj.approvers.all %}
+                        <li>{{ approver }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
         
         <div class="col">
             <div class="row">

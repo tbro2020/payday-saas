@@ -31,7 +31,10 @@ class Payroll(Base):
     status = models.CharField(_('status'), max_length=25, choices=PayrollStatus, default=PayrollStatus.PROGRESS, editable=False)
     overall_net = models.FloatField(_('net global'), blank=True, default=0, editable=False)
     
-    list_display = ('id', 'name', 'start_dt', 'end_dt', 'overall_net', 'status')
+    approvers = ModelSelect2Multiple('core.user', verbose_name=_('approbateurs'))
+    approved = models.BooleanField(verbose_name=_('approuvé'), default=False)
+    
+    list_display = ('id', 'name', 'start_dt', 'end_dt', 'overall_net', 'status', 'approved')
     list_filter = ('start_dt', 'end_dt')
 
     list_actions = [
@@ -42,6 +45,7 @@ class Payroll(Base):
 
     layout = Layout(
         'name',
+        'approvers',
         Row(Column('start_dt'), Column('end_dt')),
         Fieldset(
             _('Employees'),

@@ -2,6 +2,7 @@
 
 {% load i18n %}
 {% load static %}
+{% load mathfilters %}
 
 {% block content %}
 {% load static slick_reporting_tags %}
@@ -17,22 +18,60 @@
                     <h4>Employee(s)</h4>
                 </div>
                 <div class="card-body text-center">
-                    <h4 class="fw-bolder">10000</h4>
-                    <hr />
-                    <h6 class="text-primary">5,123,123 FC</h6>
+                    <h4 class="fw-bolder">{{ employees.count }}</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h4>À ce jour</h4>
+                </div>
+                <div class="card-body text-center">
+                    <div class="row">
+                        <div class="col text-center">
+                            Total net payé 
+                            <h3>{{ at_this_day.total }}</h3>
+                        </div>
+                        <div class="col">
+                            IPR / QPE
+                            <h3>{{ ipr.total|abs }}</h3>
+                        </div>
+                        <div class="col">
+                            Total CNSS
+                            <h3>{{ cnss.total|abs }}</h3>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
     
-    <div class="col">
-        <div class="div-holder">
-            {% get_widget_from_url url_name="core:report" %}
+    <div class="row">
+        <div class="col-6">
+            <div class="col">
+                <div class="div-holder">
+                    {% get_widget_from_url url_name="core:report" %}
+                </div>
+            </div>
         </div>
-        {% block extrajs %}
-            {% include "slick_reporting/js_resources.html" %}
-            {% get_charts_media "all" %}
-        {% endblock %}
+        <div class="col-6">
+            <div class="col">
+                <div class="div-holder">
+                    {% get_widget_from_url url_name="payroll:report-item-paid" %}
+                </div>
+            </div>
+        </div>
     </div>
+    {% block extrajs %}
+        {% include "slick_reporting/js_resources.html" %}
+        {% get_charts_media "all" %}
+    {% endblock %}
 </div>
+
+<script>
+
+    
+</script>
 {% endblock %}
