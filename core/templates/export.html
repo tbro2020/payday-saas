@@ -40,8 +40,8 @@
                                         {% for subfield in field|getattr:'remote_field'|getattr:'model'|getattr:'_meta'|getattr:'fields' %}
                                         <li>
                                             <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" name="{{ field.name }}__{{ subfield }}" id="{{ field.name }}__{{ subfield }}">
-                                                <label class="form-check-label" for="{{ field.name }}__{{ subfield }}"> {{ subfield.verbose_name|title }} </label>
+                                                <input class="form-check-input" type="checkbox" name="{{ field.name }}__{{ subfield.name }}" id="{{ field.name }}__{{ subfield.name }}">
+                                                <label class="form-check-label" for="{{ field.name }}__{{ subfield.name }}"> {{ subfield.verbose_name|title }} </label>
                                             </div>
                                         </li>
                                         {% endfor %}

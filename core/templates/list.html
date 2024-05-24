@@ -74,6 +74,14 @@
                                     {% for field in list_display %}
                                         {% if field.get_internal_type == 'FloatField' %}
                                             <td>{{ obj|getattr:field.name|intcomma|default:'-' }}</td>
+                                        {% elif field.get_internal_type == 'BooleanField' %}
+                                            <td>
+                                                {% if obj|getattr:field.name %}
+                                                    <i class="bi bi-check-circle-fill text-success"></i>
+                                                {% else %}
+                                                    <i class="bi bi-slash-circle-fill text-danger"></i>
+                                                {% endif %}
+                                            </td>
                                         {% else %}
                                             <td>{{ obj|getattr:field.name|default:'-' }}</td>
                                         {% endif %}

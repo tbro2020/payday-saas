@@ -4,6 +4,9 @@ from dal import autocomplete
 
 
 class ModelSelect(models.ForeignKey):
+    on_delete = models.SET_NULL
+    null = True
+    
     def formfield(self, **kwargs):
         to_field = getattr(self, 'foreign_related_fields', None)
         to_field = to_field[0].name if to_field else 'pk'

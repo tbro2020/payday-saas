@@ -71,10 +71,10 @@ class Employee(Base):
     comment = models.TextField(_('commentaire'), blank=True, null=True, default=None)
     status = ModelSelect('employee.Status', verbose_name=_('status'), null=True, on_delete=models.SET_NULL, default=None)
 
-    list_filter = ('agreement', 'date_of_join', 'direction', 'branch', 'designation', 'gender', 'marital_status', 'branch', 'status')
-    list_display = ('registration_number', 'last_name', 'middle_name', 'designation', 'branch')
+    list_filter = ('agreement', 'date_of_join', 'date_of_birth', 'direction', 'branch', 'designation', 'gender', 'marital_status', 'branch', 'status')
+    list_display = ('registration_number', 'last_name', 'middle_name', 'designation', 'branch', 'status')
 
-    inlines = ['employee.child', 'employee.education', 'employee.experience', 'employee.document']
+    inlines = ['employee.child', 'employee.education', 'employee.experience', 'employee.document', 'payroll.specialemployeeitem']
 
     layout = Layout(
         'photo',

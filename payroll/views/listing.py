@@ -4,7 +4,6 @@ from payroll.models import *
 
 
 class Listing(BaseView):
-
     def get(self, request, pk):
         qs = []
         query = request.GET.dict()

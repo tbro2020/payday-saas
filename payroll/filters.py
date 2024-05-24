@@ -3,8 +3,9 @@ from django.db.models import Q
 from functools import reduce
 from django_filters import *
 
-from django import forms
 from core import forms as core_forms
+from django import forms
+
 
 class AdvanceFilterSet(FilterSet):
     q = CharFilter("", label="", method='search', widget=forms.TextInput(attrs={'class': 'd-none'}))

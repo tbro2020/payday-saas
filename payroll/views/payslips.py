@@ -13,7 +13,6 @@ class Payslips(BaseView):
     def sheet_fields(self):
         return [field for field in Employee._meta.fields if field.name == 'payer_name' or
                                                             field.choices or field.get_internal_type() == 'ModelSelect']
-    
     def duties(self):
         return ItemPaid.objects.values('name', 'pk')
     
@@ -25,12 +24,19 @@ class Payslips(BaseView):
 
         obj = get_object_or_404(Payroll, id=pk)
         qs = Payslip.objects.filter(payroll=obj)
-        count = qs.count()
         
         list_filter = getattr(Payslip, 'list_filter', [])
+        
+        query = {k:v for k, v in request.GET.items() if v}
+        for key in list(query.keys()):
+            if key in ['employee__date_of_birth', 'employee__date_of_join']:
+                year, month = query.pop(key).split('-')
+                query['%s__month' % key] = month
+                query['%s__year' % key] = year
 
         qs_filter = filter_set_factory(Payslip, fields=list_filter)
-        qs = qs_filter(request.GET, queryset=qs).qs
+        qs_filter = qs_filter(query, queryset=qs)
+        qs = qs_filter.hard_filter()
         
         paginator = Paginator(qs, 25)
         qs = paginator.page(int(request.GET.dict().get('page', 1)))

@@ -39,34 +39,29 @@
                 </div>
 
                 <div class="col-md-8 col-sm-12 text-end">
-                    <span>
-                        <button class="btn btn-light-warning dropdown-toggle" id="dropdown-duty-listing" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Synthesis' %}</button>
-                        <div class="dropdown-menu" aria-labelledby="dropdown-duty-listing">
+                    <div class="btn-group mb-1">
+
+                        <button class="btn btn-light-warning dropdown-toggle rounded-0" id="dropdown-synthesis-listing" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Synthesis' %}</button>
+                        <div class="dropdown-menu" aria-labelledby="dropdown-synthesis-listing">
                             <a class="dropdown-item" href="{% url 'payroll:synthesis' obj.pk %}?by_item=all">Global</a>
                             <div class="dropdown-divider"></div>
                             {% for field in self.sheet_fields %}
                                 <a class="dropdown-item" href="{% url 'payroll:synthesis' obj.pk %}?by_employee_field={{ field.name }}">{{ field.verbose_name|title }}</a>
                             {% endfor %}
                         </div>
-                    </span>
 
-                    <span>
-                        <button class="btn btn-light-info dropdown-toggle" id="dropdown-duty-listing" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Listing' %}</button>
-                        <div class="dropdown-menu" aria-labelledby="dropdown-duty-listing">
+                        <button class="btn btn-light-info dropdown-toggle rounded-0" id="dropdown-listing-listing" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Listing' %}</button>
+                        <div class="dropdown-menu" aria-labelledby="dropdown-listing-listing">
                             {% for duty in self.duties %}
                                 <a target="_blank" class="dropdown-item text-uppercase" href="{% url 'payroll:listing' obj.pk %}?duty_item={{ duty.pk }}">{{ duty.name }}</a>
-                            {% endfor %}
-                            {% comment %}                            
+                            {% endfor %}         
                             <div class="dropdown-divider"></div>
                             {% for item in self.items %}
                                 <a target="_blank" class="dropdown-item text-uppercase" href="{% url 'payroll:listing' obj.pk %}?item={{ item.pk }}">{{ item.name }}</a>
                             {% endfor %}
-                            {% endcomment %}
                         </div>
-                    </span>
 
-                    <span>
-                        <button class="btn btn-light-primary dropdown-toggle" id="dropdown-sheet" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Payroll sheet' %} &nbsp;</button>
+                        <button class="btn btn-light-primary dropdown-toggle rounded-0" id="dropdown-sheet" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Payroll sheet' %} &nbsp;</button>
                         <div class="dropdown-menu" aria-labelledby="dropdown-sheet">
                             <a class="dropdown-item" href="{% url 'payroll:sheet' obj.pk %}">{% trans 'Global' %}</a>
                             <div class="dropdown-divider"></div>
@@ -74,16 +69,16 @@
                                 <a class="dropdown-item" href="{% url 'payroll:sheet' obj.pk %}?group_by={{ field.verbose_name|title }}">{{ field.verbose_name|title }}</a>
                             {% endfor %}
                         </div>
-                    </span>
 
-                    {% if obj.approved or not obj.approvers.all %}
-                        <a href="#" class="btn btn-light-success">{% trans 'Envoyer par e-mail à tous' %}</a>
-                    {% else %}
-                        {% if request.user in obj.approvers.all %}
-                            <a href="#" class="btn btn-danger">{% trans 'Approuver' %}</a>
+                        {% if obj.approved or not obj.approvers.all %}
+                            <a href="#" class="btn btn-light-success">{% trans 'Envoyer par e-mail à tous' %}</a>
+                        {% else %}
+                            {% if request.user in obj.approvers.all %}
+                                <a href="#" class="btn btn-danger">{% trans 'Approuver' %}</a>
+                            {% endif %}
                         {% endif %}
-                    {% endif %}
-                    <a href="{% url 'core:delete' app model|getattr:'_meta'|getattr:'model_name' obj.pk %}" class="btn btn-light-danger">{% trans 'Supprimer' %}</a>
+                        <a href="{% url 'core:delete' app model|getattr:'_meta'|getattr:'model_name' obj.pk %}" class="btn btn-light-danger">{% trans 'Supprimer' %}</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -109,7 +104,7 @@
                         </div>
 
                         <div class="col-md-4 col-sm-12 mb-2">
-                            <h3 class="mb-0">{{ count }}</h3>
+                            <h3 class="mb-0">{{ qs|length }}</h3>
                             <small>{% trans 'Fiches de paie' %}</small>
                         </div>
                         
@@ -221,7 +216,7 @@
                                 </div>
                             </div>
                             <hr>
-                            <form name="GET" type="Search" id="filter-form">
+                            <form name="GET" id="filter-form">
                                 {{ qs_filter.form|crispy }}
                             </form>
                         </div>
@@ -236,5 +231,11 @@
 {% if obj.status == 'PROGRESS' %}
 <script>setTimeout(() => window.location.reload(1), 5000)</script>
 {% endif %}
+
+<script>
+    $(document).ready(function() {
+        $('input[id*="date"]').attr('type', 'month');
+    });
+</script>
 
 {% endblock %}

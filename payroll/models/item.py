@@ -9,7 +9,6 @@ from core.models import Base
 class Item(Base):
     TYPE_OF_ITEMS = ((1, _('Remunerative')), (-1, _('Deductible')))
 
-    
     type_of_item = models.IntegerField(_('type d\'element'), choices=TYPE_OF_ITEMS, default=1)
     code = models.CharField(_('code'), max_length=100, unique=True)
     name = models.CharField(_('nom'), max_length=100)
