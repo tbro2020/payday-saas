@@ -69,7 +69,7 @@ INSTALLED_APPS = [
 
     "employee",
     "leave",
-    "payroll",
+    "payroll"
 ]
 
 MIDDLEWARE = [
@@ -258,7 +258,6 @@ PHONENUMBER_DEFAULT_REGION = 'CD'
 TINYMCE_DEFAULT_CONFIG = {
     'cleanup_on_startup': True,
     'custom_undo_redo_levels': 20,
-    'selector': 'textarea',
     'theme': 'silver',
     'height': '600',
     'plugins': '''

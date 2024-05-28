@@ -21,9 +21,12 @@ class Item(Base):
 
     is_social_security = models.BooleanField(_('est éligible à la sécurité sociale'), help_text=_('Cet élément fera partie du seuil de sécurité sociale'), default=False)
     is_taxable = models.BooleanField(_('est impossable'), help_text=_('Cet élément fera partie du montant brut imposable'), default=False)
+    
+    is_bonus = models.BooleanField(_('est une prime'), help_text=_('Cet élément est un bonus'), default=False)
     is_payable = models.BooleanField(_('est payable'), help_text=_('Cet élément est payable'), default=True)
+    
 
-    list_display = ('code', 'type_of_item', 'name', 'is_taxable', 'is_social_security')
+    list_display = ('code', 'name', 'is_taxable', 'is_social_security')
     list_filter = ('type_of_item', 'is_taxable', 'is_social_security')
     
     layout = Layout(
@@ -36,6 +39,7 @@ class Item(Base):
             Column('formula_qp_employer')
         ),
         Row(
+            Column('is_bonus'),
             Column('is_payable'),
             Column('is_taxable'),
             Column('is_social_security')

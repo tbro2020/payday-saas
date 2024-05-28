@@ -17,6 +17,11 @@ class Change(BaseView):
     template_name = "change.html"
     inline_formset_helper = InlineFormSetHelper()
 
+    def documents(self):
+        _model = apps.get_model('core', 'template')
+        app, model = self.kwargs['app'], self.kwargs['model']
+        return _model.objects.filter(content_type__app_label=app, content_type__model=model)
+
     def get(self, request, app, model, pk):
         model = apps.get_model(app, model_name=model)
         obj = get_object_or_404(model, **{model._meta.pk.name: pk})

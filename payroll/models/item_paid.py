@@ -16,9 +16,12 @@ class ItemPaid(Base):
     amount_qp_employer = models.FloatField(verbose_name=_('montant quote part employeur'), default=0)
     amount_qp_employee = models.FloatField(verbose_name=_('montant quote part employee'), default=0)
 
-    payslip = models.ForeignKey('payroll.payslip', verbose_name=_('fiche de paie'), on_delete=models.CASCADE, editable=False)
+    payslip = models.ForeignKey('payroll.payslip', verbose_name=_('fiche de paie'), null=True, on_delete=models.CASCADE, editable=False)
     social_security_amount = models.FloatField(_('plafond de la sécurité sociale'), default=0)
     taxable_amount = models.FloatField(_('montant imposable'), default=0)
+
+    is_bonus = models.BooleanField(_('est une prime'), help_text=_('Cet élément est un bonus'), default=False)
+    is_payable = models.BooleanField(_('est payable'), help_text=_('Cet élément est payable'), default=True)
 
     class Meta:
         verbose_name = _('element payé')

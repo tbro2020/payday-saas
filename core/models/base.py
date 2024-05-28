@@ -6,8 +6,6 @@ from django.urls import reverse_lazy
 from .managers.base import QuerySet
 from .fields import JSONField
 from django.db import models
-from django.apps import apps
-
 
 class Base(models.Model):
     updated_by = CurrentUserField(verbose_name=_('mis à jour par') ,related_name='%(app_label)s_%(class)s_updated_by', on_update=True)
@@ -33,17 +31,20 @@ class Base(models.Model):
     search_fields = ()
     layout = Layout()
     list_filter = ()
-    
+
     def __str__(self):
         return self.name
     
     def get_absolute_url(self):
         return reverse_lazy('core:change', args=[self._meta.app_label, self._meta.model_name, self.pk])
     
-    @property
-    def template(self):
-        Template = apps.get_model('core', model_name='template')
-        return Template.objects.filter(content_type__model=self._meta.model_name).first()
-    
+    def delete_qs(request, qs):
+        pass
+    delete_qs.short_description = _('supprimer(s)')
+    delete_qs.permissions = ['delete']
+
+    actions = [delete_qs]
+
+
     class Meta:
         abstract = True

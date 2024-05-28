@@ -1,0 +1,17 @@
+from django.db.models.signals import pre_save, post_save
+from django.dispatch import receiver
+
+from payroll.models import Payroll
+from payroll.tasks import Payer
+
+payer = Payer()
+
+@receiver(pre_save, sender=Payroll)
+def payroll_create(sender, instance, **kwargs):
+    if 'errors' in instance.metadata: return
+    instance.metadata['errors'] = []
+
+@receiver(post_save, sender=Payroll)
+def payroll_created(sender, instance, created, **kwargs):
+    if not created: return
+    payer.delay(instance.pk)

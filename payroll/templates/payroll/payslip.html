@@ -29,13 +29,18 @@
                 </div>
 
                 <div class="col text-end">
-                    <a href="#" class="btn btn-primary">{% trans 'Envoyer le bulletin de paie par email' %}</a>
-                    <a href="{% url 'core:print' 'payroll' 'payslip' obj.id %}" class="btn btn-light-info" target="_blank">{% trans "Imprimer la fiche de paie" %}</a>
-
-                    {% comment %}
-                    <a target="_blank" href="{% url 'core:print' 'payroll' 'payslip' obj.id %}" class="btn btn-info"><i class="bi bi-printer-fill"></i></a>
-                    {% endcomment %}
-                    <a href="{% url 'core:delete' 'payroll' 'payslip' obj.pk %}?next={% url 'payroll:payslips' obj.payroll.pk %}" class="btn btn-light-danger">{% trans 'Supprimer' %}</a>
+                    <div class="btn-group">
+                        <a href="#" class="btn btn-info">{% trans 'Envoyer le bulletin de paie par email' %}</a>
+                        <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownDocumentBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            {% trans "Documents" %}
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownDocumentBtn">
+                            {% for document in self.documents %}
+                                <a class="dropdown-item btn-list-action" href="{% url 'core:print' document.id 'payroll' 'payslip' obj.pk %}">{{ document.name }}</a>
+                            {% endfor %}
+                        </div>
+                        <a href="{% url 'core:delete' 'payroll' 'payslip' obj.pk %}?next={% url 'payroll:payslips' obj.payroll.pk %}" class="btn btn-light-danger">{% trans 'Supprimer' %}</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -48,7 +53,7 @@
             <div class="card-header text-bg-primary">
                 <h5 class="text-light fw-bolder mb-4">{{ obj }}</h5>
                 <div class="row">
-                    {% for field in payslip|getattr:'_meta'|getattr:'fields' %}
+                    {% for field in model|getattr:'_meta'|getattr:'fields' %}
                         {% if field.editable and field.name != 'metadata' %}
                             <div class="col-6">
                                 <dl class="row m-0">
@@ -83,7 +88,7 @@
                         </thead>
                         <tbody>
                             {% for item in items %}
-                                <tr class="{% if item.type_of_item <= -1 %}text-bg-warning{% endif %}">
+                                <tr class="{% if not item.is_payable %}text-bg-warning{% endif %}">
                                     <td>{{ forloop.counter }}</td>
                                     <td>{{ item.code }}</td>
                                     <td>{{ item.name }}</td>
@@ -94,7 +99,7 @@
                                     <td>{{ item.taxable_amount|intcomma }}</td>
                                     <td>{{ item.social_security_amount|intcomma }}</td>
                                     <td>
-                                        <a class="text-decoration-none" href="{% url 'core:delete' 'payroll' 'payitem' item.pk %}?next={{ request.get_full_path }}">{% trans 'Remove' %}</a>
+                                        <a class="text-decoration-none" href="{% url 'core:delete' 'payroll' 'itempaid' item.pk %}?next={{ request.get_full_path }}">{% trans 'Remove' %}</a>
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -116,7 +121,7 @@
 
                             <tr style="font-weight: bolder">
                                 <td colspan="3"></td>
-                                <td>{{ obj.gross|intcomma }}</td>
+                                <td colspan="2" class="text-center">{{ obj.gross|intcomma }}</td>
                                 <td>{{ obj.taxable_gross|intcomma }}</td>
                                 <td>{{ obj.social_security_threshold|intcomma }}</td>
                                 <td></td>

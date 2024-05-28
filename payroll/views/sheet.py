@@ -1,11 +1,17 @@
 from django.shortcuts import redirect, reverse, get_object_or_404
 from django.utils.translation import gettext as _
 from django.shortcuts import HttpResponse
+from django.utils.text import slugify
 from core.views import BaseView
 
 from payroll.models import *
 from payroll.tasks import *
 
+
+
+import pandas as pd
+import json
+import io
 
 class Sheet(BaseView):
     def get(self, request, pk):
@@ -17,7 +23,7 @@ class Sheet(BaseView):
         df = df.groupby(group_by) if group_by else df
 
         response = HttpResponse(content_type='application/xlsx')
-        response['Content-Disposition'] = f'attachment; filename="sheet_{group_by if group_by else 'global'}.xlsx"'
+        response['Content-Disposition'] = f'attachment; filename="sheet_{group_by if group_by else 'global'}.xlsx"'.lower()
 
         with pd.ExcelWriter(response) as writer:
             [group.to_excel(writer, sheet_name=slugify(str(row)), index=False) 

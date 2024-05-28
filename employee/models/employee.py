@@ -1,5 +1,6 @@
+from crispy_forms.layout import Layout, Row, Column, Div, Fieldset
 from phonenumber_field.modelfields import PhoneNumberField
-from crispy_forms.layout import Layout, Row, Column, Div
+
 from crispy_forms.bootstrap import PrependedText
 from django.utils.translation import gettext as _
 from core.models.fields import ModelSelect
@@ -8,8 +9,7 @@ from django.urls import reverse_lazy
 from django.db import models
 from django.apps import apps
 
-#from .managers import EmployeeQuerySet
-from .designation import Designation
+from .position import Position
 from .agreement import Agreement
 from .grade import Grade
 
@@ -20,12 +20,17 @@ from .service import Service
 from core.models import Base
 from datetime import date
 
-
-
+from employee.models.managers import EmployeeQuerySet
 from random import randint
 
 default_photo = lambda: "place_pics/default_pic.jpg"
 #default_registration_number = lambda: randint(100000000, 999999999)
+
+class MaritalStatus(models.TextChoices):
+    Maried = ('Maried', _('Marié'))
+    Widower = ('Widower', _('Veuf'))
+    Single = ('Single', _('Célibataire'))
+
 
 class Employee(Base):
     GENDERS = (('Male', _('Homme')), ('Female', _('Femme')))
@@ -40,9 +45,11 @@ class Employee(Base):
     date_of_join = DateField(_('date d\'engagement'), null=True, default=None)
     photo = models.ImageField(_('photo'), blank=True, null=True)
 
-    designation = ModelSelect(Designation, verbose_name=_('position'), blank=True, null=True, on_delete=models.SET_NULL)
+    position = ModelSelect('employee.Position', verbose_name=_('position'), blank=True, null=True, on_delete=models.SET_NULL)
     branch = ModelSelect('employee.Branch', verbose_name=_('site'),  null=True, on_delete=models.SET_NULL)
-    grade = ModelSelect(Grade, verbose_name=_('grade'), blank=True, null=True, on_delete=models.SET_NULL)
+
+    iterim = ModelSelect('employee.grade', verbose_name=_('iterim'), blank=True, null=True, on_delete=models.SET_NULL, default=None, related_name='iterim_employee')
+    grade = ModelSelect('employee.grade', verbose_name=_('grade'), blank=True, null=True, on_delete=models.SET_NULL)
 
     direction = ModelSelect(Direction, verbose_name=_('direction'), null=True, on_delete=models.SET_NULL, default=None)
     sub_direction = ModelSelect(SubDirection, verbose_name=_('sous-direction'), blank=True, null=True, on_delete=models.SET_NULL, default=None)
@@ -55,7 +62,7 @@ class Employee(Base):
     date_of_birth = DateField(_('date de naissance'), null=True, default=None)
     gender = models.CharField(_('genre'), max_length=10, choices=GENDERS)
 
-    marital_status = models.CharField(_('état civil'), max_length=12, choices=MARITAl_STATUS)
+    marital_status = models.CharField(_('état civil'), max_length=12, choices=MaritalStatus)
     spouse = models.CharField(_('conjoint'), max_length=100, blank=True, null=True, default=None)
 
     mobile_number = PhoneNumberField(_('numéro de téléphone mobile'), null=True, default=None)
@@ -66,13 +73,16 @@ class Employee(Base):
 
     payment_account = models.CharField(_('numéro de compte'), max_length=50, blank=True, null=True, default=None)
     payment_method = models.CharField(_('mode de paiement'), max_length=20, choices=PAYMENT_METHODS)
-    payer_name = models.CharField(_('nom du payeur'), max_length=50, null=True, default=None)
+    payer_name = ModelSelect('employee.payer', verbose_name=_('nom du payeur'), null=True, on_delete=models.SET_NULL, default=None)
 
     comment = models.TextField(_('commentaire'), blank=True, null=True, default=None)
     status = ModelSelect('employee.Status', verbose_name=_('status'), null=True, on_delete=models.SET_NULL, default=None)
 
-    list_filter = ('agreement', 'date_of_join', 'date_of_birth', 'direction', 'branch', 'designation', 'gender', 'marital_status', 'branch', 'status')
+    objects = EmployeeQuerySet()
+
+    list_filter = ('direction', 'branch', 'designation', 'gender', 'marital_status', 'branch', 'status', 'date_of_join', 'date_of_birth')
     list_display = ('registration_number', 'last_name', 'middle_name', 'designation', 'branch', 'status')
+    search_fields = ('registration_number', )
 
     inlines = ['employee.child', 'employee.education', 'employee.experience', 'employee.document', 'payroll.specialemployeeitem']
 
@@ -93,8 +103,9 @@ class Employee(Base):
             Column('service', css_class='col-4'),
         ),
         Row(
-            Column('grade', css_class='col-6'),
-            Column('designation', css_class='col-6')
+            Column('grade', css_class='col-4'),
+            Column('position', css_class='col-4'),
+            Column('iterim', css_class='col-4')
         ),
         Row(
             Column('first_name', css_class='col-4'),
@@ -123,7 +134,12 @@ class Employee(Base):
             Column('payment_account', css_class='col-4'),
         ),
         'comment',
-        'status'
+        'status',
+        Fieldset(
+            'Information supplémentaire',
+            'metadata',
+            css_class='mt-5 bg-light-warning p-3 rounded'
+        )
     )
 
     def full_name(self):
@@ -165,4 +181,4 @@ class Employee(Base):
     class Meta:
         verbose_name = _('employé')
         verbose_name_plural = _('employés')
-        ordering = ('registration_number',)
+        ordering = ('-registration_number',)

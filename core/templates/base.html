@@ -29,7 +29,7 @@
                   <div class="d-flex justify-content-between align-items-center">
                      <div class="logo">
                         {% static 'assets/images/logo/logo.png' as logo %}
-                        <a href="{% url 'core:home' %}"><img style="height: 6rem !important;" src="{{ organization.logo.url|default:logo }}" alt="{{ organization.name|default:'payday' }}"></a>
+                        <a href="{% url 'core:home' %}"><img style="height: 6rem !important;" src="{{ request.organization.logo.url|default:logo }}" alt="{{ organization.name|default:'payday' }}"></a>
                      </div>
                      <div class="theme-toggle d-flex gap-2  align-items-center mt-2">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--system-uicons" width="20" height="20" preserveAspectRatio="xMidYMid meet" viewBox="0 0 21 21">
@@ -157,17 +157,11 @@
       <script src="{% static 'assets/js/app.js' %}"></script>
       <script>
          $(document).ready(function(){
+            // $( ".dateinput" ).datepicker();
             $("a[href='{% url 'logout' %}']").click(function(e) {
                e.preventDefault();
                $('<form action="'+$(this).attr('href')+'" method="post">{% csrf_token %}</form>').appendTo('body').submit();
            });
-
-           $("#filter-form").submit(function() {
-               $(this).find(':input, select').filter(function() {
-                  return !this.value;
-               }).prop("disabled", true);
-               return true; // Ensure the form still submits
-            });
          });
       </script>
    </body>

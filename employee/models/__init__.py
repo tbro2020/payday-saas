@@ -7,8 +7,9 @@ from .direction import Direction
 from .sub_direction import SubDirection
 from .service import Service
 
-from .designation import Designation
-from .employee import Employee
+from .payer import Payer
+from .position import Position
+from .employee import Employee, MaritalStatus
 from .document import Document
 from .child import Child
 

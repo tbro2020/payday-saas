@@ -1,0 +1,60 @@
+from crispy_forms.layout import Layout, Row, Column, Fieldset
+from django.utils.translation import gettext as _
+from core.models.fields import ModelSelect
+
+from core.models import Base
+from django.db import models
+
+class AdvanceSalary(Base):
+    employee = ModelSelect('employee.Employee', verbose_name=_('employé'), on_delete=models.CASCADE)
+    duration = models.IntegerField(_('durée'), help_text=_('nombre de mois'), default=1)
+    amount = models.FloatField(_('montant'))
+    date = models.DateField(_('date'))
+
+    list_display = ['employee', 'amount', 'date', 'duration']
+    list_filter = ['date']
+
+    inlines = ['payroll.AdvanceSalaryPayment']
+
+    layout = Layout(
+        'employee',
+        'date',
+        Fieldset(
+            _('Informations sur l\'avance de salaire'),
+            Row(
+                Column('amount', css_class='form-group col-md-6'),
+                Column('duration', css_class='form-group col-md-6'),
+            )
+        )
+    )
+
+    @property
+    def name(self):
+        return f'Avance de salaire de {self.employee} du {self.date}'
+
+    class Meta:
+        verbose_name = _('avance sur salaire')
+        verbose_name_plural = _('avances sur salaire')
+
+class AdvanceSalaryPayment(Base):
+    advance_salary = ModelSelect('payroll.AdvanceSalary', verbose_name=_('avance de salaire'), on_delete=models.CASCADE)
+    amount = models.FloatField(_('montant'))
+    date = models.DateField(_('date'))
+
+    list_display = ['advance_salary', 'amount', 'date']
+    list_filter = ['date']
+    inline_form_fields = ['advance_salary', 'date', 'amount']
+
+    layout = Layout(
+        'advance_salary',
+        'amount',
+        'date'
+    )
+
+    @property
+    def name(self):
+        return f'Paiement d\'avance de salaire de {self.advance_salary.employee} du {self.date}'
+
+    class Meta:
+        verbose_name = _('paiement d\'avance de salaire')
+        verbose_name_plural = _('paiements d\'avance de salaire')

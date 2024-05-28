@@ -10,17 +10,18 @@ class Print(BaseView):
     action = ["view"]
     template_name = 'print.html'
 
-    def get(self, request, app, model, pk):
+    def get(self, request, document, app, model, pk):
         model = apps.get_model(app, model_name=model)
-        obj = get_object_or_404(model, id=pk)
+        obj = get_object_or_404(model, **{
+            model._meta.pk.name: pk
+        })
 
-        if not obj.template:
+        template = apps.get_model('core', 'template')
+        template = template.objects.filter(id=document).first()
+
+        if not template:
             messages.warning(request, _('Impossible de trouver le modèle du document'))
             return redirect(request.META.get('HTTP_REFERER'))
 
-        template = Template(obj.template.content)
-        context = Context(vars(obj))
-        context['obj'] = obj
-
-        template = template.render(context)
+        template = Template(template.content).render(Context(locals()))
         return render(request, self.template_name, locals())

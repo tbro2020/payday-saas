@@ -4,8 +4,8 @@ from core.models import Base
 from django.db import models
 
 
-class Designation(Base):
-    name = models.CharField(verbose_name=_('nom'), max_length=100, unique=True)
+class Position(Base):
+    name = models.CharField(verbose_name=_('nom'), max_length=100)
 
     layout = Layout('name')
     search_fields = ('name')

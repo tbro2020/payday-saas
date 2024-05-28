@@ -2,6 +2,7 @@
 
 {% load i18n %}
 {% load static %}
+{% load humanize %}
 {% load mathfilters %}
 
 {% block content %}
@@ -13,16 +14,17 @@
 <div class="page-content">
     <div class="row">
         <div class="col-3">
-            <div class="card">
+            <div class="card pb-4">
                 <div class="card-header">
                     <h4>Employee(s)</h4>
                 </div>
                 <div class="card-body text-center">
-                    <h4 class="fw-bolder">{{ employees.count }}</h4>
+                    <h4 class="fw-bolder">{{ employees.count|intcomma }}</h4>
                 </div>
             </div>
         </div>
-
+        
+        <!-- Payroll information -->
         <div class="col">
             <div class="card">
                 <div class="card-header">
@@ -32,15 +34,67 @@
                     <div class="row">
                         <div class="col text-center">
                             Total net payé 
-                            <h3>{{ at_this_day.total }}</h3>
+                            <h3>{{ at_this_day.total|default:0|abs|intcomma }}</h3>
                         </div>
                         <div class="col">
                             IPR / QPE
-                            <h3>{{ ipr.total|abs }}</h3>
+                            <h3>{{ ipr.total|default:0|abs|intcomma }}</h3>
                         </div>
                         <div class="col">
                             Total CNSS
-                            <h3>{{ cnss.total|abs }}</h3>
+                            <h3>{{ cnss.total|default:0|abs|intcomma }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Retired soon -->
+    <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Prendront leur congé</h4>
+                </div>
+                <div class="card-body text-center">
+                    <div class="row">
+                        <div class="col text-center">
+                            Ce mois-ci
+                            <h3>{{ at_this_day.total|default:0|abs }}</h3>
+                        </div>
+                        <div class="col">
+                            Dans 3 mois
+                            <h3>{{ ipr.total|default:0|abs }}</h3>
+                        </div>
+                        <div class="col">
+                            Dans 1 an
+                            <h3>{{ cnss.total|default:0|abs }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Retired soon -->
+    <div class="col">
+         <div class="card">
+                <div class="card-header">
+                    <h4>Retraité</h4>
+                </div>
+                <div class="card-body text-center">
+                    <div class="row">
+                        <div class="col text-center">
+                            Ce mois-ci
+                            <h3>{{ at_this_day.total|default:0|abs }}</h3>
+                        </div>
+                        <div class="col">
+                            Dans 3 mois
+                            <h3>{{ ipr.total|default:0|abs }}</h3>
+                        </div>
+                        <div class="col">
+                            Dans 1 an
+                            <h3>{{ cnss.total|default:0|abs }}</h3>
                         </div>
                     </div>
                 </div>
@@ -48,6 +102,7 @@
         </div>
     </div>
     
+    {% comment %}
     <div class="row">
         <div class="col-6">
             <div class="col">
@@ -68,8 +123,8 @@
         {% include "slick_reporting/js_resources.html" %}
         {% get_charts_media "all" %}
     {% endblock %}
+    {% endcomment %}
 </div>
-
 <script>
 
     

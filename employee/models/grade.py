@@ -1,19 +1,25 @@
+from crispy_forms.layout import Layout, Row, Column
 from django.utils.translation import gettext as _
-from crispy_forms.layout import Layout
+
 from core.models import Base
 from django.db import models
 
 
 class Grade(Base):
+    category = models.CharField(verbose_name=_('catégorie'), max_length=100, blank=True, null=True)
     name = models.CharField(verbose_name=_('nom'), max_length=100, unique=True)
 
-    layout = Layout('name', 'metadata')
-    list_display = ('id', 'name')
+    layout = Layout(Row(Column('category'),Column('name')), 'metadata')
+    list_display = ('id', 'category', 'name')
     search_fields = ('name')
+
+    def __str__(self) -> str:
+        return "{}/{}".format(self.category, self.name)
 
     class Meta:
         verbose_name = _('grade')
         verbose_name_plural = _('grades')
         
     def __str__(self):
-        return self.name
+        return f'{self.category} / {self.name}'
+

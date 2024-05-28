@@ -8,9 +8,9 @@ class JobFrequencyChoice(models.TextChoices):
     APPROVED = "DAILY", _("quotidien")
 
 class Job(Base):
-    name = models.CharField(max_length=255, verbose_name=_('Nom'))
+    name = models.CharField(max_length=255, verbose_name=_('nom'))
     job = AceField(mode='python', verbose_name=_('job'), default='0')
-    frequency = models.CharField(max_length=10, choices=JobFrequencyChoice.choices, verbose_name=_('Fréquence'))
+    frequency = models.CharField(max_length=10, choices=JobFrequencyChoice.choices, verbose_name=_('fréquence'))
 
     layout = Layout('name', 'frequency', 'job')
     list_display = ('id', 'name', 'frequency')

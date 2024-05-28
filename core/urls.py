@@ -9,6 +9,8 @@ urlpatterns = [
     path('create-organization', CreateOrganization.as_view(), name='create-organization'),
     
     path('list/<str:app>/<str:model>', List.as_view(), name='list'),
+    path('list/<str:app>/<str:model>/action/<str:action>', ListAction.as_view(), name='list-action'),
+
     path('create/<str:app>/<str:model>', Create.as_view(), name='create'),
     path('read/<str:app>/<str:model>/<str:pk>', Read.as_view(), name='read'),
     path('change/<str:app>/<str:model>/<str:pk>', Change.as_view(), name='change'),
@@ -19,7 +21,7 @@ urlpatterns = [
     path('modal/change/<str:app>/<str:model>/<str:pk>', ChangeModal.as_view(), name='change-modal'),
     path('modal/delete/<str:app>/<str:model>/<str:pk>', DeleteModal.as_view(), name='delete-modal'),
     
-    path('print/<str:app>/<str:model>/<str:pk>', Print.as_view(), name='print'),
+    path('print/<str:document>/<str:app>/<str:model>/<str:pk>', Print.as_view(), name='print'),
     path('exporter/<str:app>/<str:model>', Exporter.as_view(), name='exporter'),
 
     path('canvas/download/<str:pk>', Canvas.as_view(), name='canvas-download'),

@@ -57,9 +57,7 @@
         <h1 class="watermark-title-text">{% trans 'Unapproved' %}</h1>
     </div>
     {% endif %}
-
-    {{ template }}
-
+    {{ template|safe }}
     <footer class="fw-bold" style="font-size: 12px;">
       <div class="row">
         <div class="col">
@@ -74,10 +72,9 @@
     </footer>
   </body>
   {% endwith %}
-  <script>
-    // on page ready print page
+  {% comment %}  <script>
     window.onload = function() {
       window.print();
     }
-  </script>
+  </script>{% endcomment %}
 </html>

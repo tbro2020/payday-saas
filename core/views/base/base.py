@@ -13,11 +13,14 @@ from django.apps import apps
 
 class BaseView(LoginRequiredMixin, PermissionRequiredMixin, View):
     template_name = None
+    action = []
+
+    def get_action(self):
+        return self.action
 
     def get_permission_required(self):
-        data = self.kwargs
-        if 'app' not in data or 'model' not in data: return []
-        return [f"{data.get('app')}.{i}_{data.get('model')}" for i in self.action]
+        if 'app' not in self.kwargs or 'model' not in self.kwargs: return []
+        return [f"{self.kwargs.get('app')}.{i}_{self.kwargs.get('model')}" for i in self.get_action()]
     
     def handle_no_permission(self) -> HttpResponseRedirect:
         messages.warning(self.request, _('Vous n\'avez pas permission d\'effectuer cette action'))

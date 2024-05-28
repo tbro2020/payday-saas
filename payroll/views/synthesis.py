@@ -21,6 +21,8 @@ class Synthesis(BaseView):
     @transaction.atomic
     def by_item(self, request, pk):
         query = request.GET.dict()
+        query.pop('by_item')
+
         obj = get_object_or_404(Payroll, id=pk)
 
         groupby, branches = dict(), self.branches
@@ -33,6 +35,7 @@ class Synthesis(BaseView):
             if group not in groupby: groupby[group] = {}
             
             paid = ItemPaid.objects.filter(payslip__payroll=obj, code=item.get('code', None))
+            paid = paid.filter(**{f'payslip__{k}':v for k, v in query.items()})
             groupby[group]['AGENT'] = paid.count()
 
             for branch in branches:
@@ -45,26 +48,25 @@ class Synthesis(BaseView):
         df = DataFrame(groupby)
         df.loc[:,'TOTAL'] = df.sum(numeric_only=True, axis=1).round(2)
         groupby = dict(json.loads(df.to_json(orient="columns")))
-        groupby['TOTAL']['AGENT'] = obj.payslip_set.count()
+        groupby['TOTAL']['AGENT'] = obj.payslip_set.filter(**query).count()
         return render(request, "payroll/synthesis.html", locals())
 
     @transaction.atomic
     def by_employee_field(self, request, pk):
         query = request.GET.dict()
+        field = query.pop('by_employee_field')
         obj = get_object_or_404(Payroll, id=pk)
-        qs = obj.payslip_set.select_related().all()
-
-        field = query.get('by_employee_field')
-        groupby, branches = dict(), self.branches
+        qs = obj.payslip_set.select_related().filter(**query)
         
         model = Employee._meta.get_field(field)
+        groupby, branches = dict(), self.branches
         model = apps.get_model('employee', model_name=model.remote_field.model._meta.model_name) if isinstance(model, ModelSelect) else None
         
         for group in qs.values_list(f'employee__{field}', flat=True).distinct():
             group = get_object_or_404(model, pk=group) if model else group
             if group not in groupby: groupby[group] = {}
             
-            _obj = Payslip.objects.filter(**{f'employee__{field}':group})
+            _obj = qs.filter(**{f'employee__{field}':group})
             groupby[group]['AGENT'] = _obj.count()
             for branch in branches:
                 amount = _obj.filter(employee__branch_id=branch.get('id')).aggregate(amount=Sum('net')).get('amount', 0)
@@ -79,6 +81,6 @@ class Synthesis(BaseView):
 
     def get(self, request, pk):
         query = request.GET.dict()
-        field = list(query.keys())
+        field = 'by_item' if 'by_item' in query else 'by_employee_field'
         if not field: raise Http404
-        return getattr(self, field[-1])(request, pk)
+        return getattr(self, field)(request, pk)

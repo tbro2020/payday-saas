@@ -25,9 +25,8 @@
                                 Action(s)
                             </button>
                             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                <a class="dropdown-item btn-list-action" data-href="#">Suprimer(s)</a>
-                                {% for action in model.list_actions %}
-                                    <a class="dropdown-item btn-list-action" data-href="#">{{ action.title }}</a>
+                                {% for action in self.get_queryset_actions %}
+                                    <a class="dropdown-item btn-list-action" data-href="{% url 'core:list-action' app model|getattr:'_meta'|getattr:'model_name' action.name %}">{{ action.title|title }}</a>
                                 {% endfor %}
                             </div>
                         </div>
@@ -107,32 +106,32 @@
             
             <div class="card">
                 <div class="card-body text-center">
-                    <nav aria-label="Page navigation example">
-                      <ul class="pagination justify-content-center mb-0">
-                        {% if self.qs.has_previous %}
-                            <li class="page-item"><a class="page-link" href="?page={{ self.qs.previous_page_number }}">{% trans 'Prev' %}</a></li>
-                        {% else %}
-                            <li class="page-item disabled"><a class="page-link">{% trans 'Prev' %}</a></li>
-                        {% endif %}
-
-                        {% if self.qs.page > 10 %}
-                            {% for i in self.qs.paginator.page_range %}
-                              {% if self.qs.number == i %}
-                                <li class="page-item active"><a class="page-link">{{ i }}</a></li>
-                              {% else %}
-                                <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
-                              {% endif %}
-                            {% endfor %}
-                        {% endif %}
-
-                        {% if self.qs.has_next %}
-                          <li class="page-item"><a class="page-link" href="?page={{ self.qs.next_page_number }}">{% trans 'Next' %}</a></li>
-                        {% else %}
-                          <li class="page-item disabled"><a class="page-link">{% trans 'Next' %}</a></li>
-                        {% endif %}
-                      </ul>
-                    </nav>
-                </div>
+                     <nav aria-label="Page navigation example">
+                       <ul class="pagination justify-content-center mb-0">
+                         {% if qs.has_previous %}
+                             <li class="page-item"><a class="page-link" href="?{{ request.GET.urlencode }}&page={{ qs.previous_page_number }}">{% trans 'Prev' %}</a></li>
+                         {% else %}
+                             <li class="page-item disabled"><a class="page-link">{% trans 'Prev' %}</a></li>
+                         {% endif %}
+     
+                         {% if qs.page > 10 %}
+                             {% for i in qs.paginator.page_range %}
+                               {% if qs.number == i %}
+                                 <li class="page-item active"><a class="page-link">{{ i }}</a></li>
+                               {% else %}
+                                 <li class="page-item"><a class="page-link" href="?{{ request.GET.urlencode }}&page={{ i }}">{{ i }}</a></li>
+                               {% endif %}
+                             {% endfor %}
+                         {% endif %}
+     
+                         {% if qs.has_next %}
+                           <li class="page-item"><a class="page-link" href="?{{ request.GET.urlencode }}&page={{ qs.next_page_number }}">{% trans 'Next' %}</a></li>
+                         {% else %}
+                           <li class="page-item disabled"><a class="page-link">{% trans 'Next' %}</a></li>
+                         {% endif %}
+                       </ul>
+                     </nav>
+                 </div>
             </div>
             
         </div>
@@ -177,6 +176,29 @@
 
             let url = $(this).data('href');
             alert(url);
+
+            // send post request with data that required to be acted
+        });
+
+        $('input[type="checkbox"]').change(function() {
+            let checked = $('input:checked').map((_, el) => el.value).get();
+            if(checked.length > 0) {
+                $(".dropdown-toggle").attr("disabled", false);
+            } else {
+                $(".dropdown-toggle").attr("disabled", true);
+            }
+        });
+
+        $('fieldset').has('input[type="date"]').each(function() {
+            var legend = $(this).find('legend');
+            if (legend.length) legend.replaceWith($('<label>').html(legend.html()));
+        });
+
+        $("#filter-form").submit(function() {
+            $(this).find(':input, select').filter(function() {
+               return !this.value;
+            }).prop("disabled", true);
+            return true; // Ensure the form still submits
         });
     });
 </script>

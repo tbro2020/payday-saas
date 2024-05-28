@@ -11,6 +11,14 @@ class List(BaseView):
     action = ["view"]
     template_name = "list.html"
 
+    def get_queryset_actions(self):
+        app, model = self.kwargs['app'], self.kwargs['model']
+        model = apps.get_model(app, model_name=model)
+        return [{
+            'title': getattr(action, 'short_description'),
+            'name': getattr(action, '__name__')
+        } for action in model.actions]
+
     def get_list_display(self, model):
         list_display = getattr(model, 'list_display', [])
         return [field for field in model._meta.fields if field.name in list_display]

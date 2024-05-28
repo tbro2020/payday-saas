@@ -1,23 +1,28 @@
 from django.shortcuts import render, get_object_or_404
 from core.filters import filter_set_factory
 from django.core.paginator import Paginator
+from django.db.models import Sum
 from core.views import BaseView
-from django.db.models import Q
+
 
 from employee.models import Employee
 from payroll.models import *
 
+
+
 class Payslips(BaseView):
     template_name = 'payroll/payslips.html'
     
-    def sheet_fields(self):
-        return [field for field in Employee._meta.fields if field.name == 'payer_name' or
-                                                            field.choices or field.get_internal_type() == 'ModelSelect']
+    def sheets(self):
+        return [field for field in Employee._meta.fields if field.choices or field.get_internal_type() == 'ModelSelect']
+    
     def duties(self):
-        return ItemPaid.objects.values('name', 'pk')
+        return ItemPaid.objects.filter(payslip__payroll=self.kwargs['pk'])\
+            .filter(amount_qp_employee__lte=0).values('name', 'code').distinct()
     
     def items(self):
-        return Item.objects.filter(Q(is_taxable=True) | Q(is_social_security=True)).values('name', 'pk')
+        return list(ItemPaid.objects.filter(payslip__payroll=self.kwargs['pk'])\
+            .filter(amount_qp_employee__gte=0).values('name', 'code').distinct())
     
     def get(self, request, pk):
         app, model = 'payroll', Payroll
@@ -37,8 +42,12 @@ class Payslips(BaseView):
         qs_filter = filter_set_factory(Payslip, fields=list_filter)
         qs_filter = qs_filter(query, queryset=qs)
         qs = qs_filter.hard_filter()
-        
-        paginator = Paginator(qs, 25)
+
+        overall_net = round(qs.aggregate(amount=Sum('net'))['amount'] or 0, 2)
+        count = qs.count()
+
+
+        paginator = Paginator(qs.order_by(f'-{Payslip._meta.pk.name}'), 25)
         qs = paginator.page(int(request.GET.dict().get('page', 1)))
         
         return render(request, self.template_name, locals())

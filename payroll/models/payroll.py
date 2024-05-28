@@ -4,7 +4,7 @@ from django.urls import reverse_lazy
 from django.db import models
 
 from core.models.fields import ModelSelect2Multiple
-from core.models.fields import DateField
+from core.models.fields import DateField, JSONField
 from core.models import Base
 from functools import reduce
 from django.apps import apps
@@ -17,22 +17,26 @@ class PayrollStatus(models.TextChoices):
     SUCCESS = ('SUCCESS', _('succès'))
 
 class Payroll(Base):
-    METADATA = dict({'employee': {}, 'leave': {}, 'payroll': {}})
+
+    def _metadata():
+        return dict(taux_usd_cdf=2000)
 
     name = models.CharField(_('nom'), max_length=100)
     start_dt = DateField(_('du'))
     end_dt = DateField(_('au'))
     
     employee_direction = ModelSelect2Multiple('employee.direction', verbose_name=_('direction'), blank=True, help_text=leave_empty_for_all)
+    employee_status = ModelSelect2Multiple('employee.status', verbose_name=_('status'), blank=True, help_text=leave_empty_for_all)
     employee_branch = ModelSelect2Multiple('employee.branch', verbose_name=_('site'), blank=True, help_text=leave_empty_for_all)
     employee_grade = ModelSelect2Multiple('employee.grade', verbose_name=_('grade'), blank=True, help_text=leave_empty_for_all)
-    employee_status = ModelSelect2Multiple('employee.status', verbose_name=_('status'), blank=True, help_text=leave_empty_for_all)
     
     status = models.CharField(_('status'), max_length=25, choices=PayrollStatus, default=PayrollStatus.PROGRESS, editable=False)
     overall_net = models.FloatField(_('net global'), blank=True, default=0, editable=False)
     
     approvers = ModelSelect2Multiple('core.user', verbose_name=_('approbateurs'))
     approved = models.BooleanField(verbose_name=_('approuvé'), default=False)
+
+    metadata = JSONField(verbose_name=_('meta'), default=_metadata, blank=True)
     
     list_display = ('id', 'name', 'start_dt', 'end_dt', 'overall_net', 'status', 'approved')
     list_filter = ('start_dt', 'end_dt')
@@ -45,18 +49,19 @@ class Payroll(Base):
 
     layout = Layout(
         'name',
-        'approvers',
+        #'approvers',
         Row(Column('start_dt'), Column('end_dt')),
-        Fieldset(
-            _('Employees'),
-            Row(
-                Column('employee_direction'), 
-                Column('employee_branch'), 
-                Column('employee_grade')
-            ), 
-            Column('employee_status'),
-            css_class='mt-5 mb-5'
-        ),
+        #Fieldset(
+        #    _('Employees'),
+        #    Row(
+        #        Column('employee_direction'), 
+        #        Column('employee_branch'), 
+        #        Column('employee_grade')
+        #    ), 
+        #    Column('employee_status'),
+        #    css_class='mt-5 mb-5'
+        #),
+        Column('employee_status'),
         'metadata'
     )
 
@@ -70,10 +75,9 @@ class Payroll(Base):
         
         employee_list_display = ['registration_number', 'social_security_number', 'first_name', 'middle_name', 'last_name']
         employee_list_display = [field for field in Employee._meta.fields if field.name in employee_list_display]
-        employee_list_display = employee_list_display + [field for field in Employee._meta.fields if field.name == 'payer_name' or
-                                                                                                     field.choices or field.get_internal_type() == 'ModelSelect']
+        employee_list_display = employee_list_display + [field for field in Employee._meta.fields if field.choices or field.get_internal_type() == 'ModelSelect']
         
-        payslips = self.payslip_set.all()
+        payslips = self.payslip_set.all().select_related().prefetch_related()
         items = [payslip.itempaid_set.all().values('name').distinct() for payslip in payslips]
         items = [[i['name'] for i in item] for item in items]
         items = reduce(lambda x,y:x+y,items)
