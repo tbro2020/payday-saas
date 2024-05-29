@@ -29,3 +29,6 @@ class Organization(models.Model):
     class Meta:
         verbose_name = _('organization')
         verbose_name_plural = _('organizations')
+
+    def __str__(self) -> str:
+        return self.name

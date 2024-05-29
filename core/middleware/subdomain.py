@@ -16,7 +16,8 @@ class SubdomainMiddleware:
         return hostname.split('.')[0]
     
     def organization(self, subdomain):
-        return Organization.objects.filter(subdomain_prefix=subdomain).first()
+        return Organization.objects.first()
+        # return Organization.objects.filter(subdomain_prefix=subdomain).first()
 
     def __call__(self, request):
         request.subdomain = self.subdomain(request)
