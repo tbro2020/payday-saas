@@ -30,7 +30,7 @@ class User(AbstractUser):
 
     objects = UserManager()
     
-    list_display = ('id', 'employee', 'email', 'is_active')
+    list_display = ('id', 'email', 'is_active')
     search_fields = ('id', 'email',)
     list_filter = ('is_active',)
     
