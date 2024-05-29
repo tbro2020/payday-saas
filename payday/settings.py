@@ -85,6 +85,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_currentuser.middleware.ThreadLocalUserMiddleware",
     "core.middleware.subdomain.SubdomainMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 if DEBUG:
@@ -191,8 +192,11 @@ AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
 AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
 
-STATICFILES_STORAGE = os.getenv("STATICFILES_STORAGE", 'django.contrib.staticfiles.storage.StaticFilesStorage')
+# 'django.contrib.staticfiles.storage.StaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
+STATICFILES_STORAGE = os.getenv("STATICFILES_STORAGE", STATICFILES_STORAGE)
 DEFAULT_FILE_STORAGE = os.getenv('DEFAULT_FILE_STORAGE', default='django.core.files.storage.FileSystemStorage')
+
 
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = os.getenv("MEDIA_URL", 'media/')
