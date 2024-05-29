@@ -17,7 +17,7 @@ class List(BaseView):
         return [{
             'title': getattr(action, 'short_description'),
             'name': getattr(action, '__name__')
-        } for action in model.actions]
+        } for action in getattr(model, 'actions', [])]
 
     def get_list_display(self, model):
         list_display = getattr(model, 'list_display', [])
