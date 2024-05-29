@@ -43,7 +43,7 @@
       {% static 'assets/images/logo/logo.svg' as logo_url %}
       <div class="row">
         <div class="col">
-          <img src="{{ obj.payroll.organization.logo.url|default:logo_url }}" alt="Logo" class="float-start" width="128"> 
+          <img src="{{ request.organization.logo.url|default:logo_url }}" alt="Logo" class="float-start" width="128"> 
         </div>
         <div class="col text-end" style="font-size: 12px;">
           {% url 'core:change' app model|getattr:'_meta'|getattr:'model_name' obj.pk as qr_url %}
@@ -52,23 +52,16 @@
       </div>
     </header>
 
+    {% comment %}    
     {% if not obj.approved %}
     <div class="watermark">
         <h1 class="watermark-title-text">{% trans 'Unapproved' %}</h1>
     </div>
-    {% endif %}
+    {% endif %}{% endcomment %}
+
     {{ template|safe }}
+    
     <footer class="fw-bold" style="font-size: 12px;">
-      <div class="row">
-        <div class="col">
-          <p>{{ organization.name }}</p>
-          <p>{{ organization.physical_address }}</p>
-        </div>
-        <div class="col text-end">
-          <p>{{ organization.commercial_register_number }}</p>
-          <p>{{ organization.national_id }}</p>
-        </div>
-      </div>
     </footer>
   </body>
   {% endwith %}

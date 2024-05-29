@@ -1,0 +1,54 @@
+version: '2'
+
+services:
+    redis:
+        restart: unless-stopped
+        image: redis:latest
+        expose:
+            - 6379
+    #db:
+    #    image: postgres:latest
+    #    restart: unless-stopped
+    #    volumes:
+    #        - postgres_data:/var/lib/postgresql/data/
+    #    environment:
+    #        - POSTGRES_PASSWORD=payday
+    #        - POSTGRES_USER=payday
+    #        - POSTGRES_DB=payday
+    #    ports:
+    #        - 5432:5432
+    server:
+        restart: unless-stopped
+        build:
+            context: .
+            dockerfile: ./docker/backend/Dockerfile
+        entrypoint: /app/docker/backend/server-entrypoint.sh
+        volumes:
+            - static_volume:/app/backend/static
+            - media_volume:/app/backend/media
+        ports:
+            - 8000:8000    
+        env_file:
+            - ./docker/.env
+        depends_on:
+            #- db
+            - redis
+    
+    worker:
+        restart: unless-stopped
+        build:
+            context: .
+            dockerfile: ./docker/backend/Dockerfile
+        entrypoint: /app/docker/backend/worker-entrypoint.sh
+        volumes:
+            - static_volume:/app/backend/static
+            - media_volume:/app/backend/media
+        env_file:
+            - ./docker/.env
+        depends_on:
+            - server
+    
+volumes:
+    #postgres_data: {}
+    static_volume: {}
+    media_volume: {}

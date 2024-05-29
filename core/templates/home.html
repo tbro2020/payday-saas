@@ -13,13 +13,22 @@
 
 <div class="page-content">
     <div class="row">
-        <div class="col-3">
-            <div class="card pb-4">
+
+        <!-- Retired soon -->
+        <div class="col">
+            <div class="card">
                 <div class="card-header">
-                    <h4>Employee(s)</h4>
+                    <h4>Agent(s)</h4>
                 </div>
                 <div class="card-body text-center">
-                    <h4 class="fw-bolder">{{ employees.count|intcomma }}</h4>
+                    <div class="row">
+                        {% for status in employees_by_statues %}
+                        <div class="col text-center">
+                            {{ status.status__name }}
+                            <h3>{{ status.count|default:0|abs }}</h3>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -36,14 +45,14 @@
                             Total net payé 
                             <h3>{{ at_this_day.total|default:0|abs|intcomma }}</h3>
                         </div>
-                        <div class="col">
+                        {% comment %}<div class="col">
                             IPR / QPE
                             <h3>{{ ipr.total|default:0|abs|intcomma }}</h3>
                         </div>
                         <div class="col">
                             Total CNSS
                             <h3>{{ cnss.total|default:0|abs|intcomma }}</h3>
-                        </div>
+                        </div>{% endcomment %}
                     </div>
                 </div>
             </div>
@@ -60,15 +69,15 @@
                     <div class="row">
                         <div class="col text-center">
                             Ce mois-ci
-                            <h3>{{ at_this_day.total|default:0|abs }}</h3>
+                            <h3>{{ leave_this_month.count|default:0|abs }}</h3>
                         </div>
                         <div class="col">
                             Dans 3 mois
-                            <h3>{{ ipr.total|default:0|abs }}</h3>
+                            <h3>{{ leave_in_three_months.count|default:0|abs }}</h3>
                         </div>
                         <div class="col">
-                            Dans 1 an
-                            <h3>{{ cnss.total|default:0|abs }}</h3>
+                            Dans 6 mois
+                            <h3>{{ leave_in_six_months.count|default:0|abs }}</h3>
                         </div>
                     </div>
                 </div>
@@ -86,15 +95,15 @@
                     <div class="row">
                         <div class="col text-center">
                             Ce mois-ci
-                            <h3>{{ at_this_day.total|default:0|abs }}</h3>
+                            <h3>{{ retired_this_month.count|default:0|abs }}</h3>
                         </div>
                         <div class="col">
                             Dans 3 mois
-                            <h3>{{ ipr.total|default:0|abs }}</h3>
+                            <h3>{{ retired_in_three_months.count|default:0|abs }}</h3>
                         </div>
                         <div class="col">
-                            Dans 1 an
-                            <h3>{{ cnss.total|default:0|abs }}</h3>
+                            Dans 6 mois
+                            <h3>{{ retired_in_six_months.count|default:0|abs }}</h3>
                         </div>
                     </div>
                 </div>

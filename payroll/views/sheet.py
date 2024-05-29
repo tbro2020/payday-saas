@@ -16,10 +16,10 @@ import io
 class Sheet(BaseView):
     def get(self, request, pk):
         obj = get_object_or_404(Payroll, id=pk)
-        group_by = request.GET.get('group_by', None)
+        query = request.GET.dict()
+        group_by = query.pop('group_by', None)
 
-        output = io.BytesIO()
-        df = pd.read_json(json.dumps(obj.sheet()))
+        df = pd.read_json(json.dumps(obj.sheet(query)))
         df = df.groupby(group_by) if group_by else df
 
         response = HttpResponse(content_type='application/xlsx')

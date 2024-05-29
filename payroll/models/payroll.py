@@ -69,7 +69,7 @@ class Payroll(Base):
     def get_absolute_url(self):
         return reverse_lazy('payroll:payslips', args=[self.pk])
     
-    def sheet(self):
+    def sheet(self, query=dict):
         rows = []
         Employee = apps.get_model('employee', model_name='employee')
         
@@ -77,7 +77,7 @@ class Payroll(Base):
         employee_list_display = [field for field in Employee._meta.fields if field.name in employee_list_display]
         employee_list_display = employee_list_display + [field for field in Employee._meta.fields if field.choices or field.get_internal_type() == 'ModelSelect']
         
-        payslips = self.payslip_set.all().select_related().prefetch_related()
+        payslips = self.payslip_set.filter(**query).select_related().prefetch_related()
         items = [payslip.itempaid_set.all().values('name').distinct() for payslip in payslips]
         items = [[i['name'] for i in item] for item in items]
         items = reduce(lambda x,y:x+y,items)

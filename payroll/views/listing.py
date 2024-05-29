@@ -12,13 +12,16 @@ class Listing(BaseView):
         code = query.pop('code')
         if not code: return redirect(reversed('payroll:payslips', kwargs={'pk': obj.pk}))
 
+        items = ItemPaid.objects.filter(code=code, payslip__payroll=obj)\
+            .filter(**{f'payslip__{k}':v for k,v in query.items()})
+        
         qs = [{
             'registration_number': _obj.payslip.employee.registration_number, 
             'full_name': _obj.payslip.employee.full_name(),
             'amount_qp_employee': abs(getattr(_obj, 'amount_qp_employee', 0)), 
             'amount_qp_employer': abs(getattr(_obj, 'amount_qp_employer', 0)),
             'obj': _obj
-        } for _obj in ItemPaid.objects.filter(code=code, payslip__payroll=obj)]
+        } for _obj in items]
 
         total = { field : round(sum([row.get(field, 0) for row in qs]), 2)
             for field in ['amount_qp_employee', 'amount_qp_employer']}

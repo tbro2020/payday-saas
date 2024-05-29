@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from core.filters import filter_set_factory
 from django.core.paginator import Paginator
 from django.db.models import Sum
-from core.views import BaseView
+from core.views import Change
 
 
 from employee.models import Employee
@@ -10,7 +10,7 @@ from payroll.models import *
 
 
 
-class Payslips(BaseView):
+class Payslips(Change):
     template_name = 'payroll/payslips.html'
     
     def sheets(self):
@@ -25,6 +25,7 @@ class Payslips(BaseView):
             .filter(amount_qp_employee__gte=0).values('name', 'code').distinct())
     
     def get(self, request, pk):
+        self.kwargs['app'], self.kwargs['model'] = 'payroll', 'payroll'
         app, model = 'payroll', Payroll
 
         obj = get_object_or_404(Payroll, id=pk)

@@ -49,13 +49,13 @@
                         <dd class="col-8 mb-0">: {{ obj.employee.full_name }}</dd>
 
                         <dt class="col-4">Fonction</dt>
-                        <dd class="col-8 mb-0">: {{ obj.employee.designation }}</dd>
+                        <dd class="col-8 mb-0">: {{ obj.employee.position|default:'-' }}</dd>
 
                         <dt class="col-4">Catégorie</dt>
-                        <dd class="col-8 mb-0">: {{ obj.employee.grade }}</dd>
+                        <dd class="col-8 mb-0">: {{ obj.employee.grade|default:'-' }}</dd>
 
                         <dt class="col-4">Sit. Fam.</dt>
-                        <dd class="col-8 mb-0">: {{ obj.employee.marital_status.0 }}{{ obj.employee.children_set.all.count }}</dd>
+                        <dd class="col-8 mb-0">: {{ obj.employee.marital_status }}{{ obj.employee.children_set.all.count }}</dd>
 
                         <dt class="col-4">N°CNSS</dt>
                         <dd class="col-8 mb-0">: {{ obj.employee.social_security_number|default:"-" }}</dd>
@@ -67,19 +67,19 @@
                         <dd class="col-8 mb-0">: {{ obj.employee.payer_name|default:"-" }}</dd>
 
                         <dt class="col-4">Compte</dt>
-                        <dd class="col-8 mb-0">: {{ obj.employee.pay_account|default:"-" }}</dd>
+                        <dd class="col-8 mb-0">: {{ obj.employee.payment_account|default:"-" }}</dd>
 
                         <dt class="col-4">Salaire bar.</dt>
-                        <dd class="col-8 mb-0">: {{ obj.employee.grade }}</dd>
+                        <dd class="col-8 mb-0">: {{ obj.employee.grade|default:'-' }}</dd>
 
                         <dt class="col-4">Taux appl.</dt>
-                        <dd class="col-8 mb-0">: {{ obj.payroll.metadata.TAUX }}</dd>
+                        <dd class="col-8 mb-0">: {{ obj.payroll.metadata.taux }}</dd>
 
                         <dt class="col-4">Date engag.</dt>
                         <dd class="col-8 mb-0">: {{ obj.employee.date_of_join|date:"d F Y"|title }}</dd>
 
                         <dt class="col-4">Centre</dt>
-                        <dd class="col-8 mb-0">: {{ obj.employee.branch }}</dd>
+                        <dd class="col-8 mb-0">: {{ obj.employee.branch|default:'-' }}</dd>
                     </dl>
                 </div>
             </div>
@@ -192,9 +192,5 @@
             </table>
         
         </div>
-   
-   
    </body>
-   
-   
 </html>
