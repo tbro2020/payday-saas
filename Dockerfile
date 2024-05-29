@@ -14,9 +14,9 @@ RUN pip install gunicorn
 ADD . /app
 
 # Make the entrypoint scripts executable
-RUN chmod +x /app/docker/backend/server-entrypoint.sh
-RUN chmod +x /app/docker/backend/worker-entrypoint.sh
+RUN chmod +x /app/server-entrypoint.sh
+RUN chmod +x /app/worker-entrypoint.sh
 
 # Set the entrypoint for the server
-ENTRYPOINT ["/app/docker/backend/server-entrypoint.sh"]
+ENTRYPOINT ["/app/server-entrypoint.sh"]
 
