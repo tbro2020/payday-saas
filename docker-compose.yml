@@ -10,6 +10,8 @@ services:
       - "8000:8000"
     depends_on:
       - redis
+    env_file:
+      - ./docker/.env
 
   redis:
     image: redis:latest
