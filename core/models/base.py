@@ -43,7 +43,7 @@ class Base(models.Model):
     delete_qs.short_description = _('supprimer(s)')
     delete_qs.permissions = ['delete']
 
-    actions = [delete_qs]
+    actions = [] #[delete_qs]
 
 
     class Meta:
