@@ -19,7 +19,7 @@ class User(AbstractUser):
         null=True, 
         blank=True, 
         default=None, 
-        editable=False
+        #editable=False
     )
     
     email = models.EmailField(unique=True, db_index=True, verbose_name=_('email'))
