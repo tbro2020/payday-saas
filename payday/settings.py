@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     "django_ace",
     "phonenumber_field",
     "slick_reporting",
+    "corsheaders",
 
     "core",
     "api",
@@ -75,6 +76,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -321,3 +323,6 @@ if SENTRY_DSN:
         traces_sample_rate=1.0,
         send_default_pii=True
     )
+
+# cors header
+CORS_ALLOW_ALL_ORIGINS = True
