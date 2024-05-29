@@ -37,7 +37,7 @@ class User(AbstractUser):
     layout = Layout(
         Row(
             Column('organization'),
-            Column('employee'),
+            # Column('employee'),
             Column('email')
         ),
         Row(
