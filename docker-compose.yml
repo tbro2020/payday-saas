@@ -2,10 +2,12 @@ version: '3.9'
 
 services:
   web:
-    build: .
-    command: gunicorn payday.wsgi:application --bind 0.0.0.0:8000
+    image: python:3.12.2
+    #command: gunicorn payday.wsgi:application --bind 0.0.0.0:8000
+    command: sh -c "pip install -r requirements.txt && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app
+    working_dir: /app
     ports:
       - "8000:8000"
     depends_on:
