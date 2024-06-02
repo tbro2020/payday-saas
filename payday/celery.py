@@ -1,5 +1,4 @@
 from celery.schedules import crontab
-from datetime import timedelta
 from celery import Celery
 import os, ssl
 
@@ -34,7 +33,7 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
     'daily': {
         'task': 'daily',  
-        'schedule': crontab(minute=0, hour=24)
+        'schedule': crontab(minute=0, hour=23)
     },
 }
 

@@ -65,3 +65,6 @@ whitenoise==6.6.0
 XlsxWriter==3.2.0
 zope.event==5.0
 zope.interface==6.3
+psycopg2-binary
+boto3
+django-storages

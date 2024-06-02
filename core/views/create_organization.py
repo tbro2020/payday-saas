@@ -8,7 +8,7 @@ from core.models import Organization
 from core.forms import UserCreationForm
 
 class CreateOrganization(View):
-    template_name = "create_organization.html"
+    template_name = "organization.html"
 
     def get(self, request):
         organization = modelform_factory(Organization, fields=['logo', 'name'])
