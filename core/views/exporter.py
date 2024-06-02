@@ -7,15 +7,24 @@ from django.apps import apps
 from .base.base import BaseView
 import pandas as pd
 
+get_name_of_fields = lambda _list: list(map(lambda x: x.name, _list))
+
 class Exporter(BaseView):
     action = ["view"]
+
+    def get_list_display(self, model):
+        list_display = getattr(model, 'list_display', [])
+        return [field for field in model._meta.fields if field.name in list_display]
+    
+    def get_list_filter(self, model):
+        list_filter = getattr(model, 'list_filter', [])
+        return [field for field in model._meta.fields if field.name in list_filter]
     
     def get(self, request, app, model):
         model = apps.get_model(app, model)
         return render(request, "export.html", locals())
     
     def get_field_verbose(self, field, subfield):
-        print(field, subfield)
         if field.is_relation and subfield != field.name:
             return ".".join([field.verbose_name, field.related_model._meta.get_field(subfield).verbose_name]).lower()
         return field.verbose_name.lower()
@@ -32,19 +41,13 @@ class Exporter(BaseView):
     
     def post(self, request, app, model):
         model = apps.get_model(app, model)
-        list_filter = getattr(model, 'list_filter', [])
+        list_filter = self.get_list_filter(model)
 
         qs = model.objects.select_related().prefetch_related()
-        qs = qs._all(user=request.user) if hasattr(qs, '_all') else qs.all()
-
-        # Hard filter
-        query = {k:v for k, v in request.GET.dict().items() if v}
-        fields = [field.name for field in model._meta.fields if field.name]
-        qs = qs.filter(**{k:v.split(',') if k.split('__')[-1] == 'in' else v 
-            for k, v in query.items() if k.split("__")[0] in fields})
+        qs = qs._all(user=request.user, subdomain=request.subdomain) if hasattr(qs, '_all') else qs.all()
         
-        filter = filter_set_factory(model, fields=list_filter)
-        qs = filter(request.GET, queryset=qs).qs
+        filter = filter_set_factory(model, fields=get_name_of_fields(list_filter))
+        qs = filter(request.GET, queryset=qs).hard_filter()
 
         fields = {k:v for k,v in request.POST.dict().items() if k not in ['csrfmiddlewaretoken']}.keys()
         data = qs.values(*fields)

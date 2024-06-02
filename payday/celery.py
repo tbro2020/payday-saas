@@ -1,3 +1,4 @@
+from celery.schedules import crontab
 from datetime import timedelta
 from celery import Celery
 import os, ssl
@@ -8,8 +9,9 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'payday.settings')
 REDIS_URL_WITH_SSL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
 
 # Define more descriptive variable names for `broker_use_ssl` and `redis_backend_use_ssl`.
-BROKER_USE_SSL_CONFIG = {'ssl_cert_reqs': ssl.CERT_NONE}
 REDIS_BACKEND_USE_SSL_CONFIG = {'ssl_cert_reqs': ssl.CERT_NONE}
+BROKER_USE_SSL_CONFIG = {'ssl_cert_reqs': ssl.CERT_NONE}
+
 
 # Define a function to check if the REDIS_URL starts with `rediss://`.
 def is_redis_url_with_ssl(redis_url):
@@ -32,7 +34,7 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
     'daily': {
         'task': 'daily',  
-        'schedule': timedelta(days=1)
+        'schedule': crontab(minute=0, hour=24)
     },
 }
 

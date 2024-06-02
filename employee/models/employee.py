@@ -71,17 +71,17 @@ class Employee(Base):
     physical_address = models.TextField(_('adresse physique'), blank=True, null=True, default=None)
     emergency_information = models.TextField(_('informations d\'urgence'), null=True, default=None)
 
+    payer_name = ModelSelect('employee.payer', verbose_name=_('nom du payeur'), null=True, on_delete=models.SET_NULL, default=None)
     payment_account = models.CharField(_('numéro de compte'), max_length=50, blank=True, null=True, default=None)
     payment_method = models.CharField(_('mode de paiement'), max_length=20, choices=PAYMENT_METHODS)
-    payer_name = ModelSelect('employee.payer', verbose_name=_('nom du payeur'), null=True, on_delete=models.SET_NULL, default=None)
 
     comment = models.TextField(_('commentaire'), blank=True, null=True, default=None)
     status = ModelSelect('employee.Status', verbose_name=_('status'), null=True, on_delete=models.SET_NULL, default=None)
 
     objects = EmployeeQuerySet()
 
-    list_filter = ('direction', 'branch', 'designation', 'gender', 'marital_status', 'branch', 'status', 'date_of_join', 'date_of_birth')
-    list_display = ('registration_number', 'last_name', 'middle_name', 'designation', 'branch', 'status')
+    list_filter = ('direction', 'branch', 'position', 'marital_status', 'branch', 'status', 'date_of_join', 'date_of_birth')
+    list_display = ('registration_number', 'last_name', 'middle_name', 'position', 'branch', 'status')
     search_fields = ('registration_number', )
 
     inlines = ['employee.child', 'employee.education', 'employee.experience', 'employee.document', 'payroll.specialemployeeitem']
@@ -181,4 +181,4 @@ class Employee(Base):
     class Meta:
         verbose_name = _('employé')
         verbose_name_plural = _('employés')
-        ordering = ('-registration_number',)
+        ordering = ('-status', 'registration_number')

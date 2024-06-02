@@ -52,22 +52,10 @@
       </div>
     </header>
 
-    {% comment %}    
-    {% if not obj.approved %}
-    <div class="watermark">
-        <h1 class="watermark-title-text">{% trans 'Unapproved' %}</h1>
-    </div>
-    {% endif %}{% endcomment %}
-
     {{ template|safe }}
     
     <footer class="fw-bold" style="font-size: 12px;">
     </footer>
   </body>
   {% endwith %}
-  {% comment %}  <script>
-    window.onload = function() {
-      window.print();
-    }
-  </script>{% endcomment %}
 </html>

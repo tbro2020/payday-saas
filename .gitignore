@@ -161,3 +161,6 @@ cython_debug/
 
 # ignore the database
 .db.sqlite3
+
+# ignore the test data folder
+onboard/

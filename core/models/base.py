@@ -7,6 +7,8 @@ from .managers.base import QuerySet
 from .fields import JSONField
 from django.db import models
 
+from api.serializers import model_serializer_factory
+
 class Base(models.Model):
     updated_by = CurrentUserField(verbose_name=_('mis à jour par') ,related_name='%(app_label)s_%(class)s_updated_by', on_update=True)
     created_by = CurrentUserField(verbose_name=_('créé par') ,related_name='%(app_label)s_%(class)s_created_by')
@@ -34,6 +36,11 @@ class Base(models.Model):
 
     def __str__(self):
         return self.name
+    
+    @property
+    def serialized(self):
+        serializer = model_serializer_factory(self._meta.model)
+        return serializer(self).data
     
     def get_absolute_url(self):
         return reverse_lazy('core:change', args=[self._meta.app_label, self._meta.model_name, self.pk])

@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.humanize",
 
+    "storages",
+
     "dal",
     "dal_select2",
     "widget_tweaks",
@@ -178,11 +180,12 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_URL = os.getenv("STATIC_URL", STATIC_URL)
-#STATICFILES_DIRS =[os.path.join(BASE_DIR, 'static')]
+# STATICFILES_DIRS =[os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.getenv("STATIC_ROOT", STATIC_URL.replace('/', ''))
 
 AWS_LOCATION = os.getenv('AWS_LOCATION', default='')
 AWS_DEFAULT_ACL = os.getenv('AWS_DEFAULT_ACL', default='public-read')
+AWS_QUERYSTRING_AUTH= os.getenv('AWS_QUERYSTRING_AUTH', default=False)
 
 AWS_S3_REGION = os.getenv('AWS_S3_REGION')
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
@@ -192,11 +195,11 @@ AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
 AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
 
-# 'django.contrib.staticfiles.storage.StaticFilesStorage'
+DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+DEFAULT_FILE_STORAGE = os.getenv('DEFAULT_FILE_STORAGE', default=DEFAULT_FILE_STORAGE)
+
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 STATICFILES_STORAGE = os.getenv("STATICFILES_STORAGE", STATICFILES_STORAGE)
-DEFAULT_FILE_STORAGE = os.getenv('DEFAULT_FILE_STORAGE', default='django.core.files.storage.FileSystemStorage')
-
 
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = os.getenv("MEDIA_URL", 'media/')

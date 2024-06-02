@@ -51,11 +51,13 @@ class Payer(Task):
 
     def _payslip(self, employee: Employee):
         items_to_pay = []
-        payslip, created = Payslip.objects.get_or_create(
-            employee=employee, 
-            payroll=self.payroll, 
-            created_by=self.payroll.created_by
-        )
+        payslip, created = Payslip.objects.get_or_create(**{
+            'employee': employee,
+            '_employee': employee.serialized,
+            
+            'payroll': self.payroll,
+            'created_by': self.payroll.created_by
+        })
         items_paid_code = payslip.itempaid_set.values_list('code', flat=True)
 
         for item in self.items:

@@ -7,6 +7,8 @@ from core.models import Base
 
 
 class Payslip(Base):
+    payroll = models.ForeignKey(Payroll, verbose_name=_('paie'), null=True, on_delete=models.CASCADE)
+
     social_security_threshold = models.FloatField(_('plafond cnss/cnsap'), default=0)
     taxable_gross = models.FloatField(_('brut imposable'), default=0)
     
@@ -14,9 +16,7 @@ class Payslip(Base):
     net = models.FloatField(_('net'), default=0)
 
     employee = models.ForeignKey('employee.Employee', verbose_name=_('employé'), null=True, on_delete=models.SET_NULL)
-    payroll = models.ForeignKey(Payroll, verbose_name=_('paie'), null=True, on_delete=models.CASCADE)
-
-    # employee current situation a kind of static copy of the object
+    _employee = models.JSONField(verbose_name=_('employé'), default=dict)
 
     list_filter = ('employee__registration_number', 'employee__branch', 'employee__grade', 
                    'employee__payer_name', 'employee__status', 'employee__date_of_birth', 'employee__date_of_join')

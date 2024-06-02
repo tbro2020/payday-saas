@@ -6,6 +6,7 @@ class AsyncMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
+        """
         try:
             if hasattr(request, "session") and hasattr(request, "user"):
                 msgs = get_messages(request.user)
@@ -13,4 +14,5 @@ class AsyncMiddleware:
                     messages.add_message(request, level, msg)
         except:
             print("failed to fetch message")
+        """
         return self.get_response(request)
