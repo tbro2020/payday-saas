@@ -22,7 +22,7 @@ COPY . /app/
 COPY .env /app/.env
 
 # Collect static files
-RUN python manage.py collectstatic --noinput
+# RUN python manage.py collectstatic --noinput
 
 # Run migrations and start the Django application using Gunicorn
 CMD ["gunicorn", "--workers", "4", "--threads", "3", "--bind", "0.0.0.0:8000", "payday.wsgi:application"]
