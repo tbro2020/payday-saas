@@ -168,3 +168,4 @@ db-2.sqlite3
 onboard/
 uml.dot
 uml.png
+load.pgloader
