@@ -1,13 +1,11 @@
 from django.shortcuts import render, get_object_or_404
-from core.filters import filter_set_factory
 from django.core.paginator import Paginator
 from django.db.models import Sum
 from core.views import Change
 
-
+from payroll.filters import PayslipFilter
 from employee.models import Employee
-from payroll.models import *
-
+from django.apps import apps
 
 
 class Payslips(Change):
@@ -17,38 +15,33 @@ class Payslips(Change):
         return [field for field in Employee._meta.fields if field.choices or field.get_internal_type() == 'ModelSelect']
     
     def duties(self):
+        ItemPaid = apps.get_model('payroll', 'ItemPaid')
         return ItemPaid.objects.filter(payslip__payroll=self.kwargs['pk'])\
             .filter(amount_qp_employee__lte=0).values('name', 'code').distinct()
     
     def items(self):
+        ItemPaid = apps.get_model('payroll', 'ItemPaid')
         return list(ItemPaid.objects.filter(payslip__payroll=self.kwargs['pk'])\
             .filter(amount_qp_employee__gte=0).values('name', 'code').distinct())
     
     def get(self, request, pk):
         self.kwargs['app'], self.kwargs['model'] = 'payroll', 'payroll'
-        app, model = 'payroll', Payroll
+        app, model = 'payroll', apps.get_model('payroll', 'payroll')
+        Payslip = apps.get_model(app, 'payslip')
 
-        obj = get_object_or_404(Payroll, id=pk)
-        qs = Payslip.objects.filter(payroll=obj)
-        
-        list_filter = getattr(Payslip, 'list_filter', [])
-        
+        obj = get_object_or_404(model, id=pk)
         query = {k:v for k, v in request.GET.items() if v}
-        for key in list(query.keys()):
-            if key in ['employee__date_of_birth', 'employee__date_of_join']:
-                year, month = query.pop(key).split('-')
-                query['%s__month' % key] = month
-                query['%s__year' % key] = year
-
-        qs_filter = filter_set_factory(Payslip, fields=list_filter)
-        qs_filter = qs_filter(query, queryset=qs)
-        qs = qs_filter.hard_filter()
+        qs = obj.payslip_set.all().select_related().prefetch_related()
+        filter = PayslipFilter(query, queryset=qs)
+        
+        qs = filter.qs
+        fields = [field.name for field in qs.model._meta.fields]
+        qs = qs.filter(**{k:v for k,v in query.items() if k in fields})
 
         overall_net = round(qs.aggregate(amount=Sum('net'))['amount'] or 0, 2)
         count = qs.count()
 
-
-        paginator = Paginator(qs.order_by(f'-{Payslip._meta.pk.name}'), 25)
+        paginator = Paginator(qs.order_by(f'-{Payslip._meta.pk.name}'), count)
         qs = paginator.page(int(request.GET.dict().get('page', 1)))
         
         return render(request, self.template_name, locals())

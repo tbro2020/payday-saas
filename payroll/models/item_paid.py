@@ -1,4 +1,5 @@
 from django.utils.translation import gettext as _
+from crispy_forms.layout import Layout
 from django.db import models
 from core.models import Base
 
@@ -22,6 +23,19 @@ class ItemPaid(Base):
 
     is_bonus = models.BooleanField(_('est une prime'), help_text=_('Cet élément est un bonus'), default=False)
     is_payable = models.BooleanField(_('est payable'), help_text=_('Cet élément est payable'), default=True)
+
+    layout = Layout(
+        'name',
+        'code',
+        'time',
+        'rate',
+        'amount_qp_employer',
+        'amount_qp_employee',
+        'social_security_amount',
+        'taxable_amount',
+        'is_bonus',
+        'is_payable'
+    )
 
     class Meta:
         verbose_name = _('element payé')

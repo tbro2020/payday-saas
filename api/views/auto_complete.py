@@ -22,7 +22,7 @@ class Autocomplete(autocomplete.Select2QuerySetView):
 
         qs = model.objects.all()
         fields = [field.name for field in model._meta.fields if field.get_internal_type() in ['CharField', 'TextField']]
-        return qs.filter(reduce(lambda q, field: q | Q(**{f'{field}__icontains': self.q}), fields, Q()))
+        return qs.filter(reduce(lambda q, field: q | Q(**{f'{field}__icontains': self.q}), fields, Q())).order_by(f'-{model._meta.pk.name}')
 
     def get_result_value(self, result):
         return getattr(result, self.kwargs.get('to_field', 'pk'), result)

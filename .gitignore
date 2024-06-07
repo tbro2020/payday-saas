@@ -59,6 +59,7 @@ cover/
 *.log
 local_settings.py
 db.sqlite3
+db-2.sqlite3
 db.sqlite3-journal
 
 # Flask stuff:
@@ -160,7 +161,10 @@ cython_debug/
 #.idea/
 
 # ignore the database
-.db.sqlite3
+db.sqlite3
+db-2.sqlite3
 
 # ignore the test data folder
 onboard/
+uml.dot
+uml.png

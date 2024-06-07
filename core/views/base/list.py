@@ -42,7 +42,7 @@ class List(BaseView):
         
         filter = filter_set_factory(model, fields=get_name_of_fields(list_filter))
         filter = filter(request.GET, queryset=qs)
-        qs = filter.hard_filter()
+        qs = filter.qs
 
         paginator = Paginator(qs.order_by(f'-{model._meta.pk.name}'), 25)
         qs = paginator.page(int(request.GET.dict().get('page', 1)))

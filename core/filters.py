@@ -6,14 +6,9 @@ from django import forms
 from core import forms as core_forms
 
 class AdvanceFilterSet(django_filters.FilterSet):
-    q = django_filters.CharFilter(
-        field_name="q", 
-        label="", 
-        method='search_by_field', 
-        widget=forms.TextInput(attrs={'class': 'd-none'})
-    )
+    q = django_filters.CharFilter(label=str, method='search', widget=forms.TextInput(attrs={'class': 'form-control d-none'}))
     
-    def search_by_field(self, queryset, name, value):
+    def search(self, queryset, name, value):
         """
         Filters the queryset based on a search query applied to all CharField and TextField fields.
         """

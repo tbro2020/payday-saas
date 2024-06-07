@@ -2,12 +2,15 @@ from django.utils.translation import gettext as _
 from django.shortcuts import render
 from .base import BaseView
 
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
+
 from django.db.models import Q, Sum, Count
-from employee.models import *
-from payroll.models import *
 from datetime import date, timedelta
+from employee.models import *
+from django.apps import apps
 
-
+@method_decorator(cache_page(60 * 15), name='dispatch')
 class Home(BaseView):
     today = date.today()
 
@@ -23,7 +26,11 @@ class Home(BaseView):
         when = self.today + timedelta(days=30*period)
         return qs.filter(date_of_join__month=when.month)
 
+    
     def get(self, request):
+        ItemPaid = apps.get_model('payroll', 'ItemPaid')
+        Payroll = apps.get_model('payroll', 'Payroll')
+        
         employees = Employee.objects.all().select_related().prefetch_related()
         
         employees_by_statues = employees.values('status__name')\

@@ -1,3 +1,3 @@
-#from .advance_salary import *
+from .advance_salary import *
 #from .item_paid import *
-#from .payroll import *
+from .payroll import *

@@ -146,7 +146,7 @@ class Employee(Base):
         return f"{self.last_name} {self.middle_name}, {self.first_name}"
     
     def short_name(self):
-        return f"{self.last_name} {self.first_name}"
+        return f"{self.last_name} {self.middle_name}"
 
     @property
     def name(self):

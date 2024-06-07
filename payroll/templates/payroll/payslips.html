@@ -44,10 +44,10 @@
                         <span>
                             <button class="btn btn-light-warning dropdown-toggle rounded-0" id="dropdown-synthesis" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Synthesis' %}</button>
                             <div class="dropdown-menu" aria-labelledby="dropdown-synthesis">
-                                <a class="dropdown-item" href="{% url 'payroll:synthesis' obj.pk %}?by_item=all&{{ request.GET.urlencode }}">{% trans "Global" %}</a>
+                                <a class="dropdown-item" href="{% url 'payroll:synthesis-by-item' obj.pk %}?{{ request.GET.urlencode }}">{% trans "Global" %}</a>
                                 <div class="dropdown-divider"></div>
                                 {% for field in self.sheets %}
-                                    <a class="dropdown-item" href="{% url 'payroll:synthesis' obj.pk %}?by_employee_field={{ field.name }}&{{ request.GET.urlencode }}">{{ field.verbose_name|title }}</a>
+                                    <a class="dropdown-item" href="{% url 'payroll:synthesis-by-employee' obj.pk %}?field={{ field.name }}&{{ request.GET.urlencode }}">{{ field.verbose_name|title }}</a>
                                 {% endfor %}
                             </div>
                         </span>
@@ -68,7 +68,7 @@
                         <span>
                             <button class="btn btn-light-primary dropdown-toggle rounded-0" id="dropdown-sheet" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Payroll sheet' %} &nbsp;</button>
                             <div class="dropdown-menu" aria-labelledby="dropdown-sheet">
-                                <a class="dropdown-item" href="{% url 'payroll:sheet' obj.pk %}">{% trans 'Global' %}</a>
+                                <a class="dropdown-item" href="{% url 'payroll:sheet' obj.pk %}?{{ request.GET.urlencode }}">{% trans 'Global' %}</a>
                                 <div class="dropdown-divider"></div>
                                 {% for field in self.sheets %}
                                     <a class="dropdown-item" href="{% url 'payroll:sheet' obj.pk %}?group_by={{ field.verbose_name|title }}&{{ request.GET.urlencode }}">{{ field.verbose_name|title }}</a>
@@ -171,7 +171,7 @@
                                         {% for obj in qs %}
                                         <tr>
                                             <td>{{ obj.employee.registration_number }}</td>
-                                            <td>{{ obj.employee.full_name }}</td>
+                                            <td>{{ obj.employee.last_name }} {{ obj.employee.middle_name }}</td>
                                             <td>{{ obj.net|intcomma }}</td>
                                             <td><a href="{{ obj.get_absolute_url }}">{% trans 'View' %}</a></td>
                                         </tr>
@@ -216,7 +216,6 @@
                     
                 </div>
                 
-                {% if list_filter %}
                 <div class="col-md-3 col-sm-12 col-xs-12">
                     <div class="card">
                         <div class="card-body">
@@ -230,12 +229,11 @@
                             </div>
                             <hr>
                             <form name="GET" id="filter-form">
-                                {{ qs_filter.form|crispy }}
+                                {{ filter.form|crispy }}
                             </form>
                         </div>
                     </div>
                 </div>
-                {% endif %}
             </div>
         </div>
     </section>

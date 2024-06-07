@@ -1,8 +1,11 @@
-from .synthesis import Synthesis
+from .synthesis_by_employee import SynthesisByEmployee
+from .synthesis_by_item import SynthesisByItem
+
 from .payslips import Payslips
 from .payslip import Payslip
 
+from .canvas_items_to_pay import CanvasItemsToPay
+from .canvas import Canvas
+
 from .listing import Listing
 from .sheet import Sheet
-
-from .report_item_paid import ReportItemPaid

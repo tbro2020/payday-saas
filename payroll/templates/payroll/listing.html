@@ -42,7 +42,8 @@
         </div>
         
         <div class="col">
-            <table class="table table-striped">
+            {{ df|safe }}
+            {% comment %}<table class="table table-striped">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -79,7 +80,7 @@
                         <td><h5>{{ total.amount_qp_employer|intcomma }}</h5></td>
                     </tr>
                 </tbody>
-            </table>
+            </table>{% endcomment %}
         </div>
         
     </div>

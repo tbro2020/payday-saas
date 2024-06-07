@@ -1,43 +1,45 @@
 from django.utils.translation import gettext as _
-from django.db.models import Q
-from functools import reduce
+from employee.models import *
 from django_filters import *
-
-from core import forms as core_forms
 from django import forms
 
+from django.db.models import Q
+from functools import reduce
 
-class AdvanceFilterSet(FilterSet):
-    q = CharFilter("", label="", method='search', widget=forms.TextInput(attrs={'class': 'd-none'}))
-    
+
+
+
+class PayslipFilter(FilterSet):
+    q = CharFilter(label=str, method='search', widget=forms.TextInput(attrs={'class': 'form-control d-none'}))
+    status = ChoiceFilter(label=_('Status'), method='by_status', choices=Status.objects.values_list('name', 'name').distinct(), widget=forms.Select(attrs={'class': 'form-control'}))
+    branch = ChoiceFilter(label=_('Site'), method='by_branch', choices=Branch.objects.values_list('name', 'name').distinct(), widget=forms.Select(attrs={'class': 'form-control'})) 
+    payer = ChoiceFilter(label=_('Banque'), method='by_payer', choices=Payer.objects.values_list('name', 'name').distinct(), widget=forms.Select(attrs={'class': 'form-control'}))
+    grade = ChoiceFilter(label=_('Grade'), method='by_grade', choices=Grade.objects.values_list('name', 'name').distinct(), widget=forms.Select(attrs={'class': 'form-control'}))
+
     def search(self, queryset, name, value):
-        fields = getattr(self._meta.model, 'search_fields', [])
-        fields = fields if fields else [field.name for field in self._meta.model._meta.fields if field.get_internal_type() in ['CharField', 'TextField']]
-        return queryset.filter(reduce(lambda q, field: q | Q(**{f'{field}__icontains': value}), fields, Q()))
+        fields = ['_employee__registration_number', '_employee__middle_name', '_employee__last_name']
+        query = reduce(lambda q, field: q | Q(**{f"{field}__icontains": value}), fields, Q())
+        return queryset.filter(query).distinct()
 
-    def hard_filter(self):
-        query = {k:v for k, v in self.data.items() if v}
-        fields = [field.name for field in self._meta.model._meta.fields if field.name]
-        return self.queryset.filter(**{k:v for k, v in query.items() if k.split("__")[0] in fields})
-
-
-def filter_set_factory(model, fields):
-    attrs = {}
-    meta = type(str("Meta"), (object,), {"model": model, "fields": fields})
-
-    for base_field in fields:
-        params = {}
-        field, subfield = base_field.split('__') if '__' in base_field else (base_field, None)
-        field = model._meta.get_field(field)
-
-        if field.get_internal_type() not in ['DateTimeField', 'DateField']: continue
-        _class = eval(field.get_internal_type().replace("Field", "FromToRangeFilter"))
-  
-        if _class.__name__.endswith('ToRangeFilter'):
-            base_class_name = _class.__name__.replace('FromToRangeFilter', '')
-            params['widget'] = getattr(core_forms, f'{base_class_name}RangeWidget')()
-        attrs[base_field] = _class(**params)
-        
+    def by_branch(self, queryset, name, value):
+        return queryset.filter(_employee__branch__name=value)
     
-    attrs['Meta'] = meta
-    return type(str("%sFilterSet" % model._meta.object_name), (AdvanceFilterSet,), attrs)
+    def by_grade(self, queryset, name, value):
+        return queryset.filter(_employee__grade__name=value)
+
+    def by_payer(self, queryset, name, value):
+        return queryset.filter(payer__name=value)
+    
+    def by_status(self, queryset, name, value):
+        return queryset.filter(_employee__status__name=value)
+
+    class Meta:
+        fields = ('branch', 'grade', 'payer', 'status')
+    
+    """
+    def hard_filter(self):
+        model = apps.get_model('payroll', model_name='payslip')
+        fields = [field.name for field in model._meta.fields]
+        query = {k:v for k, v in self.data.items() if k in fields}
+        return self.queryset.filter(**query)
+    """

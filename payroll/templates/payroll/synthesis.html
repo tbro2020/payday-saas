@@ -60,7 +60,7 @@
         </div>
 
         <div class="col">
-            <table class="table table-striped">
+            {% comment %}<table class="table table-striped">
                 <thead style="font-weight: bolder">
                     <tr>
                         <td>{{ model|getattr:'_meta'|getattr:'verbose_name'|default:'#'|title }}</td>
@@ -85,7 +85,8 @@
                         </tr>
                     {% endfor %}
                 </tbody>
-            </table>
+            </table>{% endcomment %}
+            {{ df|safe }}
         </div>
 
     </div>

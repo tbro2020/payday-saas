@@ -30,7 +30,7 @@
 
                 <div class="col text-end">
                     <div class="btn-group">
-                        <a href="#" class="btn btn-info">{% trans 'Envoyer le bulletin de paie par email' %}</a>
+                        {% comment %}<a href="#" class="btn btn-info">{% trans 'Envoyer le bulletin de paie par email' %}</a>{% endcomment %}
                         <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownDocumentBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             {% trans "Documents" %}
                         </button>
@@ -51,7 +51,7 @@
     <div class="col">
         <div class="card">
             <div class="card-header text-bg-primary">
-                <h5 class="text-light fw-bolder mb-4">{{ obj }}</h5>
+                <h5 class="text-light fw-bolder mb-4">{{ obj.employee.last_name }} {{ obj.employee.middle_name }}</h5>
                 <div class="row">
                     {% for field in model|getattr:'_meta'|getattr:'fields' %}
                         {% if field.editable and field.name != 'metadata' %}
@@ -60,6 +60,11 @@
                                     <dt class="col-sm-4 text-capitalized">{{ field.verbose_name|title }}</dt>
                                     {% if field.get_internal_type == 'FloatField' %}
                                         <dd class="col-sm-8">{{ obj|getattr:field.name|intcomma }}</dd>
+                                    {% elif field.get_internal_type == 'JSONField' %}
+                                        <dd class="col-sm-8">
+                                            {{ obj.employee.registration_number }} <br />
+                                            {{ obj.employee.last_name }} {{ obj.employee.middle_name }}
+                                        </dd>
                                     {% else %}
                                         <dd class="col-sm-8">{{ obj|getattr:field.name }}</dd>
                                     {% endif %}

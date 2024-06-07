@@ -1,3 +1,4 @@
+from django.views.decorators.cache import cache_page
 from django.urls import path
 from core.views import *
 
@@ -25,6 +26,5 @@ urlpatterns = [
     path('exporter/<str:app>/<str:model>', Exporter.as_view(), name='exporter'),
 
     path('canvas/download/<str:pk>', Canvas.as_view(), name='canvas-download'),
-    path('action/required', ActionRequired.as_view(), name='action-required'),
-    path('report', Reporter.as_view(), name='report')
+    path('action/required', ActionRequired.as_view(), name='action-required')
 ]

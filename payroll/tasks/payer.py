@@ -1,164 +1,278 @@
 from django.utils.translation import gettext as _
 from django.shortcuts import get_object_or_404
-from employee.models import Employee
+from employee.models import Employee, MaritalStatus
 from django.db.models import Sum
-from payroll.models import *
+from payroll.models import LegalItem, Item, ItemPaid, Payslip, PayrollStatus
 from celery import Task
-
-from employee.models import MaritalStatus
+from django.apps import apps
+import pandas as pd
+from api.serializers import model_serializer_factory
 from payday.celery import app
 
+# Serializer for Employee model
+EmployeeSerializer = model_serializer_factory(Employee)
+
 class Payer(Task):
+    """
+    Celery Task to handle payroll processing and payslip generation.
+    """
     errors = []
     name = 'payer'
     ignore_result = True
 
-    legal_items = LegalItem.objects.all()
-    items = Item.objects.filter(is_payable=True)
-    employees = Employee.objects.select_related().all()
+    def __init__(self):
+        # Pre-fetch legal items and payable items to avoid repeated queries
+        self.legal_items = LegalItem.objects.all()
+        self.employees = Employee.objects.select_related().all()
+        self.items = Item.objects.filter(is_payable=True).exclude(condition='0')
 
-    def run(self, payroll, *args, **kwargs):
-        self.payroll = get_object_or_404(Payroll, pk=payroll)
+    def run(self, payroll_id, *args, **kwargs):
+        """
+        Main entry point for the task. Processes the payroll.
+        """
+        Payroll = apps.get_model('payroll', 'Payroll')
+        self.payroll = get_object_or_404(Payroll, pk=payroll_id)
+
+        # Load additional items from Excel
+        self.additional_items = self.load_excel(None)#(self.payroll.additional_items.path)
+        if not self.additional_items.empty:
+            self.additional_items.fillna(0, inplace=True)
+            self.additional_items['matricule'] = self.additional_items['matricule'].astype(str)
+
+        # Build and apply employee filter
+        payroll_employee_filter = self.build_payroll_employee_filter()
+        self.employees = self.filter_employees(payroll_employee_filter)
         
-        payroll_employee_filter = {
-            'grade__in': self.payroll.employee_grade.values_list('id'),
-            'branch__in': self.payroll.employee_branch.values_list('id'),
-            'status__in': self.payroll.employee_status.values_list('id'),
-            'direction__in': self.payroll.employee_direction.values_list('id')
-        }
-        payroll_employee_filter = {k:v for k,v in payroll_employee_filter.items() if v}
-        self.employees = self.employees.filter(**payroll_employee_filter).filter(**kwargs.get('employee', {}))
+        # Test user
+        # self.employees = self.employees.filter(registration_number='87809')
+
+        # Generate payslips
         self.generate()
 
+    def load_excel(self, path):
+        """
+        Load Excel file into a DataFrame.
+        """
+        return pd.read_excel(path) if path else pd.DataFrame()
+
+    def build_payroll_employee_filter(self):
+        """
+        Build a dictionary of filters for selecting employees based on payroll criteria.
+        """
+        return {
+            k:v
+            for k, v in {
+                'grade__in': self.payroll.employee_grade.values_list('id', flat=True),
+                'branch__in': self.payroll.employee_branch.values_list('id', flat=True),
+                'status__in': self.payroll.employee_status.values_list('id', flat=True),
+                'direction__in': self.payroll.employee_direction.values_list('id', flat=True)
+            }.items() if v
+        }
+
+    def filter_employees(self, payroll_employee_filter):
+        """
+        Filter employees based on the provided filters.
+        """
+        return self.employees.filter(**payroll_employee_filter)
+
     def generate(self, *args, **kwargs):
+        """
+        Generate payslips for all filtered employees.
+        """
         try:
             for employee in self.employees:
-                payslip = self._payslip(employee)
-                self._duty(payslip)
-            overall_net = self.payroll.payslip_set.all().aggregate(amount=Sum('net')).get('amount', 0)
-            self.payroll.overall_net = round(overall_net, 2) if overall_net else 0
-            
-            self.payroll.status = PayrollStatus.SUCCESS
-            self.payroll.save()
-            # send email that the payroll is done
-
+                payslip = self.create_or_get_payslip(employee)
+                self.process_payslip_items(payslip, employee)
+            self.update_payroll_status(PayrollStatus.SUCCESS)
         except Exception as ex:
-            self.payroll.status = PayrollStatus.WARNING
-            self.payroll.metadata['errors'].append({'message': str(ex), 'tag': 'error'})
-            self.payroll.created_by.email_user(_(f"Il semble que quelque chose n'a pas fonctionné dans votre système de paie {self.payroll.name}"), str(ex))
-            self.payroll.save()
-            # generate error
+            self.handle_generation_exception(ex)
 
-    def _payslip(self, employee: Employee):
+    def create_or_get_payslip(self, employee):
+        """
+        Create or get an existing payslip for the employee.
+        """
+        return Payslip.objects.get_or_create(
+            _employee=EmployeeSerializer(employee).data,
+            payroll=self.payroll,
+            created_by=self.payroll.created_by
+        )[0]
+
+    def process_payslip_items(self, payslip, employee):
+        """
+        Process and calculate the payable items for the payslip.
+        """
+        items_to_pay = self.calculate_items_to_pay(payslip, employee)
+        self.bulk_create_items(items_to_pay)
+        self.finalize_payslip(payslip)
+        self.process_legal_items(payslip, employee)
+        
+
+    def calculate_items_to_pay(self, payslip, employee):
+        """
+        Calculate the items to be paid on the payslip.
+        """
         items_to_pay = []
-        payslip, created = Payslip.objects.get_or_create(**{
-            'employee': employee,
-            '_employee': employee.serialized,
-            
-            'payroll': self.payroll,
-            'created_by': self.payroll.created_by
-        })
         items_paid_code = payslip.itempaid_set.values_list('code', flat=True)
 
         for item in self.items:
-            if item.code in items_paid_code: continue
-            condition = eval(item.condition, locals())
-            if not condition: continue
+            if item.code in items_paid_code:
+                continue
+
+            if not self.evaluate_condition(item.condition, employee):
+                continue
+
+            formula_qp_employee, formula_qp_employer = self.evaluate_formulas(item, employee)
+            if formula_qp_employee == 0 and formula_qp_employer:
+                continue
+
+            rate = self.calculate_rate(formula_qp_employee, item, employee)
+            items_to_pay.append(self.create_item_paid(item, payslip, rate, formula_qp_employee, formula_qp_employer))
+
+        if not self.additional_items.empty:
+            additional_items = self.process_additional_items(payslip, employee)
+            items_to_pay.extend(additional_items)
+
+        return items_to_pay
+
+    def evaluate_condition(self, condition, employee):
+        """
+        Safely evaluate the condition for an item.
+        """
+        try:
+            return eval(condition, locals())
+        except Exception:
+            return False
+
+    def evaluate_formulas(self, item, employee, payslip=None):
+        """
+        Safely evaluate the formulas for employee and employer.
+        """
+        try:
+            formula_qp_employee = abs(round(eval(item.formula_qp_employee, locals()), 2)) * item.type_of_item
+            formula_qp_employer = abs(round(eval(item.formula_qp_employer, locals()), 2)) * item.type_of_item
+            return formula_qp_employee, formula_qp_employer
+        except Exception as ex:
+            print(ex)
+            return 0, 0
+
+    def calculate_rate(self, formula_qp_employee, item, employee):
+        """
+        Calculate the rate for an item.
+        """
+        try:
             time = eval(item.time, locals())
+            return round(abs(formula_qp_employee / time) if time > 0 else abs(formula_qp_employee), 2)
+        except Exception:
+            return 0
 
-            # formula qp employee
-            formula_qp_employee = round(eval(item.formula_qp_employee, locals()), 2)
-            formula_qp_employee = abs(formula_qp_employee) * item.type_of_item
+    def create_item_paid(self, item, payslip, rate, formula_qp_employee, formula_qp_employer):
+        """
+        Create an ItemPaid instance.
+        """
+        return ItemPaid(
+            code=item.code,
+            type_of_item=item.type_of_item,
+            name=item.name,
+            time=rate,
+            rate=rate,
+            amount_qp_employer=formula_qp_employer,
+            amount_qp_employee=formula_qp_employee,
+            taxable_amount=formula_qp_employee if item.is_taxable else 0,
+            social_security_amount=formula_qp_employee if item.is_social_security else 0,
+            is_bonus=item.is_bonus,
+            is_payable=item.is_payable,
+            payslip=payslip,
+            created_by=self.payroll.created_by
+        )
 
-            # formula qp employer
-            formula_qp_employer = round(eval(item.formula_qp_employer, locals()), 2)
-            formula_qp_employer = abs(formula_qp_employer) * item.type_of_item
+    def process_additional_items(self, payslip, employee):
+        """
+        Process additional items from the additional items DataFrame.
+        """
+        df = self.additional_items[self.additional_items['matricule'] == employee.registration_number]
+        if df.empty: return []
+        return [
+            ItemPaid(
+                code=item.get('code'),
+                name=item.get('nom'),
+                type_of_item=item.get("type d'element", 1),
+                time=item.get('temps', 0),
+                rate=item.get('taux', 0),
+                amount_qp_employer=item.get('montant quote part employeur'),
+                amount_qp_employee=item.get('montant quote part employee'),
+                taxable_amount=item.get('montant imposable'),
+                social_security_amount=item.get('plafond de la sécurité sociale'),
+                is_bonus=item.get('est une prime', False),
+                is_payable=item.get('est payable', False),
+                payslip=payslip,
+                created_by=self.payroll.created_by
+            )
+            for item in df.to_dict(orient='records')
+        ]
 
-            if formula_qp_employee == 0 and formula_qp_employer: continue
-
-            rate = (formula_qp_employee / time) if time > 0 else formula_qp_employee
-            rate = round(abs(rate), 2)
-
-            # Generate item paid
-            item_to_pay: ItemPaid = ItemPaid(**{'code': item.code, 
-                'type_of_item': item.type_of_item, 
-
-                'name': item.name, 
-                'time': time, 
-                'rate': rate,
-
-                'amount_qp_employer': formula_qp_employer, 
-                'amount_qp_employee': formula_qp_employee, 
-
-                'taxable_amount': formula_qp_employee if item.is_taxable else 0,
-                'social_security_amount': formula_qp_employee if item.is_social_security else 0,
-
-                'is_bonus': item.is_bonus,
-                'is_payable': item.is_payable,
-                
-                'payslip': payslip,
-                'created_by': self.payroll.created_by
-            })
-            items_to_pay.append(item_to_pay)
+    def bulk_create_items(self, items_to_pay):
+        """
+        Bulk create ItemPaid instances.
+        """
         ItemPaid.objects.bulk_create(items_to_pay)
 
-        # Calculate the fixed value
+    def finalize_payslip(self, payslip):
+        """
+        Finalize and save the payslip with calculated totals.
+        """
         items_paid = payslip.itempaid_set.filter(is_payable=True)
+
         payslip.gross = round(items_paid.aggregate(amount=Sum('amount_qp_employee')).get('amount', 0), 2)
         payslip.net = round(items_paid.aggregate(amount=Sum('amount_qp_employee')).get('amount', 0), 2)
-
         payslip.social_security_threshold = round(items_paid.aggregate(amount=Sum('social_security_amount')).get('amount', 0), 2)
         payslip.taxable_gross = round(items_paid.aggregate(amount=Sum('taxable_amount')).get('amount', 0), 2)
         payslip.save()
 
-        return payslip
+    def update_payroll_status(self, status):
+        """
+        Update the payroll status and overall net amount.
+        """
+        overall_net = self.payroll.payslip_set.aggregate(amount=Sum('net')).get('amount', 0)
+        self.payroll.overall_net = round(overall_net, 2) if overall_net else 0
+        self.payroll.status = status
+        self.payroll.save()
 
-    def _duty(self, payslip: Payslip):
+    def handle_generation_exception(self, ex):
+        """
+        Handle exceptions during payslip generation.
+        """
+        self.payroll.status = PayrollStatus.WARNING
+        self.payroll.metadata.setdefault('errors', []).append({'message': str(ex), 'tag': 'error'})
+        self.payroll.created_by.email_user(
+            _(f"Il semble que quelque chose n'a pas fonctionné dans votre système de paie {self.payroll.name}"), str(ex)
+        )
+        self.payroll.save()
+
+    def process_legal_items(self, payslip, employee):
+        """
+        Process legal items for the payslip.
+        """
+        legal_items_to_pay = self.calculate_legal_items(payslip, employee)
+        self.bulk_create_items(legal_items_to_pay)
+        self.finalize_payslip(payslip)
+
+    def calculate_legal_items(self, payslip, employee):
+        """
+        Calculate the legal items for the payslip.
+        """
         legal_items_to_pay = []
-        qs = payslip.itempaid_set.filter(code__in=[item.code for item in self.legal_items])
-        qs.order_by().select_related(None)._raw_delete(qs.db)
+        payslip.itempaid_set.filter(code__in=[item.code for item in self.legal_items]).delete()
 
         for legal in self.legal_items:
-            condition = eval(legal.condition, locals())
-            if not condition: continue
+            if not self.evaluate_condition(legal.condition, locals()):
+                continue
 
-            # formula qp employee
-            formula_qp_employee = round(eval(legal.formula_qp_employee, locals()), 2)
-            formula_qp_employee = abs(formula_qp_employee) * legal.type_of_item
+            formula_qp_employee, formula_qp_employer = self.evaluate_formulas(legal, employee, payslip)
+            legal_items_to_pay.append(self.create_legal_item_paid(legal, payslip, formula_qp_employee, formula_qp_employer))
 
-            # formula qp employer
-            formula_qp_employer = round(eval(legal.formula_qp_employer, locals()), 2)
-            formula_qp_employer = abs(formula_qp_employer) * legal.type_of_item
-
-            legal_item_to_pay: ItemPaid = ItemPaid(**{
-                'code': legal.code, 
-                'name': legal.name,
-                'type_of_item': legal.type_of_item, 
-        
-                'amount_qp_employer': formula_qp_employer, 
-                'amount_qp_employee': formula_qp_employee, 
-
-                'is_bonus': False,
-                'is_payable': True,
-
-                'payslip': payslip,
-                'created_by': self.payroll.created_by
-            })
-            legal_items_to_pay.append(legal_item_to_pay)
-
-        # Calculate the fixed value
-        ItemPaid.objects.bulk_create(legal_items_to_pay)
-        items_paid = payslip.itempaid_set.filter(is_payable=True)
-        payslip.net = round(items_paid.aggregate(amount=Sum('amount_qp_employee')).get('amount', 0), 2)
-        payslip.gross = round(items_paid.aggregate(amount=Sum('amount_qp_employee')).get('amount', 0), 2)
-
-        payslip.taxable_gross = round(items_paid.aggregate(amount=Sum('taxable_amount')).get('amount', 0), 2)
-        payslip.social_security_threshold = round(items_paid.aggregate(amount=Sum('social_security_amount')).get('amount', 0), 2)
-        
-        payslip.save()
-        return payslip
-
-    def tax(self, payslip, **kwargs):
+        return legal_items_to_pay
+    
+    def tax(self, payslip, employee, **kwargs):
         tranches = {
             0.03: [0, 162000],
             0.15: [162001, 1800000],
@@ -173,10 +287,24 @@ class Payer(Task):
         ipr = ipr + 4860
         
         person = int(payslip.employee.metadata.get('NOMBRE_ENFANT', 0))
-        person = person if person > 0 else payslip.employee.child_set.count()
+        #person = person if person > 0 else payslip.employee.child_set.count()
         person = person + (1 if payslip.employee.marital_status == MaritalStatus.Maried.value else 0)
 
         ipr = ipr - ((ipr*0.02) * person)
         return round(ipr, 2)
 
-app.register_task(Payer())
+    def create_legal_item_paid(self, legal, payslip, formula_qp_employee, formula_qp_employer):
+        """
+        Create an ItemPaid instance for a legal item.
+        """
+        return ItemPaid(
+            code=legal.code,
+            name=legal.name,
+            time=0,
+            rate=0,
+            type_of_item=legal.type_of_item,
+            amount_qp_employer=formula_qp_employer,
+            amount_qp_employee=formula_qp_employee,
+            payslip=payslip,
+            created_by=self.payroll.created_by
+        )

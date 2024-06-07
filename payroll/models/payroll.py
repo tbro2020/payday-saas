@@ -1,13 +1,17 @@
-from crispy_forms.layout import Layout, Row, Column, Fieldset
+from crispy_forms.bootstrap import FieldWithButtons, Field, StrictButton
+from crispy_forms.layout import Layout, Row, Column
+
 from django.utils.translation import gettext as _
 from django.urls import reverse_lazy
 from django.db import models
 
 from core.models.fields import ModelSelect2Multiple
 from core.models.fields import DateField, JSONField
+from core.utils import upload_directory_file
+from django.urls import reverse_lazy
 from core.models import Base
-from functools import reduce
-from django.apps import apps
+
+
 
 leave_empty_for_all = _('laisser vide pour tous')
 
@@ -17,10 +21,12 @@ class PayrollStatus(models.TextChoices):
     SUCCESS = ('SUCCESS', _('succès'))
 
 class Payroll(Base):
-
     def _metadata():
-        return dict(taux_usd_cdf=2000)
+        return dict(taux=2000, litrage=3650)
 
+    additional_items = models.FileField(verbose_name=_('éléments additionnels'), upload_to=upload_directory_file, blank=True, null=True, default=None)
+    canvas = models.FileField(verbose_name=_('canevas'), upload_to=upload_directory_file, blank=True, null=True, default=None)
+    
     name = models.CharField(_('nom'), max_length=100)
     start_dt = DateField(_('du'))
     end_dt = DateField(_('au'))
@@ -49,49 +55,33 @@ class Payroll(Base):
 
     layout = Layout(
         'name',
-        #'approvers',
+        Column(
+            FieldWithButtons(
+                Field("canvas"), 
+                StrictButton(
+                    'Télécharger le modèle', 
+                    css_class='btn btn-light-info', 
+                    onclick="window.open('"+reverse_lazy('payroll:canvas')+"?status__in='+$('#id_employee_status').val().join(','), '_blank');"
+                )
+            )
+        ),
         Row(Column('start_dt'), Column('end_dt')),
-        #Fieldset(
-        #    _('Employees'),
-        #    Row(
-        #        Column('employee_direction'), 
-        #        Column('employee_branch'), 
-        #        Column('employee_grade')
-        #    ), 
-        #    Column('employee_status'),
-        #    css_class='mt-5 mb-5'
-        #),
+        Column(
+            FieldWithButtons(
+                Field("additional_items"), 
+                StrictButton(
+                    'Télécharger le modèle', 
+                    css_class='btn btn-light-info', 
+                    onclick="window.open('"+reverse_lazy('payroll:canvas-items-to-pay')+"?status__in='+$('#id_employee_status').val().join(','), '_blank');"
+                )
+            )
+        ),
         Column('employee_status'),
         'metadata'
     )
 
-    
     def get_absolute_url(self):
         return reverse_lazy('payroll:payslips', args=[self.pk])
-    
-    def sheet(self, query=dict):
-        rows = []
-        Employee = apps.get_model('employee', model_name='employee')
-        
-        employee_list_display = ['registration_number', 'social_security_number', 'first_name', 'middle_name', 'last_name']
-        employee_list_display = [field for field in Employee._meta.fields if field.name in employee_list_display]
-        employee_list_display = employee_list_display + [field for field in Employee._meta.fields if field.choices or field.get_internal_type() == 'ModelSelect']
-        
-        payslips = self.payslip_set.filter(**query).select_related().prefetch_related()
-        items = [payslip.itempaid_set.all().values('name').distinct() for payslip in payslips]
-        items = [[i['name'] for i in item] for item in items]
-        items = reduce(lambda x,y:x+y,items)
-        items = list(set(items))
-        
-        for payslip in payslips:
-            row = {field.verbose_name.title(): str(getattr(payslip.employee, field.name, "Null")) for field in employee_list_display}
-            for item in items: row[item.title()] = 0
-            for item in payslip.itempaid_set.all().order_by('code'):
-                row[item.name.title()] = item.amount_qp_employee
-            payslip_list_display = (field for field in payslip._meta.model._meta.fields if field.get_internal_type() == 'FloatField')
-            row.update({field.verbose_name.title(): getattr(payslip, field.name) for field in payslip_list_display})
-            rows.append(row)
-        return rows
 
     class Meta:
         verbose_name = _('paie')

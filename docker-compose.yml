@@ -3,7 +3,7 @@ version: '3.8'
 services:
   web:
     build: .
-    container_name: payday
+    container_name: server
     command: gunicorn --bind 0.0.0.0:8000 payday.wsgi:application
     volumes:
       - .:/app
@@ -18,7 +18,7 @@ services:
 
   worker:
     build: .
-    container_name: pay_worker
+    container_name: worker
     command: celery -A payday worker -l INFO -E
     volumes:
       - .:/app

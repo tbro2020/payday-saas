@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     "phonenumber_field",
     "slick_reporting",
     "corsheaders",
+    'django_extensions',
 
     "core",
     "api",
@@ -125,9 +126,11 @@ DATABASE_URL = os.getenv('DATABASE_URL', default=DATABASE_URL)
 DATABASES['default'] = dj_database_url.parse(DATABASE_URL)
 
 # Redis settings
-REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379')
 REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
 REDIS_PORT = os.getenv('REDIS_PORT', 6379)
+
+print(REDIS_URL)
 
 # Cache settings default memory and redis cache
 CACHES = {
@@ -180,7 +183,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_URL = os.getenv("STATIC_URL", STATIC_URL)
-# STATICFILES_DIRS =[os.path.join(BASE_DIR, 'static')]
+STATICFILES_DIRS =[os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.getenv("STATIC_ROOT", STATIC_URL.replace('/', ''))
 
 AWS_LOCATION = os.getenv('AWS_LOCATION', default='')
@@ -313,9 +316,13 @@ INTERNAL_IPS = [
 ]
 
 # Django Celery settings
+CELERY_RESULT_EXTENDED = True
+CELERY_CACHE_BACKEND='django-cache'
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', REDIS_URL)
 CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', REDIS_URL)
+CELERY_BROKER_TRANSPORT_URL=os.getenv('CELERY_BROKER_TRANSPORT_URL', REDIS_URL)
+
 
 
 # Sentry settings
