@@ -44,6 +44,6 @@ class List(BaseView):
         filter = filter(request.GET, queryset=qs)
         qs = filter.qs
 
-        paginator = Paginator(qs.order_by(f'-{model._meta.pk.name}'), 25)
+        paginator = Paginator(qs.order_by(f'-{model._meta.pk.name}'), 100)
         qs = paginator.page(int(request.GET.dict().get('page', 1)))
         return render(request, getattr(model, "change_list_template", self.template_name), locals())
