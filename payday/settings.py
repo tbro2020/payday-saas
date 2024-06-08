@@ -31,7 +31,6 @@ SECRET_KEY = os.getenv('SECRET_KEY', SECRET_KEY)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = int(os.getenv('DEBUG', 1))
-print('DEBUG:', DEBUG)
 
 ALLOWED_HOSTS = list(os.getenv('ALLOWED_HOSTS', '*').split(','))
 
@@ -130,7 +129,6 @@ REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379')
 REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
 REDIS_PORT = os.getenv('REDIS_PORT', 6379)
 
-print(REDIS_URL)
 
 # Cache settings default memory and redis cache
 CACHES = {
@@ -184,7 +182,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_URL = os.getenv("STATIC_URL", STATIC_URL)
 STATICFILES_DIRS =[os.path.join(BASE_DIR, 'static')]
-STATIC_ROOT = os.getenv("STATIC_ROOT", STATIC_URL.replace('/', ''))
+#STATIC_ROOT = os.getenv("STATIC_ROOT", STATIC_URL.replace('/', ''))
 
 AWS_LOCATION = os.getenv('AWS_LOCATION', default='')
 AWS_DEFAULT_ACL = os.getenv('AWS_DEFAULT_ACL', default='public-read')
