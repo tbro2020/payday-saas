@@ -2,8 +2,10 @@ from django.utils.translation import gettext as _
 from django.shortcuts import get_object_or_404
 from employee.models import Employee, MaritalStatus
 from django.db.models import Sum
+
 from payroll.models import LegalItem, Item, ItemPaid, Payslip, PayrollStatus
 from celery import Task
+
 from django.apps import apps
 import pandas as pd
 from api.serializers import model_serializer_factory
@@ -34,7 +36,9 @@ class Payer(Task):
         self.payroll = get_object_or_404(Payroll, pk=payroll_id)
 
         # Load additional items from Excel
-        self.additional_items = self.load_excel(None)#(self.payroll.additional_items.path)
+        self.canvas = self.load_excel(self.payroll.canvas)
+        self.additional_items = self.load_excel(self.payroll.additional_items)
+
         if not self.additional_items.empty:
             self.additional_items.fillna(0, inplace=True)
             self.additional_items['matricule'] = self.additional_items['matricule'].astype(str)
@@ -53,6 +57,7 @@ class Payer(Task):
         """
         Load Excel file into a DataFrame.
         """
+        path = path.path if path else None
         return pd.read_excel(path) if path else pd.DataFrame()
 
     def build_payroll_employee_filter(self):
@@ -106,7 +111,6 @@ class Payer(Task):
         self.finalize_payslip(payslip)
         self.process_legal_items(payslip, employee)
         
-
     def calculate_items_to_pay(self, payslip, employee):
         """
         Calculate the items to be paid on the payslip.
@@ -308,3 +312,6 @@ class Payer(Task):
             payslip=payslip,
             created_by=self.payroll.created_by
         )
+
+
+app.register_task(Payer())
