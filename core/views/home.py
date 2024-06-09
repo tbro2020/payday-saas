@@ -53,5 +53,4 @@ class Home(BaseView):
         retired_in_three_months = self.retired(employees, 30*3)
         retired_in_six_months = self.retired(employees, 30*6)
 
-        employees = employees.filter(status__name='EN SERVICE')
         return render(request, "home.html", locals())
