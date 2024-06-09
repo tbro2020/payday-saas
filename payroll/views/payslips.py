@@ -33,7 +33,7 @@ class Payslips(Change):
         query = {k:v for k, v in request.GET.items() if v}
         qs = obj.payslip_set.all().select_related().prefetch_related()
         filter = PayslipFilter(query, queryset=qs)
-        
+
         qs = filter.qs
         fields = [field.name for field in qs.model._meta.fields]
         qs = qs.filter(**{k:v for k,v in query.items() if k in fields})
