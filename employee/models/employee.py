@@ -89,49 +89,49 @@ class Employee(Base):
     layout = Layout(
         'photo',
         Row(
-            Column('registration_number', css_class='col-6'),
-            Column('social_security_number', css_class='col-6')
+            Column('registration_number', css_class='col-md-6 col-sm-12'),
+            Column('social_security_number', css_class='col-md-6 col-sm-12')
         ),
         Row(
-            Column('branch', css_class='col-4'),
-            Column('agreement', css_class='col-4'),
-            Column('date_of_join', css_class='col-4')
+            Column('branch', css_class='col-md-4 col-sm-12'),
+            Column('agreement', css_class='col-md-4 col-sm-12'),
+            Column('date_of_join', css_class='col-md-4 col-sm-12')
         ),
         Row(
-            Column('direction', css_class='col-4'),
-            Column('sub_direction', css_class='col-4'),
-            Column('service', css_class='col-4'),
+            Column('direction', css_class='col-md-4 col-sm-12'),
+            Column('sub_direction', css_class='col-md-4 col-sm-12'),
+            Column('service', css_class='col-md-4 col-sm-12'),
         ),
         Row(
-            Column('grade', css_class='col-4'),
-            Column('position', css_class='col-4'),
-            Column('iterim', css_class='col-4')
+            Column('grade', css_class='col-md-4 col-sm-12'),
+            Column('position', css_class='col-md-4 col-sm-12'),
+            Column('iterim', css_class='col-md-4 col-sm-12')
         ),
         Row(
-            Column('first_name', css_class='col-4'),
-            Column('middle_name', css_class='col-4'),
-            Column('last_name', css_class='col-4'),
+            Column('first_name', css_class='col-md-4 col-sm-12'),
+            Column('middle_name', css_class='col-md-4 col-sm-12'),
+            Column('last_name', css_class='col-md-4 col-sm-12'),
         ),
         Row(
-            Column('date_of_birth', css_class='col-6'),
-            Column('gender', css_class='col-6'),
+            Column('date_of_birth', css_class='col-md-6 col-sm-12'),
+            Column('gender', css_class='col-md-6 col-sm-12'),
         ),
         Row(
-            Column('marital_status', css_class='col-6'),
-            Column('spouse', css_class='col-6'),
+            Column('marital_status', css_class='col-md-6 col-sm-12'),
+            Column('spouse', css_class='col-md-6 col-sm-12'),
         ),
         Row(
-            Div(PrependedText('email', '@', active=True), css_class='col-6'),
-            Div(PrependedText('mobile_number', '+', active=True), css_class='col-6')
+            Div(PrependedText('email', '@', active=True), css_class='col-md-6 col-sm-12'),
+            Div(PrependedText('mobile_number', '+', active=True), css_class='col-md-6 col-sm-12')
         ),
         Row(
-            Column('physical_address', css_class='col-6'),
-            Column('emergency_information', css_class='col-6'),
+            Column('physical_address', css_class='col-md-6 col-sm-12'),
+            Column('emergency_information', css_class='col-md-6 col-sm-12'),
         ),
         Row(
-            Column('payment_method', css_class='col-4'),
-            Column('payer_name', css_class='col-4'),
-            Column('payment_account', css_class='col-4'),
+            Column('payment_method', css_class='col-md-4 col-sm-12'),
+            Column('payer_name', css_class='col-md-4 col-sm-12'),
+            Column('payment_account', css_class='col-md-4 col-sm-12'),
         ),
         'comment',
         'status',

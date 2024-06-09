@@ -39,6 +39,9 @@ class Payslip(Base):
 
     def get_absolute_url(self):
         return reverse_lazy('payroll:payslip', kwargs={'pk': self.pk})
+    
+    def is_not_payable_items(self):
+        return self.itempaid_set.filter(is_payable=False)
 
     class Meta:
         verbose_name = _('fiche de paie')

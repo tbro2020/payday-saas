@@ -13,7 +13,7 @@ class Holiday(Base):
     end_dt = DateField(_('au'))
     
 
-    layout = Layout('name', Row(Column('start_dt'), Column('end_dt')), 'paid')
+    layout = Layout('name', Row(Column('start_dt', css_class='col-md-6 col-sm-12'), Column('end_dt', css_class='col-md-6 col-sm-12')), 'paid')
     list_display = ('id', 'name', 'start_dt', 'end_dt')
     search_fields = ('name',)
 

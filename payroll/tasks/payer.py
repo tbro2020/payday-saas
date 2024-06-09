@@ -1,7 +1,7 @@
 from django.utils.translation import gettext as _
 from django.shortcuts import get_object_or_404
 from employee.models import Employee, MaritalStatus
-from django.db.models import Sum
+from django.db.models import Sum, Q
 
 from payroll.models import LegalItem, Item, ItemPaid, Payslip, PayrollStatus
 from celery import Task
@@ -26,7 +26,9 @@ class Payer(Task):
         # Pre-fetch legal items and payable items to avoid repeated queries
         self.legal_items = LegalItem.objects.all()
         self.employees = Employee.objects.select_related().all()
-        self.items = Item.objects.filter(is_payable=True).exclude(condition='0')
+        self.items = Item.objects.filter(is_payable=True).exclude(
+            Q(condition='0') | Q(condition__isnull=True)
+        )
 
     def run(self, payroll_id, *args, **kwargs):
         """

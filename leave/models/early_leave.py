@@ -22,7 +22,7 @@ class EarlyLeave(Base):
 
     list_filter = ('start_time', 'end_time', 'date')
     list_display = ('id', 'employee', 'start_time', 'end_time')
-    layout = Layout('employee', 'destination', Row(Column('start_time'), Column('end_time')), 'reason', 'observation')
+    layout = Layout('employee', 'destination', Row(Column('start_time', css_class='col-md-6 col-sm-12'), Column('end_time', css_class='col-md-6 col-sm-12')), 'reason', 'observation')
     search_fields = ('employee__registration_number', 'employee__first_name', 'employee__middle_name', 'employee__last_name') 
 
     @property

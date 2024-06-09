@@ -19,7 +19,7 @@ class Leave(Base):
     start_dt = DateField(verbose_name=_('du'))
     end_dt = DateField(verbose_name=_('au'))
 
-    layout = Layout('type_of_leave', Row(Column('employee'), Column('interim')), Row(Column('start_dt'), Column('end_dt')), 'reason')
+    layout = Layout('type_of_leave', Row(Column('employee', css_class='col-md-6 col-sm-12'), Column('interim', css_class='col-md-6 col-sm-12')), Row(Column('start_dt', css_class='col-md-6 col-sm-12'), Column('end_dt', css_class='col-md-6 col-sm-12')), 'reason')
     search_fields = ('employee__registration_number', 'employee__first_name', 'employee__middle_name', 'employee__last_name') 
     list_display = ('id', 'employee', 'interim', 'start_dt', 'end_dt')
     list_filter = ('start_dt', 'end_dt')

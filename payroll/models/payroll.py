@@ -63,9 +63,10 @@ class Payroll(Base):
                     css_class='btn btn-light-info', 
                     onclick="window.open('"+reverse_lazy('payroll:canvas')+"?status__in='+$('#id_employee_status').val().join(','), '_blank');"
                 )
-            )
+            ),
+            css_class='col-md-6 col-sm-12'
         ),
-        Row(Column('start_dt'), Column('end_dt')),
+        Row(Column('start_dt', css_class='col-md-6 col-sm-12'), Column('end_dt', css_class='col-md-6 col-sm-12')),
         Column(
             FieldWithButtons(
                 Field("additional_items"), 
@@ -74,9 +75,10 @@ class Payroll(Base):
                     css_class='btn btn-light-info', 
                     onclick="window.open('"+reverse_lazy('payroll:canvas-items-to-pay')+"?status__in='+$('#id_employee_status').val().join(','), '_blank');"
                 )
-            )
+            ),
+            css_class='col-md-6 col-sm-12'
         ),
-        Column('employee_status'),
+        Column('employee_status', css_class='col-md-6 col-sm-12'),
         'metadata'
     )
 

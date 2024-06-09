@@ -24,13 +24,13 @@ class Attendance(Base):
 
     layout = Layout(
         Row(
-            Column('employee', css_class='form-group col-md-6 mb-0'),
-            Column('direction', css_class='form-group col-md-6 mb-0'),
+            Column('employee', css_class='form-group col-md-6 col-sm-12 mb-0'),
+            Column('direction', css_class='form-group col-md-6 col-sm-12 mb-0'),
             css_class='form-row'
         ),
         Row(
-            Column('date', css_class='form-group col-md-6 mb-0'),
-            Column('time', css_class='form-group col-md-6 mb-0'),
+            Column('date', css_class='form-group col-md-6 col-sm-12 mb-0'),
+            Column('time', css_class='form-group col-md-6 col-sm-12 mb-0'),
             css_class='form-row'
         ),
     )

@@ -30,19 +30,19 @@ class Item(Base):
     list_filter = ('type_of_item', 'is_taxable', 'is_social_security')
     
     layout = Layout(
-        Row(Column('code'), Column('type_of_item')),
+        Row(Column('code', css_class='col-md-6 col-sm-12'), Column('type_of_item', css_class='col-md-6 col-sm-12')),
         'name',
-        Column('condition'),
-        Column('time'),
+        Column('condition', css_class='col-md-6 col-sm-12'),
+        Column('time', css_class='col-md-6 col-sm-12'),
         Row(
-            Column('formula_qp_employee'),
-            Column('formula_qp_employer')
+            Column('formula_qp_employee', css_class='col-md-6 col-sm-12'),
+            Column('formula_qp_employer', css_class='col-md-6 col-sm-12')
         ),
         Row(
-            Column('is_bonus'),
-            Column('is_payable'),
-            Column('is_taxable'),
-            Column('is_social_security')
+            Column('is_bonus', css_class='col-md-6 col-sm-12'),
+            Column('is_payable', css_class='col-md-6 col-sm-12'),
+            Column('is_taxable', css_class='col-md-6 col-sm-12'),
+            Column('is_social_security', css_class='col-md-6 col-sm-12')
         ),
         'metadata'
     )
