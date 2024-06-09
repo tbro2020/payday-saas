@@ -6,9 +6,6 @@ from django import forms
 from django.db.models import Q
 from functools import reduce
 
-
-
-
 class PayslipFilter(FilterSet):
     q = CharFilter(label=str, method='search', widget=forms.TextInput(attrs={'class': 'form-control d-none'}))
     status = ChoiceFilter(label=_('Status'), method='by_status', choices=Status.objects.values_list('name', 'name').distinct(), widget=forms.Select(attrs={'class': 'form-control'}))
@@ -35,11 +32,3 @@ class PayslipFilter(FilterSet):
 
     class Meta:
         fields = ('branch', 'grade', 'payer', 'status')
-    
-    """
-    def hard_filter(self):
-        model = apps.get_model('payroll', model_name='payslip')
-        fields = [field.name for field in model._meta.fields]
-        query = {k:v for k, v in self.data.items() if k in fields}
-        return self.queryset.filter(**query)
-    """

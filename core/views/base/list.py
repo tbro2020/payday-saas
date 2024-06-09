@@ -40,6 +40,12 @@ class List(BaseView):
             subdomain=request.subdomain
         ).select_related().prefetch_related() if hasattr(model, '_all') else model.objects.all()
         
+        # apply hard filter based on fields
+        fields = [field.name for field in model._meta.fields]
+        query = {k:v for k, v in request.GET.dict().items() if k.split('__')[0] in fields}
+        qs = qs.filter(**query)
+
+        # apply soft filter based on list_filter
         filter = filter_set_factory(model, fields=get_name_of_fields(list_filter))
         filter = filter(request.GET, queryset=qs)
         qs = filter.qs

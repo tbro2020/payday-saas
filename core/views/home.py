@@ -31,9 +31,11 @@ class Home(BaseView):
         ItemPaid = apps.get_model('payroll', 'ItemPaid')
         Payroll = apps.get_model('payroll', 'Payroll')
         
-        employees = Employee.objects.all().select_related().prefetch_related()
+        employees = Employee.objects.filter(
+            status__name='EN SERVICE'
+        ).select_related().prefetch_related()
         
-        employees_by_statues = employees.values('status__name')\
+        employees_by_statues = employees.values('status__name') \
             .exclude(status__name=None).annotate(count=Count('status__name'))
         
         itempaid = ItemPaid.objects.filter(created_at__year=self.today.year)

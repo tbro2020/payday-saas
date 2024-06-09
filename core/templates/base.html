@@ -157,7 +157,7 @@
       <script src="{% static 'assets/js/app.js' %}"></script>
       <script>
          $(document).ready(function(){
-            // $( ".dateinput" ).datepicker();
+            $( ".dateinput" ).datepicker();
             $("a[href='{% url 'logout' %}']").click(function(e) {
                e.preventDefault();
                $('<form action="'+$(this).attr('href')+'" method="post">{% csrf_token %}</form>').appendTo('body').submit();

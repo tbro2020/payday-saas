@@ -23,10 +23,10 @@
                 <div class="card-body text-center">
                     <div class="row">
                         {% for status in employees_by_statues %}
-                        <div class="col text-center">
+                        <a href="{% url 'core:list' 'employee' 'employee' %}" class="col-md-8 col-sm-12 text-center text-decoration-none">
                             {{ status.status__name }}
                             <h3>{{ status.count|default:0|abs }}</h3>
-                        </div>
+                        </a>
                         {% endfor %}
                     </div>
                 </div>
@@ -34,17 +34,17 @@
         </div>
         
         <!-- Payroll information -->
-        <div class="col-4">
+        <div class="col-md-4 col-sm-12">
             <div class="card">
                 <div class="card-header">
                     <h4>À ce jour</h4>
                 </div>
                 <div class="card-body text-center">
                     <div class="row">
-                        <div class="col text-center">
+                        <a href="{% url 'core:list' 'payroll' 'payroll' %}" class="col text-center text-decoration-none">
                             Total net payé 
                             <h3>{{ at_this_day.total|default:0|abs|intcomma }}</h3>
-                        </div>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -59,18 +59,18 @@
                 </div>
                 <div class="card-body text-center">
                     <div class="row">
-                        <div class="col text-center">
+                        <a href="{% url 'core:list' 'employee' 'employee' %}?date_of_birth__month={{ self.today.month }}&status__name=EN SERVICE" class="col text-center text-decoration-none">
                             Ce mois-ci
                             <h3>{{ leave_this_month.count|default:0|abs }}</h3>
-                        </div>
-                        <div class="col">
+                        </a>
+                        <a href="{% url 'core:list' 'employee' 'employee' %}?date_of_birth__month={{ self.today.month|add:2 }}&status__name=EN SERVICE" class="col text-center text-decoration-none">
                             Dans 3 mois
                             <h3>{{ leave_in_three_months.count|default:0|abs }}</h3>
-                        </div>
-                        <div class="col">
+                        </a>
+                        <a href="{% url 'core:list' 'employee' 'employee' %}?date_of_birth__month={{ self.today.month|add:5 }}&status__name=EN SERVICE" class="col text-center text-decoration-none">
                             Dans 6 mois
                             <h3>{{ leave_in_six_months.count|default:0|abs }}</h3>
-                        </div>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -85,18 +85,18 @@
                 </div>
                 <div class="card-body text-center">
                     <div class="row">
-                        <div class="col text-center">
+                        <a href="{% url 'core:list' 'employee' 'employee' %}?status__name=EN SERVICE" class="col text-center text-decoration-none">
                             Ce mois-ci
                             <h3>{{ retired_this_month.count|default:0|abs }}</h3>
-                        </div>
-                        <div class="col">
+                        </a>
+                        <a href="{% url 'core:list' 'employee' 'employee' %}?status__name=EN SERVICE" class="col text-center text-decoration-none">
                             Dans 3 mois
                             <h3>{{ retired_in_three_months.count|default:0|abs }}</h3>
-                        </div>
-                        <div class="col">
+                        </a>
+                        <a href="{% url 'core:list' 'employee' 'employee' %}?status__name=EN SERVICE" class="col text-center text-decoration-none">
                             Dans 6 mois
                             <h3>{{ retired_in_six_months.count|default:0|abs }}</h3>
-                        </div>
+                        </a>
                     </div>
                 </div>
             </div>
