@@ -78,7 +78,7 @@ class Payroll(Base):
             ),
             css_class='col-md-6 col-sm-12'
         ),
-        Column('employee_status', css_class='col-md-6 col-sm-12'),
+        Column('employee_status', css_class='col-md-12 col-sm-12'),
         'metadata'
     )
 
