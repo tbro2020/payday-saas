@@ -59,15 +59,15 @@
                 </div>
                 <div class="card-body text-center">
                     <div class="row">
-                        <a href="{% url 'core:list' 'employee' 'employee' %}?date_of_birth__month={{ self.today.month }}&status__name=EN SERVICE" class="col text-center text-decoration-none">
+                        <a href="{% url 'core:list' 'employee' 'employee' %}?date_of_join__month={{ self.today.month }}&status__name=EN SERVICE" class="col text-center text-decoration-none">
                             Ce mois-ci
                             <h3>{{ leave_this_month.count|default:0|abs }}</h3>
                         </a>
-                        <a href="{% url 'core:list' 'employee' 'employee' %}?date_of_birth__month={{ self.today.month|add:2 }}&status__name=EN SERVICE" class="col text-center text-decoration-none">
+                        <a href="{% url 'core:list' 'employee' 'employee' %}?date_of_join__month={{ self.today.month|add:2 }}&status__name=EN SERVICE" class="col text-center text-decoration-none">
                             Dans 3 mois
                             <h3>{{ leave_in_three_months.count|default:0|abs }}</h3>
                         </a>
-                        <a href="{% url 'core:list' 'employee' 'employee' %}?date_of_birth__month={{ self.today.month|add:5 }}&status__name=EN SERVICE" class="col text-center text-decoration-none">
+                        <a href="{% url 'core:list' 'employee' 'employee' %}?date_of_join__month={{ self.today.month|add:5 }}&status__name=EN SERVICE" class="col text-center text-decoration-none">
                             Dans 6 mois
                             <h3>{{ leave_in_six_months.count|default:0|abs }}</h3>
                         </a>
