@@ -41,7 +41,7 @@ class Payslips(Change):
         overall_net = round(qs.aggregate(amount=Sum('net'))['amount'] or 0, 2)
         count = qs.count()
 
-        paginator = Paginator(qs.order_by(f'-{Payslip._meta.pk.name}'), count)
+        paginator = Paginator(qs.order_by(f'-{Payslip._meta.pk.name}'), 100)
         qs = paginator.page(int(request.GET.dict().get('page', 1)))
         
         return render(request, self.template_name, locals())
