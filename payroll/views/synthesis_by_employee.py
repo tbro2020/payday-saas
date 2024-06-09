@@ -6,8 +6,8 @@ from employee.models import *
 from payroll.models import *
 
 from django.db import transaction
-import pandas as pd
 from django.apps import apps
+import pandas as pd
 
 intcomma = lambda x: f"{x:,.2f}" if isinstance(x, (int, float)) else x
 
