@@ -46,7 +46,7 @@
     </div>
 </div>
 
-{{ filter.hard_filter|qs_to_values:'id,employee__first_name,employee__last_name,start_dt,end_dt,reason,type_of_leave__name'|json_script:"leaves" }}
+{{ filter.hard_filter|qs_to_values:'id,employee__middle_name,employee__last_name,start_dt,end_dt,reason,type_of_leave__name'|json_script:"leaves" }}
 
 <script>
     const leaves = JSON.parse(document.getElementById('leaves').textContent);
@@ -65,7 +65,7 @@
         events: leaves.map(leave => {
             const url = "{% url 'core:change' 'leave' 'leave' 0 %}".replace('0', leave.id);
           return {
-            title: leave.employee__first_name + ' ' + leave.employee__last_name + '(Approuvé)',
+            title: leave.employee__middle_name + ' ' + leave.employee__last_name + '(Approuvé)',
             start: leave.start_dt,
             end: leave.end_dt,
             url: url,
