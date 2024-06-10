@@ -22,6 +22,7 @@ class AdvanceFilterSet(django_filters.FilterSet):
         if not fields:
             fields = [field.name for field in model._meta.fields if isinstance(field, (CharField, TextField))]
         
+        fields = [fields] if isinstance(fields, str) else fields
         query = reduce(lambda q, field: q | Q(**{f"{field}__icontains": value}), fields, Q())
         return queryset.filter(query)
 
