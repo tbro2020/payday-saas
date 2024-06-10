@@ -23,7 +23,7 @@ class AdvanceFilterSet(django_filters.FilterSet):
             fields = [field.name for field in model._meta.fields if isinstance(field, (CharField, TextField))]
         
         query = reduce(lambda q, field: q | Q(**{f"{field}__icontains": value}), fields, Q())
-        return queryset.filter(query).distinct()
+        return queryset.filter(query)
 
     def hard_filter(self):
         """
