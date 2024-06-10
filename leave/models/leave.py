@@ -51,3 +51,6 @@ class Leave(Base):
     class Meta:
         verbose_name = _('congé')
         verbose_name_plural = _('congés')
+
+        managed = False
+        db_table = 'leave'
