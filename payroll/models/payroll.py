@@ -64,7 +64,7 @@ class Payroll(Base):
                     onclick="window.open('"+reverse_lazy('payroll:canvas')+"?status__in='+$('#id_employee_status').val().join(','), '_blank');"
                 )
             ),
-            css_class='col-md-6 col-sm-12'
+            css_class='col-md-12 col-sm-12'
         ),
         Row(Column('start_dt', css_class='col-md-6 col-sm-12'), Column('end_dt', css_class='col-md-6 col-sm-12')),
         Column(
@@ -76,7 +76,7 @@ class Payroll(Base):
                     onclick="window.open('"+reverse_lazy('payroll:canvas-items-to-pay')+"?status__in='+$('#id_employee_status').val().join(','), '_blank');"
                 )
             ),
-            css_class='col-md-6 col-sm-12'
+            css_class='col-md-12 col-sm-12'
         ),
         Column('employee_status', css_class='col-md-12 col-sm-12'),
         'metadata'

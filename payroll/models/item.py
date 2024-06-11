@@ -32,8 +32,8 @@ class Item(Base):
     layout = Layout(
         Row(Column('code', css_class='col-md-6 col-sm-12'), Column('type_of_item', css_class='col-md-6 col-sm-12')),
         'name',
-        Column('condition', css_class='col-md-6 col-sm-12'),
-        Column('time', css_class='col-md-6 col-sm-12'),
+        Column('condition', css_class='col-md-12 col-sm-12'),
+        Column('time', css_class='col-md-12 col-sm-12'),
         Row(
             Column('formula_qp_employee', css_class='col-md-6 col-sm-12'),
             Column('formula_qp_employer', css_class='col-md-6 col-sm-12')
