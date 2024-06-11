@@ -27,5 +27,5 @@ class Education(Base):
         return "%s de %s" % (self.degree, self.employee.name)
 
     class Meta:
-        verbose_name = _('education')
-        verbose_name_plural = _('educations')
+        verbose_name = _('étude')
+        verbose_name_plural = _('études')

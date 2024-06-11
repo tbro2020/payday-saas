@@ -12,8 +12,8 @@ class Payer(Base):
     list_display = ('id', 'name')
 
     class Meta:
-        verbose_name = _('payeur')
-        verbose_name_plural = _('payeurs')
+        verbose_name = _('banque')
+        verbose_name_plural = _('banques')
         
     def __str__(self):
         return self.name

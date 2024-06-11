@@ -12,8 +12,8 @@ class Position(Base):
     list_display = ('id', 'name')
 
     class Meta:
-        verbose_name = _('position')
-        verbose_name_plural = _('positions')
+        verbose_name = _('poste')
+        verbose_name_plural = _('postes')
         
     def __str__(self):
         return self.name

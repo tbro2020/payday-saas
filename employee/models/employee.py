@@ -68,7 +68,7 @@ class Employee(Base):
     mobile_number = PhoneNumberField(_('numéro de téléphone mobile'), null=True, default=None)
     email = models.EmailField(_('email'), blank=True, null=True, default=None)
 
-    physical_address = models.TextField(_('adresse physique'), blank=True, null=True, default=None)
+    physical_address = models.TextField(_('adresse physique'), null=True, default=None)
     emergency_information = models.TextField(_('informations d\'urgence'), null=True, default=None)
 
     payer_name = ModelSelect('employee.payer', verbose_name=_('nom du payeur'), null=True, on_delete=models.SET_NULL, default=None)
@@ -81,7 +81,7 @@ class Employee(Base):
     objects = EmployeeQuerySet()
 
     list_filter = ('direction', 'branch', 'position', 'marital_status', 'branch', 'status', 'date_of_join', 'date_of_birth')
-    list_display = ('registration_number', 'last_name', 'middle_name', 'position', 'branch', 'status')
+    list_display = ('registration_number', 'grade', 'branch', 'last_name', 'middle_name', 'status')
     search_fields = ('registration_number', )
 
     inlines = ['employee.child', 'employee.education', 'employee.experience', 'employee.document', 'payroll.specialemployeeitem']

@@ -19,7 +19,7 @@
 
                 <div class="col text-end">
                     <div class="btn-group mb-1">
-                        <div class="dropdown">
+                        {% comment %}<div class="dropdown">
                             <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 Action(s)
                             </button>
@@ -28,7 +28,7 @@
                                     <a class="dropdown-item btn-list-action" data-href="{% url 'core:list-action' app model|getattr:'_meta'|getattr:'model_name' action.name %}">{{ action.title|title }}</a>
                                 {% endfor %}
                             </div>
-                        </div>
+                        </div>{% endcomment %}
                         <a href="{% url 'core:create' app model|getattr:'_meta'|getattr:'model_name' %}" class="btn btn-light-success">{% trans 'Ajouter' %}</a>
                         <a href="{% url 'core:exporter' app model|getattr:'_meta'|getattr:'model_name' %}?{{ request.GET.urlencode }}" class="btn btn-light-primary">{% trans 'Exporter' %}</a>
                     </div>

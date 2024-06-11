@@ -7,7 +7,7 @@ from django.db import models
 
 class AdvanceSalary(Base):
     employee = ModelSelect('employee.Employee', verbose_name=_('employé'), on_delete=models.CASCADE)
-    duration = models.IntegerField(_('durée'), help_text=_('nombre de mois'), default=1)
+    duration = models.IntegerField(_('durée'), help_text=_('nombre de mois'), default=36)
     amount = models.FloatField(_('montant'))
     date = models.DateField(_('date'))
 
@@ -41,8 +41,8 @@ class AdvanceSalaryPayment(Base):
     amount = models.FloatField(_('montant'))
     date = models.DateField(_('date'))
 
-    list_display = ['advance_salary', 'amount', 'date']
     list_filter = ['date']
+    list_display = ['advance_salary', 'amount', 'date']
     inline_form_fields = ['advance_salary', 'date', 'amount']
 
     layout = Layout(

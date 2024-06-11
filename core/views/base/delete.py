@@ -20,7 +20,7 @@ class Delete(BaseView):
 
     def post(self, request, app, model, pk):
         model = apps.get_model(app, model)
-        obj = get_object_or_404(model, id=pk)
+        obj = get_object_or_404(model, pk=pk)
 
         # To-Do: To prevent delete of approved object by creator
         LogEntry.objects.log_action(**{
