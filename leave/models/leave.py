@@ -52,5 +52,5 @@ class Leave(Base):
         verbose_name = _('congé')
         verbose_name_plural = _('congés')
 
-        managed = False
-        db_table = 'leave'
+        #managed = False
+        #db_table = 'leave'
