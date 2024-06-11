@@ -11,7 +11,7 @@ from employee.models import Employee
 
 
 class Leave(Base):
-    interim = ModelSelect(Employee, verbose_name=_('remplaçant'), null=True, default=None, on_delete=models.SET_NULL, related_name='interim')
+    interim = models.ForeignKey(Employee, verbose_name=_('remplaçant'), null=True, default=None, on_delete=models.SET_NULL, related_name='interim')
     type_of_leave = ModelSelect(TypeOfLeave, verbose_name=_('type de congé'), null=True, default=None, on_delete=models.SET_NULL)
     employee = ModelSelect(Employee, verbose_name=_('employé'), null=True, default=None, on_delete=models.SET_NULL)
 
