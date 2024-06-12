@@ -21,7 +21,8 @@ class List(BaseView):
 
     def get_list_display(self, model):
         list_display = getattr(model, 'list_display', [])
-        return [field for field in model._meta.fields if field.name in list_display]
+        list_display_order = {field: i for i, field in enumerate(list_display)}
+        return sorted([field for field in model._meta.fields if field.name in list_display], key=lambda field: list_display_order[field.name])
     
     def get_list_filter(self, model):
         list_filter = getattr(model, 'list_filter', [])

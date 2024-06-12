@@ -26,9 +26,7 @@ class Payer(Task):
         # Pre-fetch legal items and payable items to avoid repeated queries
         self.legal_items = LegalItem.objects.all()
         self.employees = Employee.objects.select_related().all()
-        self.items = Item.objects.filter(is_payable=True).exclude(
-            Q(condition='0') | Q(condition__isnull=True)
-        )
+        self.items = Item.objects.filter(is_payable=True).exclude(Q(condition='0') | Q(condition__isnull=True))
 
     def run(self, payroll_id, *args, **kwargs):
         """
@@ -154,11 +152,11 @@ class Payer(Task):
         Safely evaluate the formulas for employee and employer.
         """
         try:
+            time = eval(item.time, locals()) or item.time
             formula_qp_employee = abs(round(eval(item.formula_qp_employee, locals()), 2)) * item.type_of_item
             formula_qp_employer = abs(round(eval(item.formula_qp_employer, locals()), 2)) * item.type_of_item
             return formula_qp_employee, formula_qp_employer
         except Exception as ex:
-            print(ex)
             return 0, 0
 
     def calculate_rate(self, formula_qp_employee, item, employee):

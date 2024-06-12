@@ -36,5 +36,5 @@ class LegalItem(Base):
     )
 
     class Meta:
-        verbose_name = _('Retenue légaux de la paie')
-        verbose_name_plural = _('Retenues légaux de la paies')
+        verbose_name = _('Retenue légale')
+        verbose_name_plural = _('Retenues légales')

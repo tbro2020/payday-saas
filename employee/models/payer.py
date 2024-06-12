@@ -5,11 +5,12 @@ from django.db import models
 
 
 class Payer(Base):
+    code = models.CharField(verbose_name=_('code'), null=True, default=None, max_length=10)
     name = models.CharField(verbose_name=_('nom'), max_length=100)
 
+    list_display = ('id', 'code', 'name')
     layout = Layout('name', 'metadata')
     search_fields = ('name')
-    list_display = ('id', 'name')
 
     class Meta:
         verbose_name = _('banque')
