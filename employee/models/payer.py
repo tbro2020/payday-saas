@@ -9,7 +9,7 @@ class Payer(Base):
     name = models.CharField(verbose_name=_('nom'), max_length=100)
 
     list_display = ('id', 'code', 'name')
-    layout = Layout('name', 'metadata')
+    layout = Layout('code', 'name', 'metadata')
     search_fields = ('name')
 
     class Meta:
