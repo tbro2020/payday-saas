@@ -8,7 +8,9 @@ from celery import Task
 
 from django.apps import apps
 import pandas as pd
+
 from api.serializers import model_serializer_factory
+from datetime import datetime
 from payday.celery import app
 
 # Serializer for Employee model
@@ -24,6 +26,7 @@ class Payer(Task):
 
     def __init__(self):
         # Pre-fetch legal items and payable items to avoid repeated queries
+        self.today = datetime.now()
         self.legal_items = LegalItem.objects.all()
         self.employees = Employee.objects.select_related().all()
         self.items = Item.objects.filter(is_payable=True).exclude(Q(condition='0') | Q(condition__isnull=True))
