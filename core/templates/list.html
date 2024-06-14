@@ -67,7 +67,7 @@
                             <tbody>
                                 {% for obj in qs %}
                                 <tr data-id="{{ obj.id }}">
-                                    <td><input type="checkbox" class="form-check-input" value="{{ obj.id }}" /></td>
+                                    <td><input type="checkbox" class="form-check-input" value="{{ obj.pk }}" /></td>
                                     {% for field in list_display %}
                                         {% if field.get_internal_type == 'FloatField' %}
                                             <td>{{ obj|getattr:field.name|intcomma|default:'-' }}</td>
