@@ -30,7 +30,7 @@
                             </div>
                         </div>{% endcomment %}
                         <a href="{% url 'core:create' app model|getattr:'_meta'|getattr:'model_name' %}" class="btn btn-light-success">{% trans 'Ajouter' %}</a>
-                        <a href="{% url 'core:exporter' app model|getattr:'_meta'|getattr:'model_name' %}?{{ request.GET.urlencode }}" class="btn btn-light-primary">{% trans 'Exporter' %}</a>
+                        <a href="{% url 'core:exporter' app model|getattr:'_meta'|getattr:'model_name' %}?{{ request.GET.urlencode }}" class="btn btn-light-primary" id="exporter-btn">{% trans 'Exporter' %}</a>
                     </div>
                 </div>
             </div>
@@ -183,6 +183,9 @@
                 $(".dropdown-toggle").attr("disabled", true);
             }
             let selected = $('input:checked').filter((_, el) => el.value !== "on").map((_, el) => el.value).get();
+
+            let href = $('#exporter-btn').attr('href').split("?")[0] + "?";
+            $('#exporter-btn').attr('href', href+"pk__in=" + selected.join(","));
         });
 
         $('fieldset').has('input[type="date"]').each(function() {

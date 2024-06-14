@@ -47,7 +47,13 @@ class Exporter(BaseView):
         qs = qs._all(user=request.user, subdomain=request.subdomain) if hasattr(qs, '_all') else qs.all()
         
         filter = filter_set_factory(model, fields=get_name_of_fields(list_filter))
-        qs = filter(request.GET, queryset=qs).hard_filter()
+        qs = filter(request.GET, queryset=qs).qs
+
+        pk = model._meta.pk.name
+        fields = [field.name for field in model._meta.fields]
+        
+        qs = qs.filter(**{k.replace('pk', pk) if k.split('__')[0] == 'pk' else k:v.split(',') if '__in' in k else v
+                        for k,v in request.GET.dict().items() if k.split('__')[0].replace('pk', pk) in fields})
 
         fields = {k:v for k,v in request.POST.dict().items() if k not in ['csrfmiddlewaretoken']}.keys()
         data = qs.values(*fields)
