@@ -71,7 +71,7 @@ class Employee(Base):
     physical_address = models.TextField(_('adresse physique'), null=True, default=None)
     emergency_information = models.TextField(_('informations d\'urgence'), null=True, default=None)
 
-    payer_name = ModelSelect('employee.payer', verbose_name=_('nom du payeur'), null=True, on_delete=models.SET_NULL, default=None)
+    payer_name = ModelSelect('employee.payer', verbose_name=_('banque'), null=True, on_delete=models.SET_NULL, default=None)
     payment_account = models.CharField(_('numéro de compte'), max_length=50, blank=True, null=True, default=None)
     payment_method = models.CharField(_('mode de paiement'), max_length=20, choices=PAYMENT_METHODS)
 
@@ -143,10 +143,10 @@ class Employee(Base):
     )
 
     def full_name(self):
-        return f"{self.last_name} {self.middle_name}, {self.first_name}"
+        return f"{self.registration_number} / {self.last_name} {self.middle_name}, {self.first_name}"
     
     def short_name(self):
-        return f"{self.last_name} {self.middle_name}"
+        return f"{self.registration_number} /  {self.last_name} {self.middle_name}"
 
     @property
     def name(self):

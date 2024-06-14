@@ -12,8 +12,8 @@ class Branch(Base):
     list_display = ('id', 'name')
 
     class Meta:
-        verbose_name = _('site/branche')
-        verbose_name_plural = _('sites/branches')
+        verbose_name = _('zone')
+        verbose_name_plural = _('zones')
         
     def __str__(self):
         return self.name
