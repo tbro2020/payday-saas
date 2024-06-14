@@ -12,8 +12,8 @@ class Status(Base):
     list_display = ('id', 'name')
 
     class Meta:
-        verbose_name = _('status')
-        verbose_name_plural = _('status')
+        verbose_name = _('code activité')
+        verbose_name_plural = _('code activités')
         
     def __str__(self):
         return self.name
