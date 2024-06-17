@@ -148,7 +148,7 @@ class Payer(Task):
         net = self.payroll.payslip_set.aggregate(amount=Sum('net')).get('amount', 0)
         net = round(net, 2) if net else 0
 
-        Payroll.objects.filter(pk=self.payroll.pk).update(**{'overall_net': net, 'status': self.payroll.status if status else self.payroll.status})
+        Payroll.objects.filter(pk=self.payroll.pk).update(**{'overall_net': net, 'status': status if status else self.payroll.status})
         return Payroll.objects.get(pk=self.payroll.pk)
 
     def generate_items(self, items, payslip, employee, can_delete_existing_item_paid=False):
