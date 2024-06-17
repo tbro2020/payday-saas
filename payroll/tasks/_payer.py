@@ -92,7 +92,7 @@ class Payer(Task):
                 payslip = self.refresh_payslip(payslip)
                 self.generate_items(self.legal_items, payslip, employee, can_delete_existing_item_paid=True)
                 payslip = self.refresh_payslip(payslip)
-            self.refresh_payroll(status=PayrollStatus.SUCCESS)
+            self.payroll = self.refresh_payroll(status=PayrollStatus.SUCCESS)
         except Exception as ex:
             self.handle_generation_exception(ex)
 
@@ -149,9 +149,7 @@ class Payer(Task):
         net = round(net, 2) if net else 0
 
         Payroll.objects.filter(pk=self.payroll.pk).update(**{'overall_net': net, 'status': self.payroll.status if status else self.payroll.status})
-
-        self.payroll.refresh_from_db()
-        return self.payroll
+        return Payroll.objects.get(pk=self.payroll.pk)
 
     def generate_items(self, items, payslip, employee, can_delete_existing_item_paid=False):
         """
