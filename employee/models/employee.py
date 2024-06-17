@@ -76,7 +76,7 @@ class Employee(Base):
     payment_method = models.CharField(_('mode de paiement'), max_length=20, choices=PAYMENT_METHODS)
 
     comment = models.TextField(_('commentaire'), blank=True, null=True, default=None)
-    status = ModelSelect('employee.Status', verbose_name=_('status'), null=True, on_delete=models.SET_NULL, default=None)
+    status = ModelSelect('employee.Status', verbose_name=_('code d\'activité'), null=True, on_delete=models.SET_NULL, default=None)
 
     objects = EmployeeQuerySet()
 

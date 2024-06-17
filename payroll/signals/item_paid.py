@@ -4,8 +4,6 @@ from django.dispatch import receiver
 from payroll.models import ItemPaid
 from payroll.tasks import Payer
 
-from django.db.models import Sum
-
 payer = Payer()
 
 @receiver(post_save, sender=ItemPaid)
@@ -13,9 +11,7 @@ def item_paid_created(sender, instance, created, **kwargs):
     if not created: return
     payroll = instance.payslip.payroll
     employee = instance.payslip.employee
-    payer.run(payroll.id, employee={
-        employee._meta.pk.name: getattr(employee, employee._meta.pk.name, None)
-    })
+    payer.run(payroll.id, employee={'registration_number': employee.registration_number})
 
 @receiver(post_delete, sender=ItemPaid)
 def item_paid_deleted(sender, instance, **kwargs):
