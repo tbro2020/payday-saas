@@ -5,7 +5,10 @@ from django.contrib import messages
 from core.views import Change
 from payroll import models
 
+from employee.models import Employee
+from payroll.tasks import Payer
 from core.models import Base
+
 
 class Payslip(Change):
     template_name = "payroll/payslip.html"
@@ -36,22 +39,24 @@ class Payslip(Change):
         form = modelform_factory(models.ItemPaid, fields=fields)
         form = form(request.POST)
 
-        print(fields)
-
         if not form.is_valid():
-            items = obj.itempaid_set.all().order_by('code')
             messages.add_message(request, messages.WARNING, message=_(f'Remplissez correctement le formulaire'))
             return render(request, self.template_name, locals())
 
         instance = form.save(commit=False)
 
         instance.amount_qp_employee = abs(instance.amount_qp_employee) * instance.type_of_item
-        instance.amount_qp_employer = abs(instance.amount_qp_employer) * instance.type_of_item
+        instance.amount_qp_employer = abs(instance.amount_qp_employer)
 
         instance.taxable_amount = abs(instance.taxable_amount) * instance.type_of_item
         instance.social_security_amount = abs(instance.social_security_amount) * instance.type_of_item
         instance.payslip = obj
         instance.save()
+
+        # run the payslip update from here
+        payer = Payer()
+        employee = get_object_or_404(Employee, pk=obj.employee.registration_number)
+        payer.run(obj.payroll.id, employee={'registration_number': employee.registration_number})
 
         messages.add_message(request, messages.SUCCESS, message=_(f'L\'element a été ajouté avec succès'))
         return redirect(request.META.get('HTTP_REFERER'))

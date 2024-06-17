@@ -1,6 +1,8 @@
 from django.utils.translation import gettext as _
 from django.shortcuts import get_object_or_404
 from employee.models import Employee, MaritalStatus
+
+from django.db.models.query import QuerySet
 from django.db.models import Sum, Q
 
 from payroll.models import LegalItem, Item, ItemPaid, Payslip, PayrollStatus
@@ -268,7 +270,8 @@ class Payer(Task):
         Calculate the legal items for the payslip.
         """
         legal_items_to_pay = []
-        payslip.itempaid_set.filter(code__in=[item.code for item in self.legal_items]).delete()
+        qs = payslip.itempaid_set.filter(code__in=self.legal_items.values_list('code', flat=True))
+        qs._raw_delete(qs.db)
 
         for legal in self.legal_items:
             if not self.evaluate_condition(legal.condition, locals()):
