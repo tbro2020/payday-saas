@@ -93,10 +93,11 @@ class Payer(Task):
         """
         Handle exceptions during payslip generation.
         """
-        self.payroll.status = PayrollStatus.WARNING
         self.payroll.metadata.setdefault('errors', []).append({'message': str(ex), 'tag': 'error'})
         self.payroll.created_by.email_user(_(f"Erreur paie #{self.payroll.name}"), str(ex))
-        self.payroll.save()
+        
+        Payroll.objects.filter(pk=self.payroll.pk).update(**{'status': PayrollStatus.WARNING, 'metadata': self.payroll.metadata})
+        self.payroll.refresh_from_db()
 
     def evaluate_formulas(self, item, employee, payslip):
         """
