@@ -1,9 +1,8 @@
+from employee.models import Employee, MaritalStatus
+from django.db.models import Sum, Q
+
 from django.utils.translation import gettext as _
 from django.shortcuts import get_object_or_404
-from employee.models import Employee, MaritalStatus
-
-from django.db.models.query import QuerySet
-from django.db.models import Sum, Q
 
 from payroll.models import LegalItem, Item, ItemPaid, Payslip, PayrollStatus
 from celery import Task
@@ -51,9 +50,6 @@ class Payer(Task):
         # Build and apply employee filter
         payroll_employee_filter = self.build_payroll_employee_filter()
         self.employees = self.filter_employees(payroll_employee_filter)
-        
-        # Test user
-        # self.employees = self.employees.filter(registration_number='87809')
 
         # Generate payslips
         self.generate()
@@ -297,10 +293,12 @@ class Payer(Task):
         ipr = ipr + 4860
         
         person = int(payslip.employee.metadata.get('NOMBRE_ENFANT', 0))
-        #person = person if person > 0 else payslip.employee.child_set.count()
+        person = person if person > 0 or employee == None else employee.child_set.count()
         person = person + (1 if payslip.employee.marital_status == MaritalStatus.Maried.value else 0)
 
-        ipr = ipr - ((ipr*0.02) * person)
+        charge = 0.02*person
+        charge = ipr*charge
+        ipr = ipr - charge
         return round(ipr, 2)
 
     def create_legal_item_paid(self, legal, payslip, formula_qp_employee, formula_qp_employer):
