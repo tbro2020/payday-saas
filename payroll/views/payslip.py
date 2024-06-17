@@ -5,10 +5,7 @@ from django.contrib import messages
 from core.views import Change
 from payroll import models
 
-from employee.models import Employee
-from payroll.tasks import Payer
 from core.models import Base
-
 
 class Payslip(Change):
     template_name = "payroll/payslip.html"
@@ -52,11 +49,6 @@ class Payslip(Change):
         instance.social_security_amount = abs(instance.social_security_amount) * instance.type_of_item
         instance.payslip = obj
         instance.save()
-
-        # run the payslip update from here
-        payer = Payer()
-        employee = get_object_or_404(Employee, pk=obj.employee.registration_number)
-        payer.run(obj.payroll.id, employee={'registration_number': employee.registration_number})
 
         messages.add_message(request, messages.SUCCESS, message=_(f'L\'element a été ajouté avec succès'))
         return redirect(request.META.get('HTTP_REFERER'))
