@@ -90,7 +90,7 @@ class Payer(Task):
                 payslip, created = self.create_or_get_payslip(employee)
                 self.generate_items(self.items, payslip, employee)
                 payslip = self.refresh_payslip(payslip)
-                self.generate_items(self.legal_items, payslip, employee)
+                self.generate_items(self.legal_items, payslip, employee, can_delete_existing_item_paid=True)
                 payslip = self.refresh_payslip(payslip)
             self.refresh_payroll(status=PayrollStatus.SUCCESS)
         except Exception as ex:
@@ -154,25 +154,51 @@ class Payer(Task):
         self.payroll.refresh_from_db()
         return self.payroll
 
-    def generate_items(self, items, payslip, employee):
-        itempaid = payslip.itempaid_set.all().values_list('code', flat=True)
-        item_to_pay = []
+    def generate_items(self, items, payslip, employee, can_delete_existing_item_paid=False):
+        """
+        Generate or update items for a payslip and employee.
+        
+        Parameters:
+        - items: QuerySet or list of items to process.
+        - payslip: The payslip instance.
+        - employee: The employee instance.
+        - can_delete_existing_item_paid: Flag to indicate if existing paid items should be deleted.
+        
+        Returns:
+        A list of created `ItemPaid` instances.
+        """
+        item_paid_queryset = payslip.itempaid_set.all()
+        
+        if can_delete_existing_item_paid:
+            # Delete existing item paid records that match the codes in items
+            item_paid_queryset.filter(code__in=items.values_list('code', flat=True))._raw_delete(item_paid_queryset.db)
+            item_paid_codes = set()
+        else:
+            # Get existing paid item codes
+            item_paid_codes = set(item_paid_queryset.values_list('code', flat=True))
 
-        for item in items:
-            if item.code in itempaid: continue
-            if not eval(item.condition, locals()): continue
-            time, qpe, qpp = self.evaluate_formulas(item, employee, payslip)
-            item_to_pay.append(ItemPaid(
+        # Create a list of items to be paid
+        items_to_pay = [
+            ItemPaid(
                 code=item.code,
                 type_of_item=item.type_of_item,
-                name=item.name, time=time, rate=round(qpe/time, 2) if time else 0,
-                amount_qp_employer=qpp, amount_qp_employee=qpe,
+                name=item.name,
+                time=(time := self.evaluate_formulas(item, employee, payslip)[0]),
+                rate=round((qpe := self.evaluate_formulas(item, employee, payslip)[1]) / time, 2) if time else 0,
+                amount_qp_employer=(qpp := self.evaluate_formulas(item, employee, payslip)[2]),
+                amount_qp_employee=qpe,
                 taxable_amount=qpe if getattr(item, 'is_taxable', False) else 0,
                 social_security_amount=qpe if getattr(item, 'is_social_security', False) else 0,
-                is_bonus=getattr(item, 'is_bonus', False), is_payable=getattr(item, 'is_payable', True),
-                payslip=payslip, created_by=self.payroll.created_by
-            ))
-        return ItemPaid.objects.bulk_create(item_to_pay)
+                is_bonus=getattr(item, 'is_bonus', False),
+                is_payable=getattr(item, 'is_payable', True),
+                payslip=payslip,
+                created_by=self.payroll.created_by
+            )
+            for item in items
+            if item.code not in item_paid_codes and eval(item.condition, locals())
+        ]
+        return ItemPaid.objects.bulk_create(items_to_pay)
+
 
     def get_tranche(self, taxable_gross):
         for percentage, (lower_bound, upper_bound) in self.TRANCHES.items():
