@@ -111,7 +111,7 @@ class Payer(Task):
         Safely evaluate the formulas for employee and employer.
         """
         try:
-            time = eval(item.time, locals()) or item.time or 0
+            time = float(eval(item.time, locals()) or 0)
             formula_qp_employee = abs(round(eval(item.formula_qp_employee, locals()), 2)) * item.type_of_item
             formula_qp_employer = abs(round(eval(item.formula_qp_employer, locals()), 2)) * item.type_of_item
             return time, formula_qp_employee, formula_qp_employer
@@ -160,7 +160,6 @@ class Payer(Task):
 
         for item in items:
             if item.code in itempaid: continue
-            print(employee, item)
             if not eval(item.condition, locals()): continue
             time, qpe, qpp = self.evaluate_formulas(item, employee, payslip)
             item_to_pay.append(ItemPaid(
