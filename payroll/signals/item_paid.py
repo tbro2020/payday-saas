@@ -18,6 +18,6 @@ def item_paid_deleted(sender, instance, **kwargs):
     try:
         payroll = instance.payslip.payroll
         employee = instance.payslip.employee
-        payer.run(payroll.id, employee={employee._meta.pk.name: getattr(employee, employee._meta.pk.name, None)})
+        payer.run(payroll.id, employee={'registration_number': employee.registration_number})
     except Exception as ex:
         print(ex)
