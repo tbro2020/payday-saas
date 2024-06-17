@@ -167,9 +167,9 @@ class Payer(Task):
                 type_of_item=item.type_of_item,
                 name=item.name, time=time, rate=round(qpe/time, 2) if time else 0,
                 amount_qp_employer=qpp, amount_qp_employee=qpe,
-                taxable_amount=qpe if item.is_taxable else 0,
-                social_security_amount=qpe if item.is_social_security else 0,
-                is_bonus=item.is_bonus, is_payable=item.is_payable,
+                taxable_amount=qpe if getattr(item, 'is_taxable', False) else 0,
+                social_security_amount=qpe if getattr(item, 'is_social_security', False) else 0,
+                is_bonus=getattr(item, 'is_bonus', False), is_payable=getattr(item, 'is_payable', True),
                 payslip=payslip, created_by=self.payroll.created_by
             ))
         return ItemPaid.objects.bulk_create(item_to_pay)
