@@ -30,7 +30,6 @@ class Payer(Task):
         0.30: [1800001, 3600000],
         0.40: [3600001, 9999999999999]
     }
-       
 
     def run(self, pk, *args, **kwargs):
         """
@@ -42,13 +41,6 @@ class Payer(Task):
         # Load additional items from Excel
         self.canvas = self.load_excel(self.payroll.canvas)
         self.additional_items = self.load_excel(self.payroll.additional_items)
-
-        # replace all the nan to 0 and convert the key column to type str
-        
-        for k, df in {'registration_number': self.canvas, 'matricule': self.additional_items}.items():
-            if not df.empty: continue
-            df.fillna(0, inplace=True)
-            df[k] = df[k].astype(str)
 
         self.legal_items = LegalItem.objects.all()
         self.items = Item.objects.filter(is_payable=True)
@@ -68,12 +60,25 @@ class Payer(Task):
         # Generate payslips
         self.generate()
 
-    def load_excel(self, path):
+    def load_excel(self, obj):
         """
-        Load Excel file into a DataFrame.
+        Load Excel file into a DataFrame, fill NaN with 0, and convert the first column to string.
         """
-        path = path.path if path else None
-        return pd.read_excel(path) if path else pd.DataFrame()
+        # Load DataFrame from Excel if path exists, otherwise create an empty DataFrame
+        df = pd.read_excel(obj.path) if obj and obj.path else pd.DataFrame()
+        
+        # Fill NaN values with 0
+        df.fillna(0, inplace=True)
+        
+        # Check if DataFrame is not empty
+        if not df.empty:
+            # Get the name of the first column
+            first_column = df.columns[0]
+            # Convert the first column to string
+            df[first_column] = df[first_column].astype(str)
+        
+        # Return the DataFrame
+        return df
     
     @transaction.atomic
     def generate(self):
