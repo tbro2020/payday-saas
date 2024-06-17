@@ -45,8 +45,9 @@ class Payslip(Change):
         instance.amount_qp_employee = abs(instance.amount_qp_employee) * instance.type_of_item
         instance.amount_qp_employer = abs(instance.amount_qp_employer)
 
-        instance.taxable_amount = abs(instance.taxable_amount) * instance.type_of_item
         instance.social_security_amount = abs(instance.social_security_amount) * instance.type_of_item
+        instance.taxable_amount = abs(instance.taxable_amount) * instance.type_of_item
+        instance.is_payable = True
         instance.payslip = obj
         instance.save()
 
