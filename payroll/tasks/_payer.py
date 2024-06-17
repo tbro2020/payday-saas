@@ -116,7 +116,6 @@ class Payer(Task):
             formula_qp_employer = abs(round(eval(item.formula_qp_employer, locals()), 2)) * item.type_of_item
             return time, formula_qp_employee, formula_qp_employer
         except Exception as ex:
-            print(ex)
             return 0, 0, 0
 
     def create_or_get_payslip(self, employee):
@@ -212,7 +211,7 @@ class Payer(Task):
         
         person_count = int(payslip.employee.metadata.get('NOMBRE_ENFANT', 0))
         person_count = person_count if person_count > 0 or employee is None else employee.child_set.count()
-        person_count += 1 if payslip.employee.marital_status == MaritalStatus.Married else 0
+        person_count += 1 if payslip.employee.marital_status == MaritalStatus.Maried.value else 0
 
         charge = taxable_amount * (0.02 * person_count)
         taxable_amount -= charge
