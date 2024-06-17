@@ -116,6 +116,7 @@ class Payer(Task):
             formula_qp_employer = abs(round(eval(item.formula_qp_employer, locals()), 2)) * item.type_of_item
             return time, formula_qp_employee, formula_qp_employer
         except Exception as ex:
+            print(ex)
             return 0, 0, 0
 
     def create_or_get_payslip(self, employee):
