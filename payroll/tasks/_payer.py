@@ -160,6 +160,7 @@ class Payer(Task):
 
         for item in items:
             if item.code in itempaid: continue
+            print(item)
             if not eval(item.condition, locals()): continue
             time, qpe, qpp = self.evaluate_formulas(item, employee, payslip)
             item_to_pay.append(ItemPaid(
