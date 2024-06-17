@@ -172,33 +172,28 @@ class Payer(Task):
         if can_delete_existing_item_paid:
             # Delete existing item paid records that match the codes in items
             item_paid_queryset.filter(code__in=items.values_list('code', flat=True))._raw_delete(item_paid_queryset.db)
-            item_paid_codes = set()
+            item_paid_codes = set(payslip.itempaid_set.all().values_list('code', flat=True))
         else:
             # Get existing paid item codes
             item_paid_codes = set(item_paid_queryset.values_list('code', flat=True))
 
-        # Create a list of items to be paid
-        items_to_pay = [
-            ItemPaid(
+        item_to_pay = []
+
+        for item in items:
+            if item.code in item_paid_codes: continue
+            if not eval(item.condition, locals()): continue
+            time, qpe, qpp = self.evaluate_formulas(item, employee, payslip)
+            item_to_pay.append(ItemPaid(
                 code=item.code,
                 type_of_item=item.type_of_item,
-                name=item.name,
-                time=(time := self.evaluate_formulas(item, employee, payslip)[0]),
-                rate=round((qpe := self.evaluate_formulas(item, employee, payslip)[1]) / time, 2) if time else 0,
-                amount_qp_employer=(qpp := self.evaluate_formulas(item, employee, payslip)[2]),
-                amount_qp_employee=qpe,
+                name=item.name, time=time, rate=round(qpe/time, 2) if time else 0,
+                amount_qp_employer=qpp, amount_qp_employee=qpe,
                 taxable_amount=qpe if getattr(item, 'is_taxable', False) else 0,
                 social_security_amount=qpe if getattr(item, 'is_social_security', False) else 0,
-                is_bonus=getattr(item, 'is_bonus', False),
-                is_payable=getattr(item, 'is_payable', True),
-                payslip=payslip,
-                created_by=self.payroll.created_by
-            )
-            for item in items
-            if item.code not in item_paid_codes and eval(item.condition, locals())
-        ]
-        return ItemPaid.objects.bulk_create(items_to_pay)
-
+                is_bonus=getattr(item, 'is_bonus', False), is_payable=getattr(item, 'is_payable', True),
+                payslip=payslip, created_by=self.payroll.created_by
+            ))
+        return ItemPaid.objects.bulk_create(item_to_pay)
 
     def get_tranche(self, taxable_gross):
         for percentage, (lower_bound, upper_bound) in self.TRANCHES.items():
