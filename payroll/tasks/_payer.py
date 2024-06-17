@@ -167,6 +167,7 @@ class Payer(Task):
         Returns:
         A list of created `ItemPaid` instances.
         """
+        item_to_pay_queryset = []
         item_paid_queryset = payslip.itempaid_set.all()
         
         if can_delete_existing_item_paid:
@@ -177,13 +178,12 @@ class Payer(Task):
             # Get existing paid item codes
             item_paid_codes = set(item_paid_queryset.values_list('code', flat=True))
 
-        item_to_pay = []
-
         for item in items:
             if item.code in item_paid_codes: continue
             if not eval(item.condition, locals()): continue
             time, qpe, qpp = self.evaluate_formulas(item, employee, payslip)
-            item_to_pay.append(ItemPaid(
+            if qpe == 0.0 and qpp == 0.0: continue
+            item_to_pay_queryset.append(ItemPaid(
                 code=item.code,
                 type_of_item=item.type_of_item,
                 name=item.name, time=time, rate=round(qpe/time, 2) if time else 0,
@@ -193,7 +193,7 @@ class Payer(Task):
                 is_bonus=getattr(item, 'is_bonus', False), is_payable=getattr(item, 'is_payable', True),
                 payslip=payslip, created_by=self.payroll.created_by
             ))
-        return ItemPaid.objects.bulk_create(item_to_pay)
+        return ItemPaid.objects.bulk_create(item_to_pay_queryset)
 
     def get_tranche(self, taxable_gross):
         for percentage, (lower_bound, upper_bound) in self.TRANCHES.items():
