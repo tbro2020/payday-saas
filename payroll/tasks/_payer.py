@@ -45,6 +45,7 @@ class Payer(Task):
 
         # replace all the nan to 0 and convert the key column to type str
         for k, df in [('registration_number', self.canvas),('matricule', self.additional_items)]:
+            if not df.empty: continue
             df.fillna(0, inplace=True)
             df[k] = df[k].astype(str)
 
