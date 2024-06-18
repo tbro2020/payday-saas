@@ -211,7 +211,7 @@ class Payer(Task):
         df['est une prime'] = df['est une prime'].map({'TRUE': True, 'FALSE': False})
         df['est payable'] = df['est une prime'].map({'TRUE': True, 'FALSE': False})
 
-        df.pop('matricule', axis=1, inplace=True)
+        df.pop('matricule')
 
         columns = {
             'type d\'element': 'type_of_item',
