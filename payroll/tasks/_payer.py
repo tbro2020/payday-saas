@@ -207,6 +207,7 @@ class Payer(Task):
 
     def re_base_additional_element_column(self, df):
         columns = {
+            'matricule': 'matricule',
             'type d\'element': 'type_of_item',
             'code': 'code',
             'nom': 'name',
@@ -229,7 +230,9 @@ class Payer(Task):
 
     def insert_items_from_df(self, df, payslip, employee):
         if df.empty: return
+        df['matricule'] = df['matricule'].astype(str)
         df = df[df['matricule'] == employee.registration_number]
+        if df.empty: return
 
         df['is_payable'] = df['is_payable'].map({'TRUE': True, 'FALSE': False})
         df['is_bonus'] = df['is_bonus'].map({'TRUE': True, 'FALSE': False})
@@ -238,7 +241,6 @@ class Payer(Task):
 
         data = json.loads(df.to_json(orient='records'))
         data = [ItemPaid(**obj, payslip=payslip) for obj in data]
-        print(data)
         return ItemPaid.objects.bulk_create(data)
 
     def get_tranche(self, taxable_gross):
