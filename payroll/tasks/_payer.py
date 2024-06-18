@@ -234,8 +234,8 @@ class Payer(Task):
         df = df[df['matricule'] == employee.registration_number]
         if df.empty: return
 
-        df['is_payable'] = df['is_payable'].map({'TRUE': True, 'FALSE': False})
-        df['is_bonus'] = df['is_bonus'].map({'TRUE': True, 'FALSE': False})
+        df.loc[:, 'is_payable'] = df['is_payable'].map({'TRUE': True, 'FALSE': False})
+        df.loc[:, 'is_bonus'] = df['is_bonus'].map({'TRUE': True, 'FALSE': False})
 
         df.pop('matricule')
 
