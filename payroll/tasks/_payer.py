@@ -229,7 +229,6 @@ class Payer(Task):
 
     def insert_items_from_df(self, df, payslip, employee):
         if df.empty: return
-        #paids = payslip.itempaid_set.all().values_list('code', flat=True)
         df = df[df['matricule'] == employee.registration_number]
 
         df['est une prime'] = df['est une prime'].map({'TRUE': True, 'FALSE': False})
@@ -239,6 +238,7 @@ class Payer(Task):
 
         data = json.loads(df.to_json(orient='records'))
         data = [ItemPaid(**obj, payslip=payslip) for obj in data]
+        print(data)
         return ItemPaid.objects.bulk_create(data)
 
     def get_tranche(self, taxable_gross):
