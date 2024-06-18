@@ -84,6 +84,18 @@ class Payroll(Base):
 
     def get_absolute_url(self):
         return reverse_lazy('payroll:payslips', args=[self.pk])
+    
+    def statistic(self):
+        from django.apps import apps
+        payslips = self.payslip_set.all()
+        items_paid = apps.get_model('payroll', 'itempaid').objects.filter(payslip__payroll=self)
+        return {
+            'deductibles': round(abs(items_paid.aggregate(amount=models.Sum('social_security_amount')).get('amount', 0)), 2),
+            'branches': payslips.values('_employee__branch__name', flat=True).distinct(),
+            'payer': payslips.values('_employee__payer__name', flat=True).distinct(),
+            'net': self.overall_net,
+            'payslips': payslips
+        }
 
     class Meta:
         verbose_name = _('paie')
