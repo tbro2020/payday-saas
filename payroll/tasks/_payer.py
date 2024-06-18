@@ -229,7 +229,6 @@ class Payer(Task):
         data = df.to_json(orient='records')
         return ItemPaid.objects.bulk_create(data)
 
-
     def get_tranche(self, taxable_gross):
         for percentage, (lower_bound, upper_bound) in self.TRANCHES.items():
             if lower_bound <= taxable_gross <= upper_bound:
@@ -254,5 +253,26 @@ class Payer(Task):
         charge = taxable_amount * (0.02 * person_count)
         taxable_amount -= charge
         return round(taxable_amount, 2)
+
+    def shift(self, item, payslip, employee):
+        if self.canvas.empty: return
+        HEURE_MAJOREES = item.metadata['HEURE_MAJOREES'] or {}
+        period = "0" + self.payroll.start_dt.month.replace('0','')
+
+        data = self.canvas[self.canvas['MATRICULE'] == employee.registration_number]
+        data = data[data['MOIS_EFFET'] == period]
+        data = data.to_json(orient='records')
+
+        hours = 0
+        for obj in data:
+            days = int(obj['NOMBRE_JOURS'])
+            code_activites = str(obj['CODE_ABSENCE'])
+            hours += (HEURE_MAJOREES[code_activites.lower()] or 0) * days
+        
+        items_paid = payslip.itempaid_set.filter(code__in=['1010','1000','3800','3260','3620','3640'])
+        items_paid = items_paid.aggregate(amount=Sum('amount_qp_employee')).get('amount', 0)
+        result = items_paid / 195
+        result = result * hours
+        result = result * 1.1818
 
 app.register_task(Payer())
