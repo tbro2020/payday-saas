@@ -90,15 +90,15 @@ class Payer(Task):
                 payslip, created = self.create_or_get_payslip(employee)
 
                 if 'pen' not in employee.status.name.lower() \
-                    and 'rent' not in employee.status.name.lower():
+                    or 'rent' not in employee.status.name.lower():
                     self.generate_items(self.items, payslip, employee)
                     payslip = self.refresh_payslip(payslip)
                 
                 self.insert_items_from_df(self.additional_items, payslip, employee)
                 payslip = self.refresh_payslip(payslip)
-                
+
                 if 'pen' not in employee.status.name.lower() \
-                    and 'rent' not in employee.status.name.lower():
+                    or 'rent' not in employee.status.name.lower():
                     self.generate_items(self.legal_items, payslip, employee, can_delete_existing_item_paid=True)
                     payslip = self.refresh_payslip(payslip)
 
