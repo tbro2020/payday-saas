@@ -186,7 +186,6 @@ class Payer(Task):
             item_paid_codes = set(item_paid_queryset.values_list('code', flat=True))
 
         for item in items:
-            print(item)
             if item.code in item_paid_codes: continue
             if not eval(item.condition, locals()): continue
             time, qpe, qpp = self.evaluate_formulas(item, employee, payslip)
