@@ -42,7 +42,9 @@ class Payer(Task):
         # Load additional items from Excel
         self.canvas = self.load_excel(self.payroll.canvas)
         self.additional_items = self.load_excel(self.payroll.additional_items)
-
+        if not self.additional_items.empty:
+            self.additional_items = self.re_base_additional_element_column(self.additional_items)
+            
         self.legal_items = LegalItem.objects.all()
         self.items = Item.objects.filter(is_payable=True)
         self.items = self.items.exclude(Q(condition='0') | Q(condition__isnull=True))
@@ -203,16 +205,7 @@ class Payer(Task):
             ))
         return ItemPaid.objects.bulk_create(item_to_pay_queryset)
 
-    def insert_items_from_df(self, df, payslip, employee):
-        if df.empty: return
-        #paids = payslip.itempaid_set.all().values_list('code', flat=True)
-        df = df[df['matricule'] == employee.registration_number]
-
-        df['est une prime'] = df['est une prime'].map({'TRUE': True, 'FALSE': False})
-        df['est payable'] = df['est une prime'].map({'TRUE': True, 'FALSE': False})
-
-        df.pop('matricule')
-
+    def re_base_additional_element_column(self, df):
         columns = {
             'type d\'element': 'type_of_item',
             'code': 'code',
@@ -232,6 +225,17 @@ class Payer(Task):
 
         for column in float_columns:
             df[column] = df[column].astype(float).fillna(0)
+        return df
+
+    def insert_items_from_df(self, df, payslip, employee):
+        if df.empty: return
+        #paids = payslip.itempaid_set.all().values_list('code', flat=True)
+        df = df[df['matricule'] == employee.registration_number]
+
+        df['est une prime'] = df['est une prime'].map({'TRUE': True, 'FALSE': False})
+        df['est payable'] = df['est une prime'].map({'TRUE': True, 'FALSE': False})
+
+        df.pop('matricule')
 
         data = json.loads(df.to_json(orient='records'))
         data = [ItemPaid(**obj, payslip=payslip) for obj in data]
