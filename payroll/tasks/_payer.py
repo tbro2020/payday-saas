@@ -96,7 +96,7 @@ class Payer(Task):
                 
                 self.insert_items_from_df(self.additional_items, payslip, employee)
                 payslip = self.refresh_payslip(payslip)
-
+                
                 if 'pen' not in employee.status.name.lower() \
                     or 'rent' not in employee.status.name.lower():
                     self.generate_items(self.legal_items, payslip, employee, can_delete_existing_item_paid=True)
@@ -186,6 +186,7 @@ class Payer(Task):
             item_paid_codes = set(item_paid_queryset.values_list('code', flat=True))
 
         for item in items:
+            print(item.code, employee.registration_number)
             if item.code in item_paid_codes: continue
             if not eval(item.condition, locals()): continue
             time, qpe, qpp = self.evaluate_formulas(item, employee, payslip)
