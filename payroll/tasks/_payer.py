@@ -88,12 +88,20 @@ class Payer(Task):
         try:
             for employee in self.employees:
                 payslip, created = self.create_or_get_payslip(employee)
-                self.generate_items(self.items, payslip, employee)
-                payslip = self.refresh_payslip(payslip)
+
+                if 'pen' not in employee.status.name.lower() \
+                    and 'rent' not in employee.status.name.lower():
+                    self.generate_items(self.items, payslip, employee)
+                    payslip = self.refresh_payslip(payslip)
+                
                 self.insert_items_from_df(self.additional_items, payslip, employee)
                 payslip = self.refresh_payslip(payslip)
-                self.generate_items(self.legal_items, payslip, employee, can_delete_existing_item_paid=True)
-                payslip = self.refresh_payslip(payslip)
+                
+                if 'pen' not in employee.status.name.lower() \
+                    and 'rent' not in employee.status.name.lower():
+                    self.generate_items(self.legal_items, payslip, employee, can_delete_existing_item_paid=True)
+                    payslip = self.refresh_payslip(payslip)
+
             self.payroll = self.refresh_payroll(status=PayrollStatus.SUCCESS)
         except Exception as ex:
             self.handle_generation_exception(ex)
