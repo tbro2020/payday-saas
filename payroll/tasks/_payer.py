@@ -211,7 +211,7 @@ class Payer(Task):
         df['est une prime'] = df['est une prime'].map({'TRUE': True, 'FALSE': False})
         df['est payable'] = df['est une prime'].map({'TRUE': True, 'FALSE': False})
 
-        df.drop('matricule', axis=1, inplace=True)
+        df.pop('matricule', axis=1, inplace=True)
 
         columns = {
             'type d\'element': 'type_of_item',
@@ -233,11 +233,9 @@ class Payer(Task):
         for column in float_columns:
             df[column] = df[column].astype(float).fillna(0)
 
-        df['created_by'] = payslip.created_by.pk
-        df['payslip'] = payslip.pk
-
         data = json.loads(df.to_json(orient='records'))
-        print(data)
+        for obj in data:
+            obj.update({'payslip': payslip})
         return ItemPaid.objects.bulk_create(data)
 
     def get_tranche(self, taxable_gross):
