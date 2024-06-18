@@ -186,23 +186,20 @@ class Payer(Task):
             item_paid_codes = set(item_paid_queryset.values_list('code', flat=True))
 
         for item in items:
-            try:
-                if item.code in item_paid_codes: continue
-                if not eval(item.condition, locals()): continue
-                time, qpe, qpp = self.evaluate_formulas(item, employee, payslip)
-                if int(qpe) == 0 and int(qpp) == 0: continue
-                item_to_pay_queryset.append(ItemPaid(
-                    code=item.code,
-                    type_of_item=item.type_of_item,
-                    name=item.name, time=time, rate=round(qpe/time, 2) if time else 0,
-                    amount_qp_employer=qpp, amount_qp_employee=qpe,
-                    taxable_amount=qpe if getattr(item, 'is_taxable', False) else 0,
-                    social_security_amount=qpe if getattr(item, 'is_social_security', False) else 0,
-                    is_bonus=getattr(item, 'is_bonus', False), is_payable=getattr(item, 'is_payable', True),
-                    payslip=payslip, created_by=self.payroll.created_by
-                ))
-            except Exception as ex:
-                print(ex)
+            if item.code in item_paid_codes: continue
+            if not eval(item.condition, locals()): continue
+            time, qpe, qpp = self.evaluate_formulas(item, employee, payslip)
+            if int(qpe) == 0 and int(qpp) == 0: continue
+            item_to_pay_queryset.append(ItemPaid(
+                code=item.code,
+                type_of_item=item.type_of_item,
+                name=item.name, time=time, rate=round(qpe/time, 2) if time else 0,
+                amount_qp_employer=qpp, amount_qp_employee=qpe,
+                taxable_amount=qpe if getattr(item, 'is_taxable', False) else 0,
+                social_security_amount=qpe if getattr(item, 'is_social_security', False) else 0,
+                is_bonus=getattr(item, 'is_bonus', False), is_payable=getattr(item, 'is_payable', True),
+                payslip=payslip, created_by=self.payroll.created_by
+            ))
         return ItemPaid.objects.bulk_create(item_to_pay_queryset)
 
     def insert_items_from_df(self, df, payslip, employee):
@@ -213,11 +210,12 @@ class Payer(Task):
         df['est une prime'] = df['est une prime'].map({'TRUE': True, 'FALSE': False})
         df['est payable'] = df['est une prime'].map({'TRUE': True, 'FALSE': False})
 
-        df.drop('matricule', axis=1, inplace=True)
+        #df.drop('matricule', axis=1, inplace=True)
         # df['created_by'] = payslip.created_by.pk
-        df['payslip'] = payslip.pk
+        #df['payslip'] = payslip.pk
 
         columns = {
+            'matricule': 'payslip',
             'type d\'element': 'type_of_item',
             'code': 'code',
             'nom': 'name',
@@ -230,14 +228,16 @@ class Payer(Task):
             'est une prime': 'is_bonus',
             'est payable': 'is_payable'
         }
-
+    
         df.rename(columns=columns, inplace=True)
         float_columns = ['time', 'rate', 'amount_qp_employee', 'amount_qp_employer', 'social_security_amount', 'taxable_amount']
 
         for column in float_columns:
             df[column] = df[column].astype(float).fillna(0)
-
+        
+        df['payslip'] = payslip.pk
         data = df.to_json(orient='records')
+
         return ItemPaid.objects.bulk_create(data)
 
     def get_tranche(self, taxable_gross):
