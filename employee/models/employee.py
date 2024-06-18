@@ -78,7 +78,7 @@ class Employee(Base):
 
     objects = EmployeeQuerySet()
 
-    list_filter = ('direction', 'branch', 'position', 'marital_status', 'branch', 'status', 'date_of_join', 'date_of_birth')
+    list_filter = ('grade', 'direction', 'branch', 'position', 'marital_status', 'branch', 'status', 'date_of_join', 'date_of_birth')
     list_display = ('registration_number', 'grade', 'branch', 'last_name', 'middle_name', 'status')
     search_fields = ('registration_number', )
 

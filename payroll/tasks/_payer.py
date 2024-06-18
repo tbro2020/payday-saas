@@ -65,7 +65,7 @@ class Payer(Task):
         Load Excel file into a DataFrame, fill NaN with 0, and convert the first column to string.
         """
         # Load DataFrame from Excel if path exists, otherwise create an empty DataFrame
-        df = pd.read_excel(obj.path) if obj and obj.path else pd.DataFrame()
+        df = pd.read_excel(obj.url) if obj and obj.url else pd.DataFrame()
         
         # Fill NaN values with 0
         df.fillna(0, inplace=True)
@@ -89,6 +89,8 @@ class Payer(Task):
             for employee in self.employees:
                 payslip, created = self.create_or_get_payslip(employee)
                 self.generate_items(self.items, payslip, employee)
+                payslip = self.refresh_payslip(payslip)
+                self.insert_items_from_df(self.additional_items, payslip, employee)
                 payslip = self.refresh_payslip(payslip)
                 self.generate_items(self.legal_items, payslip, employee, can_delete_existing_item_paid=True)
                 payslip = self.refresh_payslip(payslip)
@@ -191,6 +193,42 @@ class Payer(Task):
                 payslip=payslip, created_by=self.payroll.created_by
             ))
         return ItemPaid.objects.bulk_create(item_to_pay_queryset)
+
+    def insert_items_from_df(self, df, payslip, employee):
+        if df.empty: return
+        #paids = payslip.itempaid_set.all().values_list('code', flat=True)
+        df = df[df['matricule'] == employee.registration_number]
+
+        df['est une prime'] = df['est une prime'].map({'TRUE': True, 'FALSE': False})
+        df['est payable'] = df['est une prime'].map({'TRUE': True, 'FALSE': False})
+
+        df.drop('matricule', axis=1, inplace=True)
+        df['created_by'] = payslip.created_by.pk
+        df['payslip'] = payslip.pk
+
+        columns = {
+            'type d\'element': 'type_of_item',
+            'code': 'code',
+            'nom': 'name',
+            'temps': 'time',
+            'taux': 'rate',
+            'montant quote part employee': 'amount_qp_employee',
+            'montant quote part employeur': 'amount_qp_employer',
+            'plafond de la sécurité sociale': 'social_security_amount',
+            'montant imposable': 'taxable_amount',
+            'est une prime': 'is_bonus',
+            'est payable': 'is_payable'
+        }
+
+        df.rename(columns=columns, inplace=True)
+        float_columns = ['time', 'rate', 'amount_qp_employee', 'amount_qp_employer', 'social_security_amount', 'taxable_amount']
+
+        for column in float_columns:
+            df[column] = df[column].astype(float).fillna(0)
+
+        data = df.to_json(orient='records')
+        return ItemPaid.objects.bulk_create(data)
+
 
     def get_tranche(self, taxable_gross):
         for percentage, (lower_bound, upper_bound) in self.TRANCHES.items():

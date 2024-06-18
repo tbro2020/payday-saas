@@ -7,9 +7,9 @@ from django.db import models
 class Status(Base):
     name = models.CharField(verbose_name=_('nom'), max_length=100, unique=True)
 
-    layout = Layout('name')
     search_fields = ('name')
     list_display = ('id', 'name')
+    layout = Layout('name', 'metadata')
 
     class Meta:
         verbose_name = _('code activité')
