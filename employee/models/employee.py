@@ -27,16 +27,14 @@ default_photo = lambda: "place_pics/default_pic.jpg"
 #default_registration_number = lambda: randint(100000000, 999999999)
 
 class MaritalStatus(models.TextChoices):
-    Maried = ('Maried', _('Marié'))
-    Widower = ('Widower', _('Veuf'))
-    Single = ('Single', _('Célibataire'))
+    Maried = ('maried', _('Marié'))
+    Widower = ('widower', _('Veuf'))
+    Single = ('single', _('Célibataire'))
 
 
 class Employee(Base):
-    GENDERS = (('Male', _('Homme')), ('Female', _('Femme')))
-
-    MARITAl_STATUS = (('Maried', _('Marié')), ('Single', _('Célibataire')), ('Widower', _('Veuf')))
-    PAYMENT_METHODS = (('Cash', _('Cash')), ('Bank', _('Bank')), ('Mobile Money', _('Mobile Money')))
+    GENDERS = (('male', _('Homme')), ('female', _('Femme')))
+    PAYMENT_METHODS = (('cash', _('Cash')), ('bank', _('Bank')), ('mobile Money', _('Mobile Money')))
 
     registration_number = models.CharField(_('matricule'), max_length=50, unique=True, db_index=True, primary_key=True)
     social_security_number = models.CharField(_('numéro de sécurité sociale'), max_length=50, blank=True, null=True, default=None)
