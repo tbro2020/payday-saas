@@ -236,6 +236,7 @@ class Payer(Task):
         data = json.loads(df.to_json(orient='records'))
         for obj in data:
             obj.update({'payslip': payslip})
+        print(data)
         return ItemPaid.objects.bulk_create(data)
 
     def get_tranche(self, taxable_gross):
