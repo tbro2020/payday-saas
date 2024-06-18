@@ -85,26 +85,26 @@ class Payer(Task):
         """
         Generate payslips for all filtered employees.
         """
-        try:
-            for employee in self.employees:
-                payslip, created = self.create_or_get_payslip(employee)
+        #try:
+        for employee in self.employees:
+            payslip, created = self.create_or_get_payslip(employee)
 
-                if 'pen' not in employee.status.name.lower() \
-                    or 'rent' not in employee.status.name.lower():
-                    self.generate_items(self.items, payslip, employee)
-                    payslip = self.refresh_payslip(payslip)
-                
-                self.insert_items_from_df(self.additional_items, payslip, employee)
+            if 'pen' not in employee.status.name.lower() \
+                or 'rent' not in employee.status.name.lower():
+                self.generate_items(self.items, payslip, employee)
                 payslip = self.refresh_payslip(payslip)
-                
-                if 'pen' not in employee.status.name.lower() \
-                    or 'rent' not in employee.status.name.lower():
-                    self.generate_items(self.legal_items, payslip, employee, can_delete_existing_item_paid=True)
-                    payslip = self.refresh_payslip(payslip)
+            
+            self.insert_items_from_df(self.additional_items, payslip, employee)
+            payslip = self.refresh_payslip(payslip)
+            
+            if 'pen' not in employee.status.name.lower() \
+                or 'rent' not in employee.status.name.lower():
+                self.generate_items(self.legal_items, payslip, employee, can_delete_existing_item_paid=True)
+                payslip = self.refresh_payslip(payslip)
 
-            self.payroll = self.refresh_payroll(status=PayrollStatus.SUCCESS)
-        except Exception as ex:
-            self.handle_generation_exception(ex)
+        self.payroll = self.refresh_payroll(status=PayrollStatus.SUCCESS)
+        #except Exception as ex:
+        #    self.handle_generation_exception(ex)
 
     def handle_generation_exception(self, ex):
         """
@@ -210,12 +210,11 @@ class Payer(Task):
         df['est une prime'] = df['est une prime'].map({'TRUE': True, 'FALSE': False})
         df['est payable'] = df['est une prime'].map({'TRUE': True, 'FALSE': False})
 
-        #df.drop('matricule', axis=1, inplace=True)
-        # df['created_by'] = payslip.created_by.pk
-        #df['payslip'] = payslip.pk
+        df.drop('matricule', axis=1, inplace=True)
+        df['created_by'] = payslip.created_by.pk
+        df['payslip'] = payslip.pk
 
         columns = {
-            'matricule': 'payslip',
             'type d\'element': 'type_of_item',
             'code': 'code',
             'nom': 'name',
@@ -228,16 +227,14 @@ class Payer(Task):
             'est une prime': 'is_bonus',
             'est payable': 'is_payable'
         }
-    
+
         df.rename(columns=columns, inplace=True)
         float_columns = ['time', 'rate', 'amount_qp_employee', 'amount_qp_employer', 'social_security_amount', 'taxable_amount']
 
         for column in float_columns:
             df[column] = df[column].astype(float).fillna(0)
-        
-        df['payslip'] = payslip.pk
-        data = df.to_json(orient='records')
 
+        data = df.to_json(orient='records')
         return ItemPaid.objects.bulk_create(data)
 
     def get_tranche(self, taxable_gross):
