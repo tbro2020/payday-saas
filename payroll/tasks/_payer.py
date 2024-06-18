@@ -12,6 +12,7 @@ import pandas as pd
 from api.serializers import model_serializer_factory
 from datetime import datetime
 from payday.celery import app
+import json
 
 # Serializer for Employee model
 EmployeeSerializer = model_serializer_factory(Employee)
@@ -234,7 +235,7 @@ class Payer(Task):
         for column in float_columns:
             df[column] = df[column].astype(float).fillna(0)
 
-        data = df.to_json(orient='records')
+        data = json.loads(df.to_json(orient='records'))
         return ItemPaid.objects.bulk_create(data)
 
     def get_tranche(self, taxable_gross):
