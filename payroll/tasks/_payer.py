@@ -227,7 +227,7 @@ class Payer(Task):
             'est payable': 'is_payable'
         }
 
-        df.rename(columns=columns, inplace=True)
+        df.columns = [columns.get(col, col) for col in df.columns]
         float_columns = ['time', 'rate', 'amount_qp_employee', 'amount_qp_employer', 'social_security_amount', 'taxable_amount']
 
         for column in float_columns:
