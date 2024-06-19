@@ -88,7 +88,7 @@ class Payer(Task):
         # Return the DataFrame
         return df
     
-    def queryset_iterator(queryset, chunk_size=100):
+    def queryset_iterator(self, queryset, chunk_size=100):
         """
         Iterate over a Django Queryset in chunks using itertools.islice.
         """
