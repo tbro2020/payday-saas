@@ -83,7 +83,7 @@ class Payer(Task):
         # Return the DataFrame
         return df
     
-    @transaction.atomic
+    # @transaction.atomic
     def generate(self):
         """
         Generate payslips for all filtered employees.
@@ -91,16 +91,15 @@ class Payer(Task):
         #try:
         for employee in self.employees:
             payslip, created = self.create_or_get_payslip(employee)
-            print(created)
 
             self.generate_items(self.items, payslip, employee)
             payslip = self.refresh_payslip(payslip)
             
-            #self.insert_items_from_df(self.additional_items, payslip, employee)
-            #payslip = self.refresh_payslip(payslip)
+            self.insert_items_from_df(self.additional_items, payslip, employee)
+            payslip = self.refresh_payslip(payslip)
             
-            #self.generate_items(self.legal_items, payslip, employee, can_delete_existing_item_paid=True)
-            #payslip = self.refresh_payslip(payslip)
+            self.generate_items(self.legal_items, payslip, employee, can_delete_existing_item_paid=True)
+            payslip = self.refresh_payslip(payslip)
 
         self.payroll = self.refresh_payroll(status=PayrollStatus.SUCCESS)
         #except Exception as ex:
@@ -137,14 +136,10 @@ class Payer(Task):
 
     def refresh_payslip(self, payslip):
         items_paid = payslip.itempaid_set.filter(is_payable=True)
-
-        social_security_amount = items_paid.aggregate(amount=Sum('social_security_amount'))['amount'] or 0
-        amount_qp_employee = items_paid.aggregate(amount=Sum('amount_qp_employee'))['amount'] or 0
-        taxable_amount = items_paid.aggregate(amount=Sum('taxable_amount'))['amount'] or 0
         
-        social_security_amount = round(social_security_amount, 2)
-        amount_qp_employee = round(amount_qp_employee, 2)
-        taxable_amount = round(taxable_amount, 2)
+        social_security_amount = round(items_paid.aggregate(amount=Sum('social_security_amount')).get('amount', 0), 2)
+        amount_qp_employee = round(items_paid.aggregate(amount=Sum('amount_qp_employee')).get('amount', 0), 2)
+        taxable_amount = round(items_paid.aggregate(amount=Sum('taxable_amount')).get('amount', 0), 2)
 
         Payslip.objects.filter(pk=payslip.pk).update(**{
             'social_security_threshold': social_security_amount,

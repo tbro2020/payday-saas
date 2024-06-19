@@ -4,8 +4,6 @@ from django.dispatch import receiver
 from payroll.models import Payroll
 from payroll.tasks import Payer
 
-payer = Payer()
-
 @receiver(pre_save, sender=Payroll)
 def payroll_create(sender, instance, **kwargs):
     if 'errors' in instance.metadata: return
@@ -14,4 +12,4 @@ def payroll_create(sender, instance, **kwargs):
 @receiver(post_save, sender=Payroll)
 def payroll_created(sender, instance, created, **kwargs):
     if not created: return
-    payer.delay(instance.pk)
+    Payer().delay(instance.id)

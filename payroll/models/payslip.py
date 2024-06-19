@@ -31,7 +31,7 @@ class Payslip(Base):
 
     @property
     def name(self):
-        return self.employee.name
+        return str(self.pk)
     
     @property
     def employee(self):
