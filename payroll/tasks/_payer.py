@@ -137,9 +137,9 @@ class Payer(Task):
     def refresh_payslip(self, payslip):
         items_paid = payslip.itempaid_set.filter(is_payable=True)
         
-        social_security_amount = round(items_paid.aggregate(amount=Sum('social_security_amount')).get('amount', 0), 2)
-        amount_qp_employee = round(items_paid.aggregate(amount=Sum('amount_qp_employee')).get('amount', 0), 2)
-        taxable_amount = round(items_paid.aggregate(amount=Sum('taxable_amount')).get('amount', 0), 2)
+        social_security_amount = round(items_paid.aggregate(amount=Sum('social_security_amount'))['amount'] or 0, 2)
+        amount_qp_employee = round(items_paid.aggregate(amount=Sum('amount_qp_employee'))['amount'] or 0, 2)
+        taxable_amount = round(items_paid.aggregate(amount=Sum('taxable_amount'))['amount'] or 0, 2)
 
         Payslip.objects.filter(pk=payslip.pk).update(**{
             'social_security_threshold': social_security_amount,
