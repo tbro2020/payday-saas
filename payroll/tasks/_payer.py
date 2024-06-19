@@ -91,17 +91,16 @@ class Payer(Task):
         #try:
         for employee in self.employees:
             payslip, created = self.create_or_get_payslip(employee)
+            print(created)
 
-            if 'pen' not in employee.status.name.lower() \
-                or 'rent' not in employee.status.name.lower():
+            if employee.status.name.lower() in ['en service', 'reprise en service']:
                 self.generate_items(self.items, payslip, employee)
                 payslip = self.refresh_payslip(payslip)
             
             self.insert_items_from_df(self.additional_items, payslip, employee)
             payslip = self.refresh_payslip(payslip)
             
-            if 'pen' not in employee.status.name.lower() \
-                or 'rent' not in employee.status.name.lower():
+            if employee.status.name.lower() in ['en service', 'reprise en service']:
                 self.generate_items(self.legal_items, payslip, employee, can_delete_existing_item_paid=True)
                 payslip = self.refresh_payslip(payslip)
 
@@ -226,27 +225,18 @@ class Payer(Task):
 
         for column in float_columns:
             df[column] = df[column].astype(float).fillna(0)
-
-        # Group the DataFrame by 'matricule'
-        grouped = df.groupby('matricule')
-
-        # Initialize an empty dictionary to store the grouped data
-        grouped_data = {}
-
-        # Iterate over each group
-        for matricule, group in grouped:
-            # Convert each group to a list of dictionaries and add to the result dictionary
-            grouped_data[matricule] = group.to_dict(orient='records')
-
-        return grouped_data
+        return df
 
     def insert_items_from_df(self, df, payslip, employee):
-        if employee.registration_number not in df: return
-        data = df[employee.registration_number]
-        print(data)
-        for obj in data:
-            obj.pop('matricule')
+        if df.empty: return
+        df = df[df['matricule'] == employee.registration_number]
 
+        df['is_payable'] = df['is_payable'].map({'TRUE': True, 'FALSE': False})
+        df['is_bonus'] = df['is_bonus'].map({'TRUE': True, 'FALSE': False})
+
+        df.pop('matricule')
+
+        data = json.loads(df.to_json(orient='records'))
         data = [ItemPaid(**obj, payslip=payslip) for obj in data]
         return ItemPaid.objects.bulk_create(data)
 
