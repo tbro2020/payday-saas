@@ -243,6 +243,7 @@ class Payer(Task):
     def insert_items_from_df(self, df, payslip, employee):
         if employee.registration_number not in df: return
         data = df[employee.registration_number]
+        print(data)
         for obj in data:
             obj.pop('matricule')
 
