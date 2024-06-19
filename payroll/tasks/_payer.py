@@ -226,20 +226,26 @@ class Payer(Task):
 
         for column in float_columns:
             df[column] = df[column].astype(float).fillna(0)
-        return df
+
+        # Group the DataFrame by 'matricule'
+        grouped = df.groupby('matricule')
+
+        # Initialize an empty dictionary to store the grouped data
+        grouped_data = {}
+
+        # Iterate over each group
+        for matricule, group in grouped:
+            # Convert each group to a list of dictionaries and add to the result dictionary
+            grouped_data[matricule] = group.to_dict(orient='records')
+
+        return grouped_data
 
     def insert_items_from_df(self, df, payslip, employee):
-        if df.empty: return
-        df['matricule'] = df['matricule'].astype(str)
-        df = df[df['matricule'] == employee.registration_number]
-        if df.empty: return
+        data = df[employee.registration_number] or []
+        len(data)
+        for obj in data:
+            obj.pop('matricule')
 
-        df.loc[:, 'is_payable'] = df['is_payable'].map({'TRUE': True, 'FALSE': False})
-        df.loc[:, 'is_bonus'] = df['is_bonus'].map({'TRUE': True, 'FALSE': False})
-
-        df.pop('matricule')
-
-        data = json.loads(df.to_json(orient='records'))
         data = [ItemPaid(**obj, payslip=payslip) for obj in data]
         return ItemPaid.objects.bulk_create(data)
 
