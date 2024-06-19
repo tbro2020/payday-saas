@@ -88,17 +88,25 @@ class Payer(Task):
         # Return the DataFrame
         return df
     
-    def queryset_iterator(self, queryset, chunk_size=100):
+    def queryset_iterator(queryset, chunk_size=100):
         """
         Iterate over a Django Queryset in chunks using itertools.islice.
         """
+        #iterator = queryset.iterator()
+        #for chunk in iter(lambda: list(islice(iterator, chunk_size)), []):
+        #    yield chunk
 
-        iterator = queryset.iterator()
-        for chunk in iter(lambda: list(islice(iterator, chunk_size)), []):
-            yield chunk
+        offset, total_count = 0, queryset.count()
+
+        while offset < total_count:
+            chunk = queryset[offset:offset + chunk_size]
+            if not chunk: break
+            yield list(chunk)
+            offset += chunk_size
 
     def process_chunk(self, employee):
-        payslip, created = self.create_or_get_payslip(employee)
+        emp = EmployeeSerializer(employee).data
+        payslip, created = Payslip.objects.get_or_create(_employee=emp, payroll=self.payroll, created_by=self.payroll.created_by)
 
         self.generate_items(self.items, payslip, employee)
         payslip = self.refresh_payslip(payslip)
