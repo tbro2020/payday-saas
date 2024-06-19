@@ -241,8 +241,8 @@ class Payer(Task):
         return grouped_data
 
     def insert_items_from_df(self, df, payslip, employee):
-        data = df[employee.registration_number] or []
-        len(data)
+        if employee.registration_number not in df: return
+        data = df[employee.registration_number]
         for obj in data:
             obj.pop('matricule')
 
