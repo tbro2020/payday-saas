@@ -104,18 +104,19 @@ class Payer(Task):
             yield list(chunk)
             offset += chunk_size
 
-    def process_chunk(self, employee):
-        emp = EmployeeSerializer(employee).data
-        payslip, created = Payslip.objects.get_or_create(_employee=emp, payroll=self.payroll, created_by=self.payroll.created_by)
+    def process_chunk(self, employees):
+        for employee in employees:
+            emp = EmployeeSerializer(employee).data
+            payslip, created = Payslip.objects.get_or_create(_employee=emp, payroll=self.payroll, created_by=self.payroll.created_by)
 
-        self.generate_items(self.items, payslip, employee)
-        payslip = self.refresh_payslip(payslip)
-        
-        self.insert_items_from_df(self.additional_items, payslip, employee)
-        payslip = self.refresh_payslip(payslip)
-        
-        self.generate_items(self.legal_items, payslip, employee, can_delete_existing_item_paid=True)
-        payslip = self.refresh_payslip(payslip)
+            self.generate_items(self.items, payslip, employee)
+            payslip = self.refresh_payslip(payslip)
+            
+            self.insert_items_from_df(self.additional_items, payslip, employee)
+            payslip = self.refresh_payslip(payslip)
+            
+            self.generate_items(self.legal_items, payslip, employee, can_delete_existing_item_paid=True)
+            payslip = self.refresh_payslip(payslip)
 
     
     # @transaction.atomic
