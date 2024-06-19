@@ -1,6 +1,9 @@
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from employee.models import Employee, MaritalStatus
 from django.db.models import Sum, Q
-from django.db import transaction
+from itertools import islice
+import os
+
 
 from django.utils.translation import gettext as _
 from django.shortcuts import get_object_or_404
@@ -36,7 +39,9 @@ class Payer(Task):
         """
         Main entry point for the task. Processes the payroll.
         """
+        
         self.today = datetime.now()
+        self.workers = os.cpu_count() * 1.5
         self.payroll = get_object_or_404(Payroll, pk=pk)
 
         # Load additional items from Excel
@@ -83,23 +88,57 @@ class Payer(Task):
         # Return the DataFrame
         return df
     
+    def queryset_iterator(queryset, chunk_size=100):
+        """
+        Iterate over a Django Queryset in chunks using itertools.islice.
+        """
+
+        iterator = queryset.iterator()
+        for chunk in iter(lambda: list(islice(iterator, chunk_size)), []):
+            yield chunk
+
+    def process_chunk(self, employee):
+        payslip, created = self.create_or_get_payslip(employee)
+
+        self.generate_items(self.items, payslip, employee)
+        payslip = self.refresh_payslip(payslip)
+        
+        self.insert_items_from_df(self.additional_items, payslip, employee)
+        payslip = self.refresh_payslip(payslip)
+        
+        self.generate_items(self.legal_items, payslip, employee, can_delete_existing_item_paid=True)
+        payslip = self.refresh_payslip(payslip)
+
+    
     # @transaction.atomic
     def generate(self):
         """
         Generate payslips for all filtered employees.
         """
         try:
-            for employee in self.employees:
-                payslip, created = self.create_or_get_payslip(employee)
+            # split the process into multiple parallel process
+            chunks = self.queryset_iterator(self.employees, 100)
 
-                self.generate_items(self.items, payslip, employee)
-                payslip = self.refresh_payslip(payslip)
+            # Using ThreadPoolExecutor for multi-threading
+            with ThreadPoolExecutor(max_workers=self.workers) as executor:
+                # Submit all tasks to the thread pool
+                future_to_chunk = {executor.submit(self.process_chunk, chunk): chunk for chunk in chunks}
+
+                # Wait for all threads to complete and collect results
+                for future in as_completed(future_to_chunk):
+                    future.result()
+
+            #for employee in self.employees:
+            #    payslip, created = self.create_or_get_payslip(employee)
+
+            #    self.generate_items(self.items, payslip, employee)
+            #    payslip = self.refresh_payslip(payslip)
                 
-                self.insert_items_from_df(self.additional_items, payslip, employee)
-                payslip = self.refresh_payslip(payslip)
+            #    self.insert_items_from_df(self.additional_items, payslip, employee)
+            #    payslip = self.refresh_payslip(payslip)
                 
-                self.generate_items(self.legal_items, payslip, employee, can_delete_existing_item_paid=True)
-                payslip = self.refresh_payslip(payslip)
+            #    self.generate_items(self.legal_items, payslip, employee, can_delete_existing_item_paid=True)
+            #    payslip = self.refresh_payslip(payslip)
 
             self.payroll = self.refresh_payroll(status=PayrollStatus.SUCCESS)
         except Exception as ex:
