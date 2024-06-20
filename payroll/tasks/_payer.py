@@ -308,8 +308,12 @@ class Payer(Task):
         taxable_amount *= tranche['percentage']
         taxable_amount += 4860
 
+        print(taxable_amount)
+
         bonus = items.filter(is_bonus=True).aggregate(amount=Sum('taxable_amount'))['amount'] or 0
         bonus = bonus*0.03
+
+        print(bonus)
 
         taxable_amount = taxable_amount + bonus
 
