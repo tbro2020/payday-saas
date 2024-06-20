@@ -293,11 +293,10 @@ class Payer(Task):
 
     def calculate_tax(self, payslip, employee, **kwargs):
         items = payslip.itempaid_set.all()
+        not_bonus = items.filter(is_bonus=False)
 
-        items_not_bonus = items.filter(is_bonus=False)
-
-        social_security_threshold = items_not_bonus.aggregate(amount=Sum('social_security_amount'))['amount'] or 0
-        taxable_gross = items_not_bonus.aggregate(amount=Sum('taxable_amount'))['amount'] or 0
+        social_security_threshold = not_bonus.aggregate(amount=Sum('social_security_amount'))['amount'] or 0
+        taxable_gross = not_bonus.aggregate(amount=Sum('taxable_amount'))['amount'] or 0
 
         taxable_amount = taxable_gross - (social_security_threshold * kwargs.get('cnss', 0.05))
         tranche = self.get_tranche(taxable_amount)
@@ -320,6 +319,7 @@ class Payer(Task):
 
         charge = taxable_amount * (0.02 * person_count)
         taxable_amount -= charge
+
         return round(taxable_amount, 2)
 
     def shift(self, item, payslip, employee):
