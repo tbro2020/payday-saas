@@ -292,7 +292,14 @@ class Payer(Task):
         return None
 
     def calculate_tax(self, payslip, employee, **kwargs):
-        taxable_amount = payslip.taxable_gross - (payslip.social_security_threshold * kwargs.get('cnss', 0.05))
+        items = payslip.itempaid_set.all()
+
+        items_not_bonus = items.filter(is_bonus=False)
+
+        social_security_threshold = items_not_bonus.aggregate(amount=Sum('social_security_amount'))['amount'] or 0
+        taxable_gross = items_not_bonus.aggregate(amount=Sum('taxable_amount'))['amount'] or 0
+
+        taxable_amount = taxable_gross - (social_security_threshold * kwargs.get('cnss', 0.05))
         tranche = self.get_tranche(taxable_amount)
         
         if not tranche:
@@ -301,7 +308,12 @@ class Payer(Task):
         taxable_amount -= tranche['tranche'][0]
         taxable_amount *= tranche['percentage']
         taxable_amount += 4860
-        
+
+        bonus = items.filter(is_bonus=False).aggregate(amount=Sum('taxable_amount'))['amount'] or 0
+        bonus = bonus*0.03
+
+        taxable_amount = taxable_amount + bonus
+
         person_count = int(payslip.employee.metadata.get('NOMBRE_ENFANT', 0))
         person_count = person_count if person_count > 0 or employee is None else employee.child_set.count()
         person_count += 1 if payslip.employee.marital_status == MaritalStatus.Maried.value else 0
