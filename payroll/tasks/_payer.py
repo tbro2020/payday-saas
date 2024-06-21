@@ -1,9 +1,7 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from employee.models import Employee, MaritalStatus
 from django.db.models import Sum, Q
-from itertools import islice
 import os
-
 
 from django.utils.translation import gettext as _
 from django.shortcuts import get_object_or_404
@@ -136,18 +134,6 @@ class Payer(Task):
                 # Wait for all threads to complete and collect results
                 for future in as_completed(future_to_chunk):
                     future.result()
-
-            #for employee in self.employees:
-            #    payslip, created = self.create_or_get_payslip(employee)
-
-            #    self.generate_items(self.items, payslip, employee)
-            #    payslip = self.refresh_payslip(payslip)
-                
-            #    self.insert_items_from_df(self.additional_items, payslip, employee)
-            #    payslip = self.refresh_payslip(payslip)
-                
-            #    self.generate_items(self.legal_items, payslip, employee, can_delete_existing_item_paid=True)
-            #    payslip = self.refresh_payslip(payslip)
 
             self.payroll = self.refresh_payroll(status=PayrollStatus.SUCCESS)
         except Exception as ex:
