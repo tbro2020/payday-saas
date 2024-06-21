@@ -48,23 +48,24 @@ class SheetSummary(BaseView):
 
         data = self.sheet(obj, query)
         df = pd.DataFrame(list(data))
-
         columns = {
             '_employee__registration_number' : 'matricule',
             '_employee__middle_name': 'post nom',
             '_employee__last_name': 'nom',
 
-            '_employee__direction__name': 'Departement',
-            '_employee__branch__name': 'Zone',
-            '_employee__grade__name': 'Grade',
+            '_employee__direction__name': 'departement',
+            '_employee__branch__name': 'zone',
+            '_employee__grade__name': 'grade',
 
-            '_employee__payer_name__name': 'Banque',
-            '_employee__payment_account': 'N. Compte',
+            '_employee__payer_name__name': 'banque',
+            '_employee__payment_account': 'n. Compte',
 
             'net': 'net'
         }
         
         df.columns = [columns.get(col, col) for col in df.columns]
+        group_by = columns[group_by]
+
         df = df.groupby(group_by) if group_by else df
 
         response = HttpResponse(content_type='application/xlsx')
