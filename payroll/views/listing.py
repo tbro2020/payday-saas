@@ -17,9 +17,10 @@ class Listing(BaseView):
         obj = get_object_or_404(Payroll, id=pk)
         
         code = query.pop('code')
+        item = Item.objects.filter(code=code).first()
         if not code: return redirect(reversed('payroll:payslips', kwargs={'pk': obj.pk}))
 
-        qs = ItemPaid.objects.filter(code=code, payslip__payroll=obj) \
+        qs = ItemPaid.objects.filter(code=item.code, payslip__payroll=obj) \
             .filter(**{f'payslip___employee__{k}__name':v for k,v in query.items()}) \
             .values('payslip___employee__registration_number', 'payslip___employee__last_name', 'payslip___employee__middle_name', 'amount_qp_employee', 'amount_qp_employer')
         
