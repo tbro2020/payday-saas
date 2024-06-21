@@ -45,6 +45,15 @@ class Listing(BaseView):
         for column in ['amount_qp_employee', 'amount_qp_employer']:
             df[column] = df[column].apply(intcomma)
 
+        columns = {
+            'payslip___employee__registration_number': 'matricule',
+            'payslip___employee__last_name': 'nom',
+            'payslip___employee__middle_name': 'post nom',
+            'amount_qp_employee': 'montant qqe',
+            'amount_qp_employer': 'montant qqp'
+        }
+        df.columns = [columns.get(col, col) for col in df.columns]
+
         df = df.to_html(index=False, classes='table table-striped mt-3')
         df = df.replace('<th>', '<th style="text-align: left;" class="text-capitalize">')
 
