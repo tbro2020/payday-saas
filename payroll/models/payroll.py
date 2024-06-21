@@ -90,11 +90,14 @@ class Payroll(Base):
         payslips = self.payslip_set.all()
         items_paid = apps.get_model('payroll', 'itempaid').objects.filter(payslip__payroll=self)
         return {
-            'deductibles': round(abs(items_paid.aggregate(amount=models.Sum('social_security_amount')).get('amount', 0)), 2),
-            'branches': payslips.values_list('_employee__branch__name', flat=True).distinct(),
-            'payer': payslips.values_list('_employee__payer__name', flat=True).distinct(),
+            'deductibles': round(abs(items_paid.filter(amount_qp_employee__lte=0).aggregate(amount=models.Sum('amount_qp_employee')).get('amount', 0)), 2),
+            'gross': round(abs(items_paid.filter(amount_qp_employee__gte=0).aggregate(amount=models.Sum('amount_qp_employee')).get('amount', 0)), 2),
             'net': self.overall_net,
-            'payslips': payslips
+            'payslips': payslips,
+
+            'branches': payslips.values_list('_employee__branch__name', flat=True).distinct(),
+            'statues': payslips.values_list('_employee__status__name', flat=True).distinct(),
+            'branks': payslips.values_list('_employee__payer__name', flat=True).distinct()
         }
 
     class Meta:
