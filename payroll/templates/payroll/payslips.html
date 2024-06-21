@@ -70,7 +70,7 @@
                             <div class="dropdown-menu" aria-labelledby="dropdown-sheet">
                                 <a class="dropdown-item" href="{% url 'payroll:sheet' obj.pk %}?{{ request.GET.urlencode }}">{% trans 'Global' %}</a>
                                 <div class="dropdown-divider"></div>
-                                {% for key, value in self.fields.items %}
+                                {% for key, value in self.sheet_fields.items %}
                                     <a class="dropdown-item" href="{% url 'payroll:sheet' obj.pk %}?group_by={{ key }}&{{ request.GET.urlencode }}">{{ value|title }}</a>
                                 {% endfor %}
                             </div>
