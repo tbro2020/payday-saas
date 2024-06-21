@@ -12,13 +12,6 @@ import pandas as pd
 import json
 
 class SheetSummary(BaseView):
-
-    fields = {
-        '_employee__direction__name': 'Departement',
-        '_employee__payer_name__name': 'Banque',
-        '_employee__branch__name': 'Zone',
-        '_employee__grade__name': 'Grade',
-    }
     
     def sheet(self, obj, query):
         rows = []
@@ -31,7 +24,7 @@ class SheetSummary(BaseView):
         fields = [field.name for field in qs.model._meta.fields]
         qs = qs.filter(**{k:v for k,v in query.items() if k in fields})
 
-        return qs.values(**[
+        return qs.values(
             '_employee__registration_number',
             '_employee__middle_name',
             '_employee__last_name',
@@ -43,7 +36,7 @@ class SheetSummary(BaseView):
             '_employee__payment_account',
 
             'net'
-        ])
+        )
 
     def get(self, request, pk):
         Payroll = apps.get_model('payroll', 'payroll')

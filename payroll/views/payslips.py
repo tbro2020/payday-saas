@@ -14,6 +14,13 @@ class Payslips(Change):
     def sheets(self):
         return [field for field in Employee._meta.fields if field.choices or field.get_internal_type() == 'ModelSelect']
     
+    sheet_fields = {
+        '_employee__direction__name': 'Departement',
+        '_employee__payer_name__name': 'Banque',
+        '_employee__branch__name': 'Zone',
+        '_employee__grade__name': 'Grade',
+    }
+    
     def duties(self):
         ItemPaid = apps.get_model('payroll', 'ItemPaid')
         return ItemPaid.objects.filter(payslip__payroll=self.kwargs['pk'])\
