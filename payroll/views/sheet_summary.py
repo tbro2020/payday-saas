@@ -46,7 +46,7 @@ class SheetSummary(BaseView):
         group_by = query.pop('group_by', None)
 
         data = self.sheet(obj, query)
-        df = pd.read_json(json.dumps(data))
+        df = pd.DataFrame(list(data))
         df = df.groupby(group_by) if group_by else df
 
         response = HttpResponse(content_type='application/xlsx')
