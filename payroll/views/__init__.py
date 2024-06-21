@@ -7,5 +7,7 @@ from .payslip import Payslip
 from .canvas_items_to_pay import CanvasItemsToPay
 from .canvas import Canvas
 
+from .sheet_summary import SheetSummary
 from .listing import Listing
-from .sheet import Sheet
+
+#from .sheet import Sheet
