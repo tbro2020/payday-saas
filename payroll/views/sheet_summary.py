@@ -24,11 +24,12 @@ class SheetSummary(BaseView):
         fields = [field.name for field in qs.model._meta.fields]
         qs = qs.filter(**{k:v for k,v in query.items() if k in fields})
 
-        return qs.values(
+        return qs.filter(net__gt=0).values(
             '_employee__registration_number',
             '_employee__middle_name',
             '_employee__last_name',
 
+            '_employee__direction__name',
             '_employee__branch__name',
             '_employee__grade__name',
 
@@ -47,6 +48,23 @@ class SheetSummary(BaseView):
 
         data = self.sheet(obj, query)
         df = pd.DataFrame(list(data))
+
+        columns = {
+            '_employee__registration_number' : 'matricule',
+            '_employee__middle_name': 'post nom',
+            '_employee__last_name': 'nom',
+
+            '_employee__direction__name': 'Departement',
+            '_employee__branch__name': 'Zone',
+            '_employee__grade__name': 'Grade',
+
+            '_employee__payer_name__name': 'Banque',
+            '_employee__payment_account': 'N. Compte',
+
+            'net': 'net'
+        }
+        
+        df.columns = [columns.get(col, col) for col in df.columns]
         df = df.groupby(group_by) if group_by else df
 
         response = HttpResponse(content_type='application/xlsx')
