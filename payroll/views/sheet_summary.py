@@ -49,7 +49,7 @@ class SheetSummary(BaseView):
 
         data = self.sheet(obj, query)
         df = pd.DataFrame(list(data))
-        
+
         df['_employee__registration_number'] = df['_employee__registration_number'].apply(str)
 
         columns = {
@@ -78,6 +78,16 @@ class SheetSummary(BaseView):
         response['Content-Disposition'] = f'attachment; filename="sheet_{group_by if group_by else 'global'}.xlsx"'.lower()
 
         with pd.ExcelWriter(response) as writer:
-            [group.to_excel(writer, sheet_name=slugify(str(row)), index=False) 
-                for row, group in df] if group_by else df.to_excel(writer, index=False)
+            if not group:
+                return df.to_excel(writer, index=False)
+            for row, group in df:
+                sum_net = group['net'].sum()
+                group = pd.concat([group, pd.DataFrame({
+                    'Total' if col == 'matricule' else '': [sum_net if col == 'net' else '']
+                    for col in df.columns
+                })], ignore_index=True)
+                group.to_excel(writer, sheet_name=slugify(str(row)), index=False)
+                
+            #[group.to_excel(writer, sheet_name=slugify(str(row)), index=False) 
+            #    for row, group in df] if group_by else df.to_excel(writer, index=False)
         return response
