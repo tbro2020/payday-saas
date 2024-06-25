@@ -26,8 +26,9 @@ class SheetSummary(BaseView):
 
         return qs.filter(net__gt=0).values(
             '_employee__registration_number',
-            '_employee__middle_name',
+
             '_employee__last_name',
+            '_employee__middle_name',
 
             '_employee__direction__name',
             '_employee__branch__name',
@@ -37,7 +38,7 @@ class SheetSummary(BaseView):
             '_employee__payment_account',
 
             'net'
-        )
+        ).order_by('_employee__registration_number')
 
     def get(self, request, pk):
         Payroll = apps.get_model('payroll', 'payroll')
@@ -50,8 +51,10 @@ class SheetSummary(BaseView):
         df = pd.DataFrame(list(data))
         columns = {
             '_employee__registration_number' : 'matricule',
-            '_employee__middle_name': 'post nom',
+
             '_employee__last_name': 'nom',
+            '_employee__middle_name': 'post nom',
+            
 
             '_employee__direction__name': 'departement',
             '_employee__branch__name': 'zone',
