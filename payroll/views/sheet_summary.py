@@ -38,7 +38,7 @@ class SheetSummary(BaseView):
             '_employee__payment_account',
 
             'net'
-        ).order_by('_employee__registration_number')
+        ).order_by('_employee__registration_number', '_employee__grade__name')
 
     def get(self, request, pk):
         Payroll = apps.get_model('payroll', 'payroll')
@@ -49,6 +49,9 @@ class SheetSummary(BaseView):
 
         data = self.sheet(obj, query)
         df = pd.DataFrame(list(data))
+        
+        df['_employee__registration_number'] = df['_employee__registration_number'].apply(str)
+
         columns = {
             '_employee__registration_number' : 'matricule',
 
