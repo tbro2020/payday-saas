@@ -78,7 +78,7 @@ class SheetSummary(BaseView):
         response['Content-Disposition'] = f'attachment; filename="sheet_{group_by if group_by else 'global'}.xlsx"'.lower()
 
         with pd.ExcelWriter(response) as writer:
-            if not group:
+            if not group_by:
                 return df.to_excel(writer, index=False)
             for row, group in df:
                 sum_net = group['net'].sum()
