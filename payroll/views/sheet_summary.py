@@ -80,11 +80,12 @@ class SheetSummary(BaseView):
         with pd.ExcelWriter(response) as writer:
             if not group_by:
                 return df.to_excel(writer, index=False)
+            
             for row, group in df:
                 sum_net = group['net'].sum()
                 group = pd.concat([group, pd.DataFrame({
                     'Total' if col == 'matricule' else '': [sum_net if col == 'net' else '']
-                    for col in df.columns
+                    for col in columns.values()
                 })], ignore_index=True)
                 group.to_excel(writer, sheet_name=slugify(str(row)), index=False)
                 
