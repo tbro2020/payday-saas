@@ -84,7 +84,7 @@ class SheetSummary(BaseView):
             for row, group in df:
                 sum_net = group['net'].sum()
                 group = pd.concat([group, pd.DataFrame({
-                    'Total' if col == 'matricule' else '': [sum_net if col == 'net' else '']
+                    col: [sum_net if col == 'net' else '']
                     for col in columns.values()
                 })], ignore_index=True)
                 group.to_excel(writer, sheet_name=slugify(str(row)), index=False)
