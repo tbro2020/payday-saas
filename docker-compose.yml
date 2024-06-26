@@ -18,6 +18,7 @@ services:
 
   worker:
     build: .
+    restart: always
     container_name: worker
     command: celery -A payday worker -l INFO -E
     volumes:
