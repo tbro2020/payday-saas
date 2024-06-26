@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404
+from django.utils.translation import gettext as _
 from django.core.paginator import Paginator
 from django.db.models import Sum
 from core.views import Change
@@ -12,13 +13,22 @@ class Payslips(Change):
     template_name = 'payroll/payslips.html'
     
     def sheets(self):
-        return [field for field in Employee._meta.fields if field.choices or field.get_internal_type() == 'ModelSelect']
+        data = [field for field in Employee._meta.fields if field.get_internal_type() == 'ModelSelect']
+        data = [{
+            'name': field.name+'__name',
+            'verbose_name': field.verbose_name,
+        } for field in data] + [{
+            'name': 'grade__category',
+            'verbose_name': _('Grade par catégorie'),
+        }]
+        return data
     
     sheet_fields = {
-        '_employee__direction__name': 'Departement',
-        '_employee__payer_name__name': 'Banque',
-        '_employee__branch__name': 'Zone',
-        '_employee__grade__name': 'Grade',
+        '_employee__direction__name': _('Département'),
+        '_employee__payer_name__name': _('Banque'),
+        '_employee__branch__name': _('Zone'),
+        '_employee__grade__name': _('Grade'),
+        '_employee__grade__category': _('Grade par catégorie'),
     }
     
     def duties(self):

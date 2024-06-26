@@ -23,8 +23,8 @@ class SynthesisByEmployee(BaseView):
 
         obj = get_object_or_404(Payroll, id=pk)
 
-        name = f'payslip___employee__{field}__name'
-        if field in ['gender', 'marital_status']: name = name.replace('__name', '')
+        name = f'payslip___employee__{field}'
+        #if field in ['gender', 'marital_status']: name = name.replace('__name', '')
 
         qs = ItemPaid.objects \
             .exclude(amount_qp_employee=0) \
