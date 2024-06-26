@@ -86,9 +86,29 @@ class Payroll(Base):
         return reverse_lazy('payroll:payslips', args=[self.pk])
     
     def statistic(self):
+        import pandas as pd
         from django.apps import apps
         payslips = self.payslip_set.all()
         items_paid = apps.get_model('payroll', 'itempaid').objects.filter(payslip__payroll=self)
+
+        legals = apps.get_model('payroll', 'legalitem').objects.values_list('code', flat=True)
+        impact = payslips.values('_employee__status__name').annotate(count=models.Count('_employee__status__name'), net=models.Sum('net'))
+        legals = items_paid.filter(code__in=legals).values('name').annotate(amount=models.Sum(models.Func(models.F('amount_qp_employee') + models.F('amount_qp_employer'), function='ABS')))
+
+        impact = pd.DataFrame(list(impact))
+        impact['net_usd'] = round(impact['net'] / self.metadata.get('taux', 2800), 2)
+        impact = impact.append(impact.sum(numeric_only=True), ignore_index=True)
+
+        impact = impact.to_html(index=False, classes='table table-striped mt-3')
+        impact = impact.replace('<th>', '<th style="text-align: left;" class="text-capitalize">')
+        
+        legals = pd.DataFrame(list(legals))
+        legals['amount_usd'] = round(legals['amount'] / self.metadata.get('taux', 2800), 2)
+        legals = legals.append(legals.sum(numeric_only=True), ignore_index=True)
+
+        legals = legals.to_html(index=False, classes='table table-striped mt-3')
+        legals = legals.replace('<th>', '<th style="text-align: left;" class="text-capitalize">')
+
         return {
             'deductibles': round(abs(items_paid.filter(amount_qp_employee__lte=0).aggregate(amount=models.Sum('amount_qp_employee')).get('amount', 0)), 2),
             'gross': round(abs(items_paid.filter(amount_qp_employee__gte=0).aggregate(amount=models.Sum('amount_qp_employee')).get('amount', 0)), 2),
@@ -97,7 +117,10 @@ class Payroll(Base):
 
             'branches': payslips.values_list('_employee__branch__name', flat=True).distinct(),
             'statues': payslips.values_list('_employee__status__name', flat=True).distinct(),
-            'branks': payslips.values_list('_employee__payer__name', flat=True).distinct()
+            'branks': payslips.values_list('_employee__payer__name', flat=True).distinct(),
+            
+            'impact': impact,
+            'legals': legals
         }
 
     class Meta:
