@@ -50,7 +50,7 @@ class Payer(Task):
             
         self.legal_items = LegalItem.objects.all()
         self.items = Item.objects.filter(is_payable=True)
-        self.items = self.items.exclude(Q(condition='0') | Q(condition__isnull=True))
+        self.items = self.items.exclude(Q(condition='0') | Q(condition__isnull=True)).order_by('code')
 
         # Build and apply employee filter
         self.employees = Employee.objects.select_related().all()
@@ -71,7 +71,7 @@ class Payer(Task):
         Load Excel file into a DataFrame, fill NaN with 0, and convert the first column to string.
         """
         # Load DataFrame from Excel if path exists, otherwise create an empty DataFrame
-        df = pd.read_excel(obj.url) if obj and obj.url else pd.DataFrame()
+        df = pd.read_excel(obj.url, dtype={'matricule': str}) if obj and obj.url else pd.DataFrame()
         
         # Fill NaN values with 0
         df.fillna(0, inplace=True)
@@ -241,8 +241,8 @@ class Payer(Task):
                     'item.name': item.name,
                     'employee': employee.registration_number,
                 }
-                message = [f"{k}:{v}\n" for k,v in message.items()]
-                raise Exception(str(ex)+"\n".join(message))
+                message = [f"{k}:{v} \n " for k,v in message.items()]
+                raise Exception(str(ex)+" \n ".join(message))
         return ItemPaid.objects.bulk_create(item_to_pay_queryset)
 
     def re_base_additional_element_column(self, df):
