@@ -23,26 +23,8 @@
          <li><strong>Banques </strong>: {{ statistic.branches.count }}</li>
       </ul>
 
-      <table class="table table-stripped">
-        <thead>
-            <tr>
-                <th>Categorie</th>
-                <th>Effectifs</th>
-                <th>Impact en Fc</th>
-                <th>Soit en USD</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for activity in activities %}
-            <tr>
-                <td>{{ activity.name }}</td>
-                <td>{{ activity.count }}</td>
-                <td>{{ activity.amount|floatformat:2|intcomma }}</td>
-                <td>{{ activity.amount|div:obj.metadata.taux|floatformat:2|intcomma }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-      </table>
+      {{ statistic.impact|safe }}
+      {{ statistic.legals|safe }}
 
       <h3>D&eacute;tails des Branches</h3>
       <ul>
@@ -64,6 +46,6 @@
       <ul>
          <li>Voir document en annexes</li>
       </ul>
-      <p>{% endwith %}</p>
+      {% endwith %}
    </body>
 </html>
