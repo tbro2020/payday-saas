@@ -149,7 +149,7 @@ class Payer(Task):
         Payroll.objects.filter(pk=self.payroll.pk).update(**{'status': PayrollStatus.WARNING, 'metadata': self.payroll.metadata})
         self.payroll.refresh_from_db()
 
-    def evaluate_formulas(self, item, employee, payslip):
+    def evaluate_formulas(self, item, employee, payslip, items_paid=[]):
         """
         Safely evaluate the formulas for employee and employer.
         """
@@ -222,7 +222,7 @@ class Payer(Task):
             try:
                 if item.code in item_paid_codes: continue
                 if not eval(item.condition, locals()): continue
-                time, qpe, qpp = self.evaluate_formulas(item, employee, payslip)
+                time, qpe, qpp = self.evaluate_formulas(item, employee, payslip, item_paid_queryset)
                 if int(qpe) == 0 and int(qpp) == 0: continue
                 item_to_pay_queryset.append(ItemPaid(
                     code=item.code,
