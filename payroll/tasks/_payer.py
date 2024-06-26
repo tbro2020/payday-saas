@@ -222,7 +222,7 @@ class Payer(Task):
             try:
                 if item.code in item_paid_codes: continue
                 if not eval(item.condition, locals()): continue
-                time, qpe, qpp = self.evaluate_formulas(item, employee, payslip, item_paid_queryset)
+                time, qpe, qpp = self.evaluate_formulas(item, employee, payslip, item_to_pay_queryset)
                 if int(qpe) == 0 and int(qpp) == 0: continue
                 item_to_pay_queryset.append(ItemPaid(
                     code=item.code,
