@@ -61,7 +61,7 @@ class Payer(Task):
                 'status__in': self.payroll.employee_status.values_list('id', flat=True),
                 'direction__in': self.payroll.employee_direction.values_list('id', flat=True)
             }.items() if v
-        }).filter(**kwargs.get('employee', {}))
+        }).filter(**kwargs.get('employee', {})).order_by('-registration_number')
 
         # Generate payslips
         self.generate()
