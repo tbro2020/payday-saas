@@ -101,6 +101,15 @@ class Payroll(Base):
         impact = impact[['_employee__status__name', 'count', 'net', 'net_usd']]
         impact = impact.sort_values(by='net', ascending=False)
 
+        # add sum line
+        impact_total = {
+            '_employee__status__name': ['Total'],
+            'count': [impact['count'].sum()],
+            'net': [impact['net'].sum()],
+            'net_usd': [impact['net_usd'].sum()]
+        }
+        impact = pd.concat([impact, impact_total], ignore_index=True)
+
         for column in ['count', 'net', 'net_usd']:
             impact[column] = impact[column].apply(intcomma)
 
@@ -121,6 +130,14 @@ class Payroll(Base):
         legals['amount_usd'] = round(legals['amount'] / self.metadata.get('taux', 2800), 2)
         legals = legals.sort_values(by='amount', ascending=False)
 
+        # add sum line
+        legal_total = {
+            'name': ['Total'],
+            'amount': [legals['amount'].sum()],
+            'amount_usd': [legals['amount_usd'].sum()]
+        }
+        legals = pd.concat([legals, legal_total], ignore_index=True)
+
         for column in ['amount', 'amount_usd']:
             legals[column] = legals[column].apply(intcomma)
 
@@ -135,6 +152,28 @@ class Payroll(Base):
         legals = legals.to_html(index=False, classes='table table-striped mt-3')
         legals = legals.replace('<th>', '<th style="text-align: left;" class="text-capitalize">')
 
+        total_global = pd.concat([{
+            'CATEGORIE': 'TOTAL NET',
+            'EFFECTIFS': impact_total['count'],
+            'IMPACT EN FC': impact_total['net'],
+            'SOIT EN USD': impact_total['net_usd']
+        }, {
+            'CATEGORIE': 'TOTAL',
+            'EFFECTIFS': 0,
+            'IMPACT EN FC': legal_total['amount'],
+            'SOIT EN USD': legal_total['amount_usd']
+        }], ignore_index=True)
+
+        total_global = pd.concat(total_global, {
+            'CATEGORIE': 'TOTAL BRUT',
+            'EFFECTIFS': [total_global['EFFECTIFS'].sum()],
+            'IMPACT EN FC': [total_global['IMPACT EN FC'].sum()],
+            'SOIT EN USD': [total_global['SOIT EN USD'].sum()],
+        })
+
+        total_global = total_global.to_html(index=False, classes='table table-striped mt-3')
+        total_global = total_global.replace('<th>', '<th style="text-align: left;" class="text-capitalize">')
+
         return {
             'deductibles': round(abs(items_paid.filter(amount_qp_employee__lte=0).aggregate(amount=models.Sum('amount_qp_employee')).get('amount', 0)), 2),
             'gross': round(abs(items_paid.filter(amount_qp_employee__gte=0).aggregate(amount=models.Sum('amount_qp_employee')).get('amount', 0)), 2),
@@ -146,7 +185,8 @@ class Payroll(Base):
             'branks': payslips.values_list('_employee__payer__name', flat=True).distinct(),
             
             'impact': impact,
-            'legals': legals
+            'legals': legals,
+            'impact_legal_total': total_global
         }
 
     class Meta:
