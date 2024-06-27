@@ -164,12 +164,12 @@ class Payroll(Base):
             'SOIT_EN_USD': legal_total['amount_usd']
         })], ignore_index=True)
 
-        total_global = pd.concat(total_global, pd.DataFrame({
+        total_global = pd.concat([total_global, pd.DataFrame({
             'CATEGORIE': 'TOTAL BRUT',
             'EFFECTIFS': [total_global['EFFECTIFS'].sum()],
             'IMPACT_EN_FC': [total_global['IMPACT_EN_FC'].sum()],
             'SOIT_EN_USD': [total_global['SOIT_EN_USD'].sum()]
-        }), ignore_index=True)
+        })], ignore_index=True)
 
         for column in ['EFFECTIFS', 'IMPACT EN FC', 'SOIT EN USD']:
             total_global[column] = total_global[column].apply(intcomma)
