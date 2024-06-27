@@ -122,7 +122,7 @@ class Payroll(Base):
         legals = legals.sort_values(by='amount', ascending=False)
 
         for column in ['amount', 'amount_usd']:
-            impact[column] = impact[column].apply(intcomma)
+            legals[column] = legals[column].apply(intcomma)
 
         columns = {
             'name': 'CATEGORIE',
