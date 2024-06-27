@@ -32,8 +32,9 @@ class SheetSummary(BaseView):
 
             '_employee__direction__name',
             '_employee__branch__name',
+
             '_employee__grade__name',
-            '_employee__grade__category'
+            '_employee__grade__category',
 
             '_employee__payer_name__name',
             '_employee__payment_account',
@@ -63,6 +64,7 @@ class SheetSummary(BaseView):
             '_employee__direction__name': 'departement',
             '_employee__branch__name': 'zone',
             '_employee__grade__name': 'grade',
+            '_employee__grade__category': 'categorie',
 
             '_employee__payer_name__name': 'banque',
             '_employee__payment_account': 'n. Compte',
