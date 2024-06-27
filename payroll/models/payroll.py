@@ -12,7 +12,7 @@ from django.urls import reverse_lazy
 from core.models import Base
 
 
-
+intcomma = lambda value: "{:,}".format(round(abs(value), 2))
 leave_empty_for_all = _('laisser vide pour tous')
 
 class PayrollStatus(models.TextChoices):
@@ -95,9 +95,13 @@ class Payroll(Base):
         impact = payslips.values('_employee__status__name').annotate(count=models.Count('_employee__status__name'), net=models.Sum('net'))
         legals = items_paid.filter(code__in=legals).values('name').annotate(amount=models.Sum(models.Func(models.F('amount_qp_employee') + models.F('amount_qp_employer'), function='ABS')))
 
+        # Impact
         impact = pd.DataFrame(list(impact))
         impact['net_usd'] = round(impact['net'] / self.metadata.get('taux', 2800), 2)
         impact = impact[['_employee__status__name', 'count', 'net', 'net_usd']]
+
+        for column in ['count', 'net', 'net_usd']:
+            impact[column] = impact[column].apply(intcomma)
 
         columns = {
             '_employee__status__name': 'CATEGORIE',
@@ -108,12 +112,16 @@ class Payroll(Base):
         impact.columns = [columns.get(col, col) for col in impact.columns]
         impact = impact.astype(str)
 
-
         impact = impact.to_html(index=False, classes='table table-striped mt-3')
         impact = impact.replace('<th>', '<th style="text-align: left;" class="text-capitalize">')
         
+        # Legals
         legals = pd.DataFrame(list(legals))
         legals['amount_usd'] = round(legals['amount'] / self.metadata.get('taux', 2800), 2)
+
+        for column in ['amount', 'amount_usd']:
+            impact[column] = impact[column].apply(intcomma)
+
         columns = {
             'name': 'CATEGORIE',
             'amount': 'IMPACT EN FC',
