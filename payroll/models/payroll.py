@@ -103,7 +103,7 @@ class Payroll(Base):
 
         # add sum line
         impact_total = pd.DataFrame({
-            '_employee__status__name': ['Total'],
+            '_employee__status__name': ['TOTAL'],
             'count': [impact['count'].sum()],
             'net': [impact['net'].sum()],
             'net_usd': [impact['net_usd'].sum()]
@@ -132,7 +132,7 @@ class Payroll(Base):
 
         # add sum line
         legal_total = pd.DataFrame({
-            'name': ['Total'],
+            'name': ['TOTAL'],
             'amount': [legals['amount'].sum()],
             'amount_usd': [legals['amount_usd'].sum()]
         })
