@@ -33,6 +33,7 @@ class SheetSummary(BaseView):
             '_employee__direction__name',
             '_employee__branch__name',
             '_employee__grade__name',
+            '_employee__grade__category'
 
             '_employee__payer_name__name',
             '_employee__payment_account',
