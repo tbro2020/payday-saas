@@ -119,7 +119,7 @@ class Payroll(Base):
         # Legals
         legals = pd.DataFrame(list(legals))
         legals['amount_usd'] = round(legals['amount'] / self.metadata.get('taux', 2800), 2)
-        impact = impact.sort_values(by='amount', ascending=False)
+        legals = legals.sort_values(by='amount', ascending=False)
 
         for column in ['amount', 'amount_usd']:
             impact[column] = impact[column].apply(intcomma)
