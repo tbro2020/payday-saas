@@ -102,12 +102,12 @@ class Payroll(Base):
         impact = impact.sort_values(by='net', ascending=False)
 
         # add sum line
-        impact_total = {
+        impact_total = pd.DataFrame({
             '_employee__status__name': ['Total'],
             'count': [impact['count'].sum()],
             'net': [impact['net'].sum()],
             'net_usd': [impact['net_usd'].sum()]
-        }
+        })
         impact = pd.concat([impact, impact_total], ignore_index=True)
 
         for column in ['count', 'net', 'net_usd']:
@@ -131,11 +131,11 @@ class Payroll(Base):
         legals = legals.sort_values(by='amount', ascending=False)
 
         # add sum line
-        legal_total = {
+        legal_total = pd.DataFrame({
             'name': ['Total'],
             'amount': [legals['amount'].sum()],
             'amount_usd': [legals['amount_usd'].sum()]
-        }
+        })
         legals = pd.concat([legals, legal_total], ignore_index=True)
 
         for column in ['amount', 'amount_usd']:
@@ -152,24 +152,24 @@ class Payroll(Base):
         legals = legals.to_html(index=False, classes='table table-striped mt-3')
         legals = legals.replace('<th>', '<th style="text-align: left;" class="text-capitalize">')
 
-        total_global = pd.concat([{
+        total_global = pd.concat([pd.DataFrame({
             'CATEGORIE': 'TOTAL NET',
             'EFFECTIFS': impact_total['count'],
             'IMPACT EN FC': impact_total['net'],
             'SOIT EN USD': impact_total['net_usd']
-        }, {
+        }), pd.DataFrame({
             'CATEGORIE': 'TOTAL',
             'EFFECTIFS': 0,
             'IMPACT EN FC': legal_total['amount'],
             'SOIT EN USD': legal_total['amount_usd']
-        }], ignore_index=True)
+        })], ignore_index=True)
 
-        total_global = pd.concat(total_global, {
+        total_global = pd.concat(total_global, pd.DataFrame({
             'CATEGORIE': 'TOTAL BRUT',
             'EFFECTIFS': [total_global['EFFECTIFS'].sum()],
             'IMPACT EN FC': [total_global['IMPACT EN FC'].sum()],
             'SOIT EN USD': [total_global['SOIT EN USD'].sum()],
-        })
+        }))
 
         total_global = total_global.to_html(index=False, classes='table table-striped mt-3')
         total_global = total_global.replace('<th>', '<th style="text-align: left;" class="text-capitalize">')
