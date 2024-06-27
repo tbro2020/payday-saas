@@ -97,14 +97,30 @@ class Payroll(Base):
 
         impact = pd.DataFrame(list(impact))
         impact['net_usd'] = round(impact['net'] / self.metadata.get('taux', 2800), 2)
-        #impact = impact.append(impact.sum(numeric_only=True), ignore_index=True)
+        impact = impact[['_employee__status__name', 'count', 'net', 'net_usd']]
+
+        columns = {
+            '_employee__status__name': 'CATEGORIE',
+            'count': 'EFFECTIFS',
+            'net': 'IMPACT EN FC',
+            'net_usd': 'SOIT EN USD'
+        }
+        impact.columns = [columns.get(col, col) for col in impact.columns]
+        impact = impact.astype(str)
+
 
         impact = impact.to_html(index=False, classes='table table-striped mt-3')
         impact = impact.replace('<th>', '<th style="text-align: left;" class="text-capitalize">')
         
         legals = pd.DataFrame(list(legals))
         legals['amount_usd'] = round(legals['amount'] / self.metadata.get('taux', 2800), 2)
-        #legals = legals.append(legals.sum(numeric_only=True), ignore_index=True)
+        columns = {
+            'name': 'CATEGORIE',
+            'amount': 'IMPACT EN FC',
+            'amount_usd': 'SOIT EN USD'
+        }
+        legals.columns = [columns.get(col, col) for col in legals.columns]
+        legals = legals.astype(str)
 
         legals = legals.to_html(index=False, classes='table table-striped mt-3')
         legals = legals.replace('<th>', '<th style="text-align: left;" class="text-capitalize">')
