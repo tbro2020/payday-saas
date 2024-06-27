@@ -164,14 +164,16 @@ class Payroll(Base):
             'SOIT EN USD': legal_total['amount_usd']
         })], ignore_index=True)
 
-        """
         total_global = pd.concat(total_global, pd.DataFrame({
-            'CATEGORIE': 'TOTAL BRUT',
+            'CATEGORIE': ['TOTAL BRUT'],
             'EFFECTIFS': [total_global['EFFECTIFS'].sum()],
             'IMPACT EN FC': [total_global['IMPACT EN FC'].sum()],
             'SOIT EN USD': [total_global['SOIT EN USD'].sum()],
         }), ignore_index=True)
-        """
+
+        for column in ['EFFECTIFS', 'IMPACT EN FC', 'SOIT EN USD']:
+            total_global[column] = total_global[column].apply(intcomma)
+        total_global = total_global.astype(str)
         
         total_global = total_global.to_html(index=False, classes='table table-striped mt-3')
         total_global = total_global.replace('<th>', '<th style="text-align: left;" class="text-capitalize">')
