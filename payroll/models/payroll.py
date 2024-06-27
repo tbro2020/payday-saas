@@ -155,20 +155,20 @@ class Payroll(Base):
         total_global = pd.concat([pd.DataFrame({
             'CATEGORIE': 'TOTAL NET',
             'EFFECTIFS': impact_total['count'],
-            'IMPACT_EN_FC': impact_total['net'],
-            'SOIT_EN_USD': impact_total['net_usd']
+            'IMPACT EN FC': impact_total['net'],
+            'SOIT EN USD': impact_total['net_usd']
         }), pd.DataFrame({
             'CATEGORIE': 'TOTAL',
             'EFFECTIFS': 0,
-            'IMPACT_EN_FC': legal_total['amount'],
-            'SOIT_EN_USD': legal_total['amount_usd']
+            'IMPACT EN FC': legal_total['amount'],
+            'SOIT EN USD': legal_total['amount_usd']
         })], ignore_index=True)
 
         total_global = pd.concat([total_global, pd.DataFrame({
             'CATEGORIE': 'TOTAL BRUT',
             'EFFECTIFS': [total_global['EFFECTIFS'].sum()],
-            'IMPACT_EN_FC': [total_global['IMPACT_EN_FC'].sum()],
-            'SOIT_EN_USD': [total_global['SOIT_EN_USD'].sum()]
+            'IMPACT EN FC': [total_global['IMPACT EN FC'].sum()],
+            'SOIT EN USD': [total_global['SOIT EN USD'].sum()]
         })], ignore_index=True)
 
         for column in ['EFFECTIFS', 'IMPACT EN FC', 'SOIT EN USD']:
