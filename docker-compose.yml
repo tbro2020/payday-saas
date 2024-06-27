@@ -10,7 +10,7 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - db
+      - pgbouncer
       - redis
       - minio
     env_file:
@@ -24,7 +24,7 @@ services:
     volumes:
       - .:/app
     depends_on:
-      - db
+      - pgbouncer
       - redis
       - minio
     env_file:
@@ -35,12 +35,24 @@ services:
     container_name: pay_base
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
     environment:
       - POSTGRES_DB=payday
       - POSTGRES_USER=payday
       - POSTGRES_PASSWORD=payday
+
+  pgbouncer:
+    image: edoburu/pgbouncer:latest
+    container_name: pgbouncer
+    ports:
+      - "6432:6432"
+    volumes:
+      - ./pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini
+      - ./pgbouncer/userlist.txt:/etc/pgbouncer/userlist.txt
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+    depends_on:
+      - db
 
   redis:
     image: redis:latest
