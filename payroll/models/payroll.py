@@ -165,10 +165,10 @@ class Payroll(Base):
         })], ignore_index=True)
 
         total_global = pd.concat(total_global, pd.DataFrame({
-            'CATEGORIE': ['TOTAL BRUT'],
-            'EFFECTIFS': [0],
-            'IMPACT EN FC': [0],
-            'SOIT EN USD': [0],
+            'CATEGORIE': 'TOTAL BRUT',
+            'EFFECTIFS': total_global['EFFECTIFS'].sum(),
+            'IMPACT EN FC': total_global['IMPACT EN FC'].sum(),
+            'SOIT EN USD': total_global['SOIT EN USD'].sum(),
         }), ignore_index=True)
 
         for column in ['EFFECTIFS', 'IMPACT EN FC', 'SOIT EN USD']:
