@@ -39,7 +39,7 @@ class Payer(Task):
         """
         
         self.today = datetime.now()
-        self.workers = os.cpu_count() * 2.0
+        self.workers = os.cpu_count() * 1.5
         self.payroll = get_object_or_404(Payroll, pk=pk)
 
         # Load additional items from Excel
