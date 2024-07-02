@@ -64,8 +64,6 @@ class SynthesisByEmployee(BaseView):
             'CADRE DIRECTION': 'DIRIGEANTS'
         }, inplace=True)
 
-        df = df['name', 'DIRIGEANTS', 'CADRE', 'MAITRISE', 'EXECUTANT']
-
         # Flatten the columns: Convert multi-index to a single level
         df.columns.name = None  # Remove column index name if it exists
 
@@ -73,6 +71,7 @@ class SynthesisByEmployee(BaseView):
         df.columns = [col if col != '' else 'name' for col in df.columns]
         df = df.applymap(intcomma)
 
+        df = df['name', 'DIRIGEANTS', 'CADRE', 'MAITRISE', 'EXECUTANT']
         df = df.to_html(index=False, classes='table table-striped mt-3')
         df = df.replace('text-align: right;', 'text-align: left;')
 
