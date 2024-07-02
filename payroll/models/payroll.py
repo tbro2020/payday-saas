@@ -94,6 +94,7 @@ class Payroll(Base):
 
         baremique = items_paid.filter(code__in=codes_bareme).values('code', 'name')
         baremique = baremique.annotate(amount=models.Sum('amount_qp_employee'))
+        baremique = baremique.order_by('code')
 
         baremique = pd.DataFrame(list(baremique))
         baremique['amount_usd'] = round(baremique['amount'] / self.metadata.get('taux', 2800), 2)
@@ -115,8 +116,10 @@ class Payroll(Base):
         baremique = baremique.replace('<th>', '<th style="text-align: left;" class="text-capitalize">')
 
         # Permanent
-        permanent = items_paid.exclude(code__in=codes_bareme, amount_qp_employee__lte=0).values('code', 'name')
+        permanent = items_paid.exclude(code__in=codes_bareme)
+        permanent = permanent.exclude(amount_qp_employee__lte=0).values('code', 'name')
         permanent = permanent.annotate(amount=models.Sum('amount_qp_employee'))
+        permanent = permanent.order_by('code')
 
         permanent = pd.DataFrame(list(permanent))
         permanent['amount_usd'] = round(permanent['amount'] / self.metadata.get('taux', 2800), 2)
