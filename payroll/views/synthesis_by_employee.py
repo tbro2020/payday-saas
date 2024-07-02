@@ -47,7 +47,6 @@ class SynthesisByEmployee(BaseView):
         # Add a 'Total' column that sums across the rows
         df['Total'] = df.sum(axis=1)
 
-
         # Create a total row that sums across the columns
         total_row = df.sum(axis=0)
         total_row.name = 'Total'
@@ -59,7 +58,13 @@ class SynthesisByEmployee(BaseView):
         df.reset_index(inplace=True)
 
         # Rename the 'index' column to 'name'
-        df.rename(columns={'index': 'name'}, inplace=True)
+        df = df.rename(columns={
+            'index': 'name',
+            'CADRE COLLABORATION': 'CADRE',
+            'CADRE DIRECTION': 'DIRIGEANTS'
+        }, inplace=True)
+
+        df = df.sort_values(by=['name', 'DIRIGEANTS', 'CADRE', 'MAITRISE', 'EXECUTANT'])
 
         # Flatten the columns: Convert multi-index to a single level
         df.columns.name = None  # Remove column index name if it exists
@@ -69,6 +74,7 @@ class SynthesisByEmployee(BaseView):
         df = df.applymap(intcomma)
 
         df = df.to_html(index=False, classes='table table-striped mt-3')
+        df = df.replace('text-align: right;', 'text-align: left;')
 
         return render(request, "payroll/synthesis.html", locals())
 
