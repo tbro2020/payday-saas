@@ -30,7 +30,7 @@ class SynthesisByEmployee(BaseView):
             .exclude(amount_qp_employee=0) \
             .filter(payslip__payroll=obj) \
             .filter(**{f'payslip___employee__{k}__name':v for k, v in query.items()}) \
-            .values('code', name, 'payslip___employee__branch__name', 'amount_qp_employee')
+            .values('code', name, 'payslip___employee__grade__category', 'amount_qp_employee')
 
         # Convert to DataFrame        
         df = pd.DataFrame(qs)
@@ -38,7 +38,7 @@ class SynthesisByEmployee(BaseView):
         # Create a pivot table and overwrite the main DataFrame
         df = df.pivot_table(
             index=name, 
-            columns='payslip___employee__branch__name', 
+            columns='payslip___employee__grade__category', 
             values='amount_qp_employee', 
             aggfunc='sum', 
             fill_value=0
@@ -46,6 +46,7 @@ class SynthesisByEmployee(BaseView):
 
         # Add a 'Total' column that sums across the rows
         df['Total'] = df.sum(axis=1)
+
 
         # Create a total row that sums across the columns
         total_row = df.sum(axis=0)
