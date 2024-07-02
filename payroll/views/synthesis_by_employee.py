@@ -58,7 +58,7 @@ class SynthesisByEmployee(BaseView):
         df.reset_index(inplace=True)
 
         # Rename the 'index' column to 'name'
-        df = df.rename(columns={
+        df.rename(columns={
             'index': 'name',
             'CADRE COLLABORATION': 'CADRE',
             'CADRE DIRECTION': 'DIRIGEANTS'
