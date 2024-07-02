@@ -107,12 +107,39 @@ class Payroll(Base):
             'amount_usd': [baremique['amount_usd'].sum()]
         })
         baremique = pd.concat([baremique, baremique_total], ignore_index=True)
+        for column in ['amount', 'amount_usd']:
+            baremique[column] = baremique[column].apply(intcomma)
+        baremique = baremique.astype(str)
 
         baremique = baremique.to_html(index=False, classes='table table-striped mt-3')
         baremique = baremique.replace('<th>', '<th style="text-align: left;" class="text-capitalize">')
 
+        # Permanent
+        permanent = items_paid.exclude(code__in=codes_bareme, amount_qp_employee__lte=0).values('code', 'name')
+        permanent = permanent.annotate(amount=models.Sum('amount_qp_employee'))
+
+        permanent = pd.DataFrame(list(permanent))
+        permanent['amount_usd'] = round(permanent['amount'] / self.metadata.get('taux', 2800), 2)
+        permanent = permanent.sort_values(by='code', ascending=False)
+
+        # add sum line
+        permanent_total = pd.DataFrame({
+            'code': ['#'],
+            'name': ['TOTAL'],
+            'amount': [permanent['amount'].sum()],
+            'amount_usd': [permanent['amount_usd'].sum()]
+        })
+        permanent = pd.concat([permanent, permanent_total], ignore_index=True)
+        for column in ['amount', 'amount_usd']:
+            permanent[column] = permanent[column].apply(intcomma)
+        permanent = permanent.astype(str)
+
+        permanent = permanent.to_html(index=False, classes='table table-striped mt-3')
+        permanent = permanent.replace('<th>', '<th style="text-align: left;" class="text-capitalize">')        
+
         return {
             "baremique": baremique,
+            'permanent': permanent
         }
     
     def statistic(self):
