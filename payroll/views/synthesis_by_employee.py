@@ -64,7 +64,7 @@ class SynthesisByEmployee(BaseView):
             'CADRE DIRECTION': 'DIRIGEANTS'
         }, inplace=True)
 
-        df = df.sort_values(by=['name', 'DIRIGEANTS', 'CADRE', 'MAITRISE', 'EXECUTANT'])
+        df = df[['name', 'DIRIGEANTS', 'CADRE', 'MAITRISE', 'EXECUTANT']]
 
         # Flatten the columns: Convert multi-index to a single level
         df.columns.name = None  # Remove column index name if it exists
