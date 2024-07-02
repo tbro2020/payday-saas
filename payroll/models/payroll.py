@@ -89,7 +89,7 @@ class Payroll(Base):
         import pandas as pd
         from django.apps import apps
         
-        codes_bareme = []
+        codes_bareme = ['1010','3800','3880','3040','3640','3670','3530','4593','4603','3570','3540','3660','3100','2810','3970']
         items_paid = apps.get_model('payroll', 'itempaid').objects.filter(payslip__payroll=self)
 
         baremique = items_paid.filter(code__in=codes_bareme).values('code', 'name')
