@@ -85,6 +85,36 @@ class Payroll(Base):
     def get_absolute_url(self):
         return reverse_lazy('payroll:payslips', args=[self.pk])
     
+    def synthesis(self):
+        import pandas as pd
+        from django.apps import apps
+        
+        codes_bareme = []
+        items_paid = apps.get_model('payroll', 'itempaid').objects.filter(payslip__payroll=self)
+
+        baremique = items_paid.filter(code__in=codes_bareme).values('code', 'name')
+        baremique = baremique.annotate(amount=models.Sum('amount_qp_employee'))
+
+        baremique = pd.DataFrame(list(baremique))
+        baremique['amount_usd'] = round(baremique['amount'] / self.metadata.get('taux', 2800), 2)
+        baremique = baremique.sort_values(by='code', ascending=False)
+
+        # add sum line
+        baremique_total = pd.DataFrame({
+            'code': ['#'],
+            'name': ['TOTAL'],
+            'amount': [baremique['amount'].sum()],
+            'amount_usd': [baremique['amount_usd'].sum()]
+        })
+        baremique = pd.concat([baremique, baremique_total], ignore_index=True)
+
+        baremique = baremique.to_html(index=False, classes='table table-striped mt-3')
+        baremique = baremique.replace('<th>', '<th style="text-align: left;" class="text-capitalize">')
+
+        return {
+            "baremique": baremique,
+        }
+    
     def statistic(self):
         import pandas as pd
         from django.apps import apps
