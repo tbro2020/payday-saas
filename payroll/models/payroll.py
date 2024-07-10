@@ -267,7 +267,7 @@ class Payroll(Base):
 
             'branches': payslips.values_list('employee__branch__name', flat=True).distinct(),
             'statues': payslips.values_list('employee__status__name', flat=True).distinct(),
-            'branks': payslips.values_list('employee__payer_name__name', flat=True).distinct(),
+            'branks': payslips.values_list('employee__payer__name', flat=True).distinct(),
             
             'impact': impact,
             'legals': legals,

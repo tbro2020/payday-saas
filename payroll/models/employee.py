@@ -51,7 +51,7 @@ class Employee(Base):
     physical_address = models.TextField(_('adresse physique'), null=True, default=None)
     emergency_information = models.TextField(_('informations d\'urgence'), null=True, default=None)
 
-    payer_name = ModelSelect('employee.payer', verbose_name=_('banque'), null=True, on_delete=models.SET_NULL, default=None, related_name='%(app_label)s_%(class)s_payer_name')
+    payer = ModelSelect('employee.payer', verbose_name=_('banque'), null=True, on_delete=models.SET_NULL, default=None, related_name='%(app_label)s_%(class)s_payer')
     payment_account = models.CharField(_('numéro de compte'), max_length=50, blank=True, null=True, default=None)
     payment_method = models.CharField(_('mode de paiement'), max_length=20, choices=PAYMENT_METHODS)
 
@@ -122,7 +122,7 @@ class Employee(Base):
         ),
         Row(
             Column('payment_method', css_class='col-md-4 col-sm-12'),
-            Column('payer_name', css_class='col-md-4 col-sm-12'),
+            Column('payer', css_class='col-md-4 col-sm-12'),
             Column('payment_account', css_class='col-md-4 col-sm-12'),
         ),
         'comment',
