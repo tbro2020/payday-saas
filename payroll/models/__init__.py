@@ -7,3 +7,4 @@ from .item_paid import ItemPaid
 from .payslip import Payslip
 
 from .salary_advance import AdvanceSalary, AdvanceSalaryPayment
+from .employee import Employee

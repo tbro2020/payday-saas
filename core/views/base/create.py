@@ -31,7 +31,6 @@ class Create(BaseView):
         if not request.user.is_superuser and 'employee' in form.fields:
             form.fields['employee'].widget.attrs['disabled'] = 'disabled'
         
-        
         formsets = [apps.get_model(inline.split('.')[0], model_name=inline.split('.')[-1]) for inline in getattr(model, 'inlines', [])]
         formsets = [inlineformset_factory(model, inline, fields=getattr(inline, 'inline_form_fields', '__all__'), can_delete=False, extra=1) for inline in formsets]
         

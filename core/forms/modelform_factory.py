@@ -8,8 +8,6 @@ from django import forms
 def modelform_factory(model, fields, layout=Layout()):
     attrs = {'model': model}
     if fields: attrs['fields'] = fields
-
-    attrs['widgets'] = {field.name: ListSelect2() for field in model._meta.fields if field.choices}
     Meta = type(str('Meta'), (object,), attrs)
 
     helper = FormHelper()

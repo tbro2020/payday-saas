@@ -4,14 +4,15 @@ from django.db import models
 from .fields import ModelSelect2Multiple
 from django.utils.translation import gettext as _
 
-from crispy_forms.layout import Layout, Row, Column
 from django.contrib.contenttypes.models import ContentType
+from crispy_forms.layout import Layout, Row, Column
+from core.models.fields import ChoiceField
 
 
 class Menu(Base):
     ICONS = [((icon.split('/')[-1]).split('.')[0], ' '.join(((icon.split('/')[-1]).split('.')[0]).split('-')).title()) for icon in glob.glob("ICONS/*.svg")]
 
-    icon = models.CharField(verbose_name=_('icon'), choices=ICONS, max_length=100, null=True, default=None)
+    icon = ChoiceField(verbose_name=_('icon'), choices=ICONS, max_length=100, null=True, default=None)
     name = models.CharField(verbose_name=_('nom'), max_length=100, unique=True)
     children = ModelSelect2Multiple(ContentType, verbose_name=_('sous-menu'))
     

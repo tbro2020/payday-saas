@@ -23,14 +23,14 @@ class SynthesisByEmployee(BaseView):
 
         obj = get_object_or_404(Payroll, id=pk)
 
-        name = f'payslip___employee__{field}'
+        name = f'payslip__employee__{field}'
         #if field in ['gender', 'marital_status']: name = name.replace('__name', '')
 
         qs = ItemPaid.objects \
             .exclude(amount_qp_employee=0) \
             .filter(payslip__payroll=obj) \
-            .filter(**{f'payslip___employee__{k}__name':v for k, v in query.items()}) \
-            .values('code', name, 'payslip___employee__grade__category', 'amount_qp_employee')
+            .filter(**{f'payslip__employee__{k}__name':v for k, v in query.items()}) \
+            .values('code', name, 'payslip__employee__grade__category', 'amount_qp_employee')
 
         # Convert to DataFrame        
         df = pd.DataFrame(qs)
@@ -38,7 +38,7 @@ class SynthesisByEmployee(BaseView):
         # Create a pivot table and overwrite the main DataFrame
         df = df.pivot_table(
             index=name, 
-            columns='payslip___employee__grade__category', 
+            columns='payslip__employee__grade__category', 
             values='amount_qp_employee', 
             aggfunc='sum', 
             fill_value=0
@@ -58,24 +58,28 @@ class SynthesisByEmployee(BaseView):
         df.reset_index(inplace=True)
 
         # Rename the 'index' column to 'name'
+        df.rename(columns={'index': 'Name'}, inplace=True)
 
-        df.rename(columns={
+        """df.rename(columns={
             'index': 'name',
             'CADRE COLLABORATION': 'CADRE',
             'CADRE DIRECTION': 'DIRIGEANTS'
         }, inplace=True)
         
-        df = df[['name', 'DIRIGEANTS', 'CADRE', 'MAITRISE', 'EXECUTANT', 'Total']]
+        df = df[['name', 'DIRIGEANTS', 'CADRE', 'MAITRISE', 'EXECUTANT', 'Total']]"""
 
         # Flatten the columns: Convert multi-index to a single level
         df.columns.name = None  # Remove column index name if it exists
 
         # Rename columns to flatten and make them more readable
-        df.columns = [col if col != '' else 'name' for col in df.columns]
+        df.columns = [col if col != '' else 'Name' for col in df.columns]
         df = df.applymap(intcomma)
 
         df = df.to_html(index=False, classes='table table-striped mt-3')
         df = df.replace('text-align: right;', 'text-align: left;')
+
+        field = Employee._meta.get_field(field.split('__')[0])
+        print(field)
 
         return render(request, "payroll/synthesis.html", locals())
 

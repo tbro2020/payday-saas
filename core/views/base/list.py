@@ -25,8 +25,7 @@ class List(BaseView):
         return sorted([field for field in model._meta.fields if field.name in list_display], key=lambda field: list_display_order[field.name])
     
     def get_list_filter(self, model):
-        list_filter = getattr(model, 'list_filter', [])
-        return [field for field in model._meta.fields if field.name in list_filter]
+        return getattr(model, 'list_filter', [])
 
     def get(self, request, app, model):
         model = apps.get_model(app, model_name=model)
@@ -44,10 +43,11 @@ class List(BaseView):
         # apply hard filter based on fields
         fields = [field.name for field in model._meta.fields]
         query = {k:v for k, v in request.GET.dict().items() if k.split('__')[0] in fields}
+        query = {k: v for k, v in query.items() if v not in [None, 'unknown', 'true', 'false']}
         qs = qs.filter(**query)
 
         # apply soft filter based on list_filter
-        filter = filter_set_factory(model, fields=get_name_of_fields(list_filter))
+        filter = filter_set_factory(model, fields=list_filter)
         filter = filter(request.GET, queryset=qs)
         qs = filter.qs
 

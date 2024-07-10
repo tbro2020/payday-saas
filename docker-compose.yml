@@ -12,7 +12,7 @@ services:
       - redis
       - minio
     env_file:
-      - .env
+      - production.env
 
   worker:
     build: .
@@ -26,7 +26,7 @@ services:
       - redis
       - minio
     env_file:
-      - .env
+      - production.env
 
   db:
     image: postgres:latest

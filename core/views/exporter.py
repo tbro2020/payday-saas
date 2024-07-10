@@ -17,8 +17,7 @@ class Exporter(BaseView):
         return [field for field in model._meta.fields if field.name in list_display]
     
     def get_list_filter(self, model):
-        list_filter = getattr(model, 'list_filter', [])
-        return [field for field in model._meta.fields if field.name in list_filter]
+        return getattr(model, 'list_filter', [])
     
     def get(self, request, app, model):
         model = apps.get_model(app, model)
@@ -45,15 +44,15 @@ class Exporter(BaseView):
 
         qs = model.objects.select_related().prefetch_related()
         qs = qs._all(user=request.user, subdomain=request.subdomain) if hasattr(qs, '_all') else qs.all()
-        
-        filter = filter_set_factory(model, fields=get_name_of_fields(list_filter))
-        qs = filter(request.GET, queryset=qs).qs
 
-        pk = model._meta.pk.name
+        # apply hard filter based on fields
         fields = [field.name for field in model._meta.fields]
+        query = {k:v for k, v in request.GET.dict().items() if k.split('__')[0] in fields}
+        query = {k: v for k, v in query.items() if v not in [None, 'unknown', 'true', 'false']}
+        qs = qs.filter(**query)
         
-        qs = qs.filter(**{k.replace('pk', pk) if k.split('__')[0] == 'pk' else k:v.split(',') if '__in' in k else v
-                        for k,v in request.GET.dict().items() if k.split('__')[0].replace('pk', pk) in fields})
+        filter = filter_set_factory(model, fields=list_filter)
+        qs = filter(request.GET, queryset=qs).qs
 
         fields = {k:v for k,v in request.POST.dict().items() if k not in ['csrfmiddlewaretoken']}.keys()
         data = qs.values(*fields)

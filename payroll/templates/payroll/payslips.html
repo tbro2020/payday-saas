@@ -77,7 +77,7 @@
                         </span>
 
                         <span>
-                            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownDocumentBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <button class="btn btn-primary dropdown-toggle rounded-0" type="button" id="dropdownDocumentBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 {% trans "Documents" %}
                             </button>
                             <div class="dropdown-menu" aria-labelledby="dropdownDocumentBtn">
@@ -90,6 +90,8 @@
                         {% if request.user in obj.approvers.all %}
                             <a href="#" class="btn btn-danger">{% trans 'Approuver' %}</a>
                         {% endif %}
+
+                        <a href="{% url 'core:exporter' app 'payslip' %}?payroll__pk={{ obj.pk }}" class="btn btn-light-success">{% trans 'Exporter' %}</a>
                         <a href="{% url 'core:delete' app model|getattr:'_meta'|getattr:'model_name' obj.pk %}" class="btn btn-light-danger">{% trans 'Supprimer' %}</a>
                     </div>
                 </div>
@@ -126,6 +128,9 @@
                             <small>{% trans 'Net à payer global' %}</small>
                         </div>
                     </div>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar bg-success" id="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
             </div>
         </div>
@@ -239,20 +244,41 @@
     </section>
 </div>
 
-{% if obj.status == 'PROGRESS' %}
-<script>setTimeout(() => window.location.reload(1), 5000)</script>
-{% endif %}
+{% with "payroll_"|add:pk as task_key %}
+    <script>
+        var progressUrl = "{% url 'api:async_result' task_key|cache_get %}";
+        function updateProgress(progressUrl) {
+            fetch(progressUrl).then(function(response) {
+                response.json().then(function(data) {
+                    $("#progress-bar").attr(
+                        "aria-valuenow", data.current
+                    ).attr(
+                        "aria-valuemax", data.total
+                    ).css(
+                        "width", (data.current / data.total * 100) + "%"
+                    );
+                    if (data.current == data.total) {
+                        location.reload();
+                    }
+                    setTimeout(updateProgress, 1000, progressUrl);
+                });
+            });
+        }
 
-<script>
-    $(document).ready(function() {
-        $('input[id*="date"]').attr('type', 'month');
+        $(document).ready(function() {
+            $('input[id*="date"]').attr('type', 'month');
+            $("#filter-form").submit(function() {
+                $(this).find(':input, select').filter(function() {
+                return !this.value;
+                }).prop("disabled", true);
+                return true; // Ensure the form still submits
+            });
 
-        $("#filter-form").submit(function() {
-            $(this).find(':input, select').filter(function() {
-               return !this.value;
-            }).prop("disabled", true);
-            return true; // Ensure the form still submits
-         });
-    });
-</script>
+            {% if obj.status == 'PROGRESS' %}
+                updateProgress(progressUrl);
+            {% endif %}
+        });
+    </script>
+    {% endwith %}
+
 {% endblock %}

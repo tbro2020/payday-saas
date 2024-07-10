@@ -7,12 +7,6 @@
 {% load crispy_forms_filters %}
 
 {% block content %}
-<style>
-    .select2-selection--single{
-        height: 40px !important;
-    }
-</style>
-
 <div class="page-heading">
     <div class="card">
         <div class="card-body">
@@ -33,6 +27,8 @@
                             {% endfor %}
                         </div>
                         <a href="{% url 'core:list' 'payroll' 'payslip' %}?employee__registration_number={{ obj.registration_number }}" class="btn btn-light-primary">{% trans 'Bulletins de salaire' %}</a>
+                        <a href="{% url 'core:list' 'payroll' 'itempaid' %}?payslip__employee__registration_number={{ obj.registration_number }}" class="btn btn-light-info">{% trans 'Compte courant' %}</a>
+                         
                         <a href="{% url 'core:delete' app model|getattr:'_meta'|getattr:'model_name' obj.pk %}" class="btn btn-light-danger">{% trans 'Supprimer' %}</a>
                         <button type="submit" form="form-{{ model|getattr:'_meta'|getattr:'model_name' }}" class="btn btn-light-success">{% trans 'Sauvegarder' %}</button>
                     </div>

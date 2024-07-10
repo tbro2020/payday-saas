@@ -13,6 +13,6 @@ urlpatterns = [
     path('synthesis/employee/<int:pk>', SynthesisByEmployee.as_view(), name='synthesis-by-employee'),
     path('synthesis/item/<int:pk>', SynthesisByItem.as_view(), name='synthesis-by-item'),
     
+    path('payslips/<str:pk>', Payslips.as_view(), name='payslips'),
     path('payslip/<int:pk>', Payslip.as_view(), name='payslip'),
-    path('payslips/<int:pk>', Payslips.as_view(), name='payslips'),
 ]

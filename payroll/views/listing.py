@@ -23,8 +23,8 @@ class Listing(BaseView):
         if not code: return redirect(reversed('payroll:payslips', kwargs={'pk': obj.pk}))
 
         qs = ItemPaid.objects.filter(code=code, payslip__payroll=obj) \
-            .filter(**{f'payslip___employee__{k}__name':v for k,v in query.items()}) \
-            .values('payslip___employee__registration_number', 'payslip___employee__last_name', 'payslip___employee__middle_name', 'amount_qp_employee', 'amount_qp_employer')
+            .filter(**{f'payslip__employee__{k}__name':v for k,v in query.items()}) \
+            .values('payslip__employee__registration_number', 'payslip__employee__last_name', 'payslip__employee__middle_name', 'amount_qp_employee', 'amount_qp_employer')
         
         df = pd.DataFrame(qs)
 
@@ -33,9 +33,9 @@ class Listing(BaseView):
         sum_amount_qp_employer = df['amount_qp_employer'].sum()
 
         total_df = pd.DataFrame({
-            'payslip___employee__registration_number': ['Total'],
-            'payslip___employee__last_name': [''],
-            'payslip___employee__middle_name': [''],
+            'payslip__employee__registration_number': ['Total'],
+            'payslip__employee__last_name': [''],
+            'payslip__employee__middle_name': [''],
             'amount_qp_employee': [sum_amount_qp_employee],
             'amount_qp_employer': [sum_amount_qp_employer]
         })
@@ -46,9 +46,9 @@ class Listing(BaseView):
             df[column] = df[column].apply(intcomma)
 
         columns = {
-            'payslip___employee__registration_number': 'matricule',
-            'payslip___employee__last_name': 'nom',
-            'payslip___employee__middle_name': 'post nom',
+            'payslip__employee__registration_number': 'matricule',
+            'payslip__employee__last_name': 'nom',
+            'payslip__employee__middle_name': 'post nom',
             'amount_qp_employee': 'montant qqe',
             'amount_qp_employer': 'montant qqp'
         }

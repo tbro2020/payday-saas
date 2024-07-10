@@ -17,18 +17,15 @@ class Payslips(Change):
         data = [{
             'name': field.name+'__name',
             'verbose_name': field.verbose_name,
-        } for field in data] + [{
-            'name': 'grade__category',
-            'verbose_name': _('Grade par catégorie'),
-        }]
+        } for field in data]
         return data
     
     sheet_fields = {
-        '_employee__direction__name': _('Département'),
-        '_employee__payer_name__name': _('Banque'),
-        '_employee__branch__name': _('Zone'),
-        '_employee__grade__name': _('Grade'),
-        '_employee__grade__category': _('Grade par catégorie'),
+        'employee__direction__name': _('Département'),
+        'employee__payer_name__name': _('Banque'),
+        'employee__branch__name': _('Zone'),
+        'employee__grade__name': _('Grade'),
+        'employee__grade__category': _('Grade par catégorie'),
     }
     
     def duties(self):

@@ -1,8 +1,12 @@
+from django.apps import apps
 from django import template
+import json
 import re
 
-from django.utils.safestring import mark_safe
+from django.core.cache import cache
 from django.shortcuts import render
+
+from django.utils.safestring import mark_safe
 
 
 digital_value = re.compile(r"\d+")
@@ -28,8 +32,16 @@ def toint(value):
     return int(value)
 
 @register.simple_tag
-def qs_to_table(qs, fields, css_class='table table-striped', *args, **kwargs):
-    fields = fields.split(',')
+def qs_to_table(obj, app, model, *args, **kwargs):
+    qs = apps.get_model(app, model).objects.all()
+    fields = kwargs.get('fields', '').split(',')
+
+    _filter = eval(kwargs.get('filter', '{}'))
+    qs = qs.filter(**_filter)
 
     fields = [field for field in qs.model._meta.fields if field.name in fields]
-    return render(None, 'components/qs_to_table.html', locals()).content.decode('utf-8')
+    return mark_safe(render(None, 'components/qs_to_table.html', locals()).content.decode('utf-8'))
+
+@register.filter('cache_get')
+def cache_get(key):
+    return cache.get(key)

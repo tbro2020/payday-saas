@@ -26,28 +26,23 @@ from random import randint
 default_photo = lambda: "place_pics/default_pic.jpg"
 #default_registration_number = lambda: randint(100000000, 999999999)
 
-class MaritalStatus(models.TextChoices):
-    Maried = ('maried', _('Marié'))
-    Widower = ('widower', _('Veuf'))
-    Single = ('single', _('Célibataire'))
-
 
 class Employee(Base):
-    GENDERS = (('male', _('Homme')), ('female', _('Femme')))
     PAYMENT_METHODS = (('cash', _('Cash')), ('bank', _('Bank')), ('mobile Money', _('Mobile Money')))
+    MARITAL_STATUS = (('married', _('Marié')), ('widower', _('Veuf')), ('single', _('Célibataire')))
+    GENDERS = (('male', _('Homme')), ('female', _('Femme')))
 
     registration_number = models.CharField(_('matricule'), max_length=50, unique=True, db_index=True, primary_key=True)
     social_security_number = models.CharField(_('numéro de sécurité sociale'), max_length=50, blank=True, null=True, default=None)
     
-    agreement = ModelSelect(Agreement, verbose_name=_('type de contrat'), on_delete=models.CASCADE)
+    agreement = ModelSelect(Agreement, verbose_name=_('type de contrat'), blank=True, null=True, on_delete=models.SET_NULL)
     date_of_join = DateField(_('date d\'engagement'), null=True, default=None)
     photo = models.ImageField(_('photo'), blank=True, null=True)
 
     position = ModelSelect('employee.Position', verbose_name=_('position'), blank=True, null=True, on_delete=models.SET_NULL)
-    branch = ModelSelect('employee.Branch', verbose_name=_('site'),  null=True, on_delete=models.SET_NULL)
-
-    iterim = ModelSelect('employee.grade', verbose_name=_('iterim'), blank=True, null=True, on_delete=models.SET_NULL, default=None, related_name='iterim_employee')
     grade = ModelSelect('employee.grade', verbose_name=_('grade'), blank=True, null=True, on_delete=models.SET_NULL)
+    branch = ModelSelect('employee.Branch', verbose_name=_('site'),  null=True, on_delete=models.SET_NULL)
+    
 
     direction = ModelSelect(Direction, verbose_name=_('direction'), null=True, on_delete=models.SET_NULL, default=None)
     sub_direction = ModelSelect(SubDirection, verbose_name=_('sous-direction'), blank=True, null=True, on_delete=models.SET_NULL, default=None)
@@ -60,7 +55,7 @@ class Employee(Base):
     date_of_birth = DateField(_('date de naissance'), null=True, default=None)
     gender = models.CharField(_('genre'), max_length=10, choices=GENDERS)
 
-    marital_status = models.CharField(_('état civil'), max_length=12, choices=MaritalStatus)
+    marital_status = models.CharField(_('état civil'), max_length=12, choices=MARITAL_STATUS)
     spouse = models.CharField(_('conjoint'), max_length=100, blank=True, null=True, default=None)
 
     mobile_number = PhoneNumberField(_('numéro de téléphone mobile'), null=True, default=None)
@@ -78,7 +73,7 @@ class Employee(Base):
 
     objects = EmployeeQuerySet()
 
-    list_filter = ('grade', 'direction', 'branch', 'position', 'marital_status', 'branch', 'status', 'date_of_join', 'date_of_birth')
+    list_filter = ('grade', 'direction', 'branch', 'position', 'status', 'date_of_join', 'date_of_birth')
     list_display = ('registration_number', 'grade', 'branch', 'last_name', 'middle_name', 'status')
     search_fields = ('registration_number', )
 
@@ -101,9 +96,8 @@ class Employee(Base):
             Column('service', css_class='col-md-4 col-sm-12'),
         ),
         Row(
-            Column('grade', css_class='col-md-4 col-sm-12'),
-            Column('position', css_class='col-md-4 col-sm-12'),
-            Column('iterim', css_class='col-md-4 col-sm-12')
+            Column('grade', css_class='col-md-6 col-sm-12'),
+            Column('position', css_class='col-md-6 col-sm-12'),
         ),
         Row(
             Column('first_name', css_class='col-md-4 col-sm-12'),

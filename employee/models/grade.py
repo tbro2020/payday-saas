@@ -14,12 +14,10 @@ class Grade(Base):
     search_fields = ('name')
 
     def __str__(self) -> str:
+        if not self.category:
+            return self.name
         return "{}/{}".format(self.category, self.name)
 
     class Meta:
         verbose_name = _('grade')
         verbose_name_plural = _('grades')
-        
-    def __str__(self):
-        return f'{self.category} / {self.name}'
-

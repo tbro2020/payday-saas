@@ -17,6 +17,7 @@ var PrqlHighlightRules = function () {
         "int16",
         "int32",
         "int64",
+        "int128",
         "float",
         "text",
         "set"
@@ -29,8 +30,9 @@ var PrqlHighlightRules = function () {
         "support.function": builtinFunctions,
         "support.type": builtinTypes
     }, "identifier");
-    var escapeRe = /\\(\d+|['"\\&bfnrt]|u[0-9a-fA-F]{4})/;
+    var escapeRe = /\\(\d+|['"\\&bfnrt]|u\{[0-9a-fA-F]{1,6}\}|x[0-9a-fA-F]{2})/;
     var identifierRe = /[A-Za-z_][a-z_A-Z0-9]/.source;
+    var numRe = /(?:\d\d*(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+\b)?/.source;
     var bidi = "[\\u202A\\u202B\\u202D\\u202E\\u2066\\u2067\\u2068\\u202C\\u2069]";
     this.$rules = {
         start: [
@@ -47,7 +49,7 @@ var PrqlHighlightRules = function () {
                 regex: 'r"',
                 next: "rstring"
             }, {
-                token: "string",
+                token: "string.single",
                 start: "'",
                 end: "'"
             }, {
@@ -57,16 +59,19 @@ var PrqlHighlightRules = function () {
                 token: "constant.language",
                 regex: "^" + identifierRe + "*"
             }, {
-                token: "constant.numeric",
+                token: ["constant.numeric", "keyword"],
+                regex: "(" + numRe + ")(years|months|weeks|days|hours|minutes|seconds|milliseconds|microseconds)"
+            }, {
+                token: "constant.numeric", // hexadecimal, octal and binary
                 regex: /0(?:[xX][0-9a-fA-F]+|[oO][0-7]+|[bB][01]+)\b/
             }, {
-                token: "constant.numeric",
-                regex: /(?:\d\d*(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+\b)?/
+                token: "constant.numeric", // decimal integers and floats
+                regex: numRe
             }, {
-                token: "comment.block",
+                token: "comment.block.documentation",
                 regex: "#!.*"
             }, {
-                token: "comment.line",
+                token: "comment.line.number-sign",
                 regex: "#.*"
             }, {
                 token: "keyword.operator",
@@ -116,7 +121,7 @@ var PrqlHighlightRules = function () {
                 token: "invalid.illegal",
                 regex: bidi
             }, {
-                defaultToken: "string"
+                defaultToken: "string.double"
             }],
         stringGap: [{
                 token: "text",

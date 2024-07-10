@@ -41,7 +41,7 @@
                     <h2>{% trans "Créez votre organisation" %}</h2>
                 </div>
                 <div class="card-body">
-                    <form method="post">
+                    <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         {{ organization|crispy }}
 
@@ -51,7 +51,7 @@
                         </fielset>
 
                         <div class="d-grid gap-2 col-6 mx-auto">
-                            <button type="submit" class="btn btn-primary me-1 mb-1">{% trans "Soumettre" %}</button>
+                            <button type="submit" class="btn btn-primary btn-lg me-1 mb-1 mt-2">{% trans "Soumettre" %}</button>
                         </div>
                     </form>
                 </div>

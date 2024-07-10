@@ -22,7 +22,8 @@ class PayrollStatus(models.TextChoices):
 
 class Payroll(Base):
     def _metadata():
-        return dict(taux=2000, litrage=3650)
+        # add forex exchange rate api from bcc
+        return dict(TAUX_USD_CDF=2000, LITRAGE=3650)
 
     additional_items = models.FileField(verbose_name=_('éléments additionnels'), upload_to=upload_directory_file, blank=True, null=True, default=None)
     canvas = models.FileField(verbose_name=_('canevas'), upload_to=upload_directory_file, blank=True, null=True, default=None)

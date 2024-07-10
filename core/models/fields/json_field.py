@@ -4,5 +4,7 @@ from django.db import models
 
 class JSONField(models.JSONField):
     def formfield(self, **kwargs):
-        kwargs['widget'] = JSONEditorWidget(width='100%', height='200px')
+        kwargs['widget'] = JSONEditorWidget(width='100%', height='400px', options={
+            'mode': 'form'
+        })
         return super().formfield(**kwargs)

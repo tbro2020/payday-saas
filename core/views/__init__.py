@@ -8,5 +8,5 @@ from .print import *
 from .exporter import *
 from .action_required import *
 from .password_change import *
-from .create_organization import *
+from .organization import *
 

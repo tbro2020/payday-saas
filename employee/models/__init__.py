@@ -9,7 +9,7 @@ from .service import Service
 
 from .payer import Payer
 from .position import Position
-from .employee import Employee, MaritalStatus
+from .employee import Employee
 from .document import Document
 from .child import Child
 

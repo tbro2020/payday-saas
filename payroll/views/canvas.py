@@ -29,10 +29,11 @@ class Canvas(BaseView):
         group_by = 'branch'
         df = pd.read_json(json.dumps(data))
 
-        df = df.sort_values(by=['grade', 'registration_number', 'last_name', 'middle_name'], 
-                            ascending=[True, True, True, True])
-
-        df = df.groupby(group_by)
+        if not df.empty:
+            df = df.sort_values(by=['grade', 'registration_number', 'last_name', 'middle_name'], 
+                                ascending=[True, True, True, True])
+            df = df.groupby(group_by)
+        
         response = HttpResponse(content_type='application/xlsx')
         response['Content-Disposition'] = f'attachment; filename="canvas.xlsx"'.lower()
 

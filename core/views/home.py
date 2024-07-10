@@ -10,7 +10,7 @@ from datetime import date, timedelta
 from employee.models import *
 from django.apps import apps
 
-@method_decorator(cache_page(60 * 15), name='dispatch')
+#@method_decorator(cache_page(60 * 15), name='dispatch')
 class Home(BaseView):
     today = date.today()
 
@@ -33,8 +33,9 @@ class Home(BaseView):
         
         employees = Employee.objects.all().select_related().prefetch_related()
         
-        employees_by_statues = employees.values('status__name') \
-            .exclude(status__name=None).annotate(count=Count('status__name'))
+        employees_by_statues = employees.values('status__name').annotate(count=Count('status__name'))
+        employees_by_statues = employees_by_statues.filter(count__gt=0)
+        employees_by_statues = list(employees_by_statues)
         
         itempaid = ItemPaid.objects.filter(created_at__year=self.today.year)
         payrolls = Payroll.objects.filter(created_at__year=self.today.year)

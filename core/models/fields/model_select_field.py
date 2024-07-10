@@ -16,6 +16,6 @@ class ModelSelect(models.ForeignKey):
             'model': self.remote_field.model._meta.model_name
         }), attrs = {
             'data-minimum-input-length': 2,
-            'theme': 'bootstrap-5'
+            'data-theme': 'bootstrap-5'
         })
         return super().formfield(**kwargs)

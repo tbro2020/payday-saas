@@ -1,6 +1,8 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from employee.models import Employee, MaritalStatus
+from employee.models import Employee as BaseEmployee
 from django.db.models import Sum, Q
+from django.core.cache import cache
+from django.conf import settings
 import os
 
 from django.utils.translation import gettext as _
@@ -10,13 +12,10 @@ from payroll.models import *
 from celery import Task
 import pandas as pd
 
-from api.serializers import model_serializer_factory
 from datetime import datetime
 from payday.celery import app
 import json
 
-# Serializer for Employee model
-EmployeeSerializer = model_serializer_factory(Employee)
 
 class Payer(Task):
     """
@@ -37,9 +36,10 @@ class Payer(Task):
         """
         Main entry point for the task. Processes the payroll.
         """
-        
+        DEBUG = settings.DEBUG
         self.today = datetime.now()
-        self.workers = os.cpu_count() * 1.5
+        self.chunks_size = 1 if DEBUG else 100
+        self.workers = os.cpu_count() * (1.0 if DEBUG else 1.5)
         self.payroll = get_object_or_404(Payroll, pk=pk)
 
         # Load additional items from Excel
@@ -49,11 +49,10 @@ class Payer(Task):
             self.additional_items = self.re_base_additional_element_column(self.additional_items)
             
         self.legal_items = LegalItem.objects.all()
-        self.items = Item.objects.filter(is_payable=True)
-        self.items = self.items.exclude(Q(condition='0') | Q(condition__isnull=True)).order_by('code')
+        self.items = Item.objects.exclude(Q(condition='0') | Q(condition__isnull=True)).order_by('code')
 
         # Build and apply employee filter
-        self.employees = Employee.objects.select_related().all()
+        self.employees = BaseEmployee.objects.select_related().all()
         self.employees = self.employees.filter(**{
             k:v for k, v in {
                 'grade__in': self.payroll.employee_grade.values_list('id', flat=True),
@@ -62,6 +61,8 @@ class Payer(Task):
                 'direction__in': self.payroll.employee_direction.values_list('id', flat=True)
             }.items() if v
         }).filter(**kwargs.get('employee', {})).order_by('-registration_number')
+
+        self.max_count = self.employees.count()
 
         # Generate payslips
         self.generate()
@@ -103,9 +104,8 @@ class Payer(Task):
             offset += chunk_size
 
     def process_chunk(self, employees):
-        for employee in employees:
-            emp = EmployeeSerializer(employee).data
-            payslip, created = Payslip.objects.get_or_create(_employee=emp, payroll=self.payroll, created_by=self.payroll.created_by)
+        for idx, employee in enumerate(employees):
+            payslip, created = self.create_or_get_payslip(employee)
 
             self.generate_items(self.items, payslip, employee)
             payslip = self.refresh_payslip(payslip)
@@ -113,8 +113,12 @@ class Payer(Task):
             self.insert_items_from_df(self.additional_items, payslip, employee)
             payslip = self.refresh_payslip(payslip)
             
-            self.generate_items(self.legal_items, payslip, employee, can_delete_existing_item_paid=True)
+            self.generate_items(self.legal_items, payslip, employee)
             payslip = self.refresh_payslip(payslip)
+        
+        # update loading state
+        completed = self.payroll.payslip_set.all().count()
+        self.update_task_state(meta={'current': completed, 'total': self.max_count})
 
     def generate(self):
         """
@@ -122,7 +126,7 @@ class Payer(Task):
         """
         try:
             # split the process into multiple parallel process
-            chunks = self.queryset_iterator(self.employees, 100)
+            chunks = self.queryset_iterator(self.employees, self.chunks_size)
 
             # Using ThreadPoolExecutor for multi-threading
             with ThreadPoolExecutor(max_workers=self.workers) as executor:
@@ -134,7 +138,9 @@ class Payer(Task):
                     future.result()
 
             self.payroll = self.refresh_payroll(status=PayrollStatus.SUCCESS)
+            self.update_task_state(meta={'current': self.employees.count(), 'total': self.employees.count()})
         except Exception as ex:
+            self.update_task_state(meta={'current': 0, 'total': self.employees.count()})
             self.handle_generation_exception(ex)
 
     def handle_generation_exception(self, ex):
@@ -164,8 +170,22 @@ class Payer(Task):
         """
         Create or get an existing payslip for the employee.
         """
-        emp = EmployeeSerializer(employee).data
-        return Payslip.objects.get_or_create(_employee=emp, payroll=self.payroll, created_by=self.payroll.created_by)
+        emp, created= Employee.objects.get_or_create(**{
+            'registration_number': employee.registration_number,
+            'payroll': self.payroll
+        })
+
+        if created:
+            for key, value in employee.__dict__.items():
+                if key in ['_state', 'id']: continue
+                setattr(emp, key, value)
+            emp.save()
+
+        return Payslip.objects.get_or_create(**{
+            'employee': emp,
+            'payroll': self.payroll,
+            'created_by': self.payroll.created_by
+        })
 
     def refresh_payslip(self, payslip):
         items_paid = payslip.itempaid_set.filter(is_payable=True)
@@ -193,7 +213,7 @@ class Payer(Task):
         Payroll.objects.filter(pk=self.payroll.pk).update(**{'overall_net': net, 'status': status if status else self.payroll.status})
         return Payroll.objects.get(pk=self.payroll.pk)
 
-    def generate_items(self, items, payslip, employee, can_delete_existing_item_paid=False):
+    def generate_items(self, items, payslip, employee):
         """
         Generate or update items for a payslip and employee.
         
@@ -201,25 +221,14 @@ class Payer(Task):
         - items: QuerySet or list of items to process.
         - payslip: The payslip instance.
         - employee: The employee instance.
-        - can_delete_existing_item_paid: Flag to indicate if existing paid items should be deleted.
         
         Returns:
         A list of created `ItemPaid` instances.
         """
         item_to_pay_queryset = []
-        item_paid_queryset = payslip.itempaid_set.all()
-        
-        if can_delete_existing_item_paid:
-            # Delete existing item paid records that match the codes in items
-            item_paid_queryset.filter(code__in=items.values_list('code', flat=True))._raw_delete(item_paid_queryset.db)
-            item_paid_codes = set(payslip.itempaid_set.all().values_list('code', flat=True))
-        else:
-            # Get existing paid item codes
-            item_paid_codes = set(item_paid_queryset.values_list('code', flat=True))
-
         for item in items:
             try:
-                if item.code in item_paid_codes: continue
+                payroll = self.payroll
                 if not eval(item.condition, locals()): continue
                 time, qpe, qpp = self.evaluate_formulas(item, employee, payslip, item_to_pay_queryset)
                 if int(qpe) == 0 and int(qpp) == 0: continue
@@ -231,7 +240,7 @@ class Payer(Task):
                     taxable_amount=qpe if getattr(item, 'is_taxable', False) else 0,
                     social_security_amount=qpe if getattr(item, 'is_social_security', False) else 0,
                     is_bonus=getattr(item, 'is_bonus', False), is_payable=getattr(item, 'is_payable', True),
-                    payslip=payslip, created_by=self.payroll.created_by
+                    payslip=payslip, created_by=payroll.created_by
                 ))
             except Exception as ex:
                 self.errors.append({'message': str(ex), 'tag': 'error'})
@@ -287,7 +296,7 @@ class Payer(Task):
         return None
 
     def calculate_tax(self, payslip, employee, **kwargs):
-        items = payslip.itempaid_set.all()
+        items = payslip.itempaid_set.filter(is_payable=True)
         not_bonus = items.filter(is_bonus=False)
 
         social_security_threshold = not_bonus.aggregate(amount=Sum('social_security_amount'))['amount'] or 0
@@ -308,9 +317,9 @@ class Payer(Task):
 
         taxable_amount = taxable_amount + bonus
 
-        person_count = int(payslip.employee.metadata.get('NOMBRE_ENFANT', 0))
+        person_count = int(payslip.employee.metadata.get('NOMBRE_ENFANT', 0)) if 'NOMBRE_ENFANT' in payslip.employee.metadata else 0
         person_count = person_count if person_count > 0 or employee is None else employee.child_set.count()
-        person_count += 1 if payslip.employee.marital_status == MaritalStatus.Maried.value else 0
+        person_count += 1 if payslip.employee.marital_status == 'married' else 0
 
         charge = taxable_amount * (0.02 * person_count)
         taxable_amount -= charge
@@ -337,5 +346,14 @@ class Payer(Task):
         result = items_paid / 195
         result = result * hours
         result = result * 1.1818
+
+    def update_task_state(self, **kwargs):
+        task_id = cache.get(f'payroll_{self.payroll.pk}', None)
+        if not task_id: return
+        self.update_state(**{
+            'task_id': task_id,
+            'state': self.payroll.status,
+            'meta': kwargs.get('meta', {})
+        })
 
 app.register_task(Payer())

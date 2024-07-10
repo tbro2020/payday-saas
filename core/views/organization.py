@@ -1,11 +1,12 @@
 from django.utils.translation import gettext as _
 from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
 from django.contrib import messages
 from django.views import View
 
 from core.forms import modelform_factory
-from core.models import Organization
 from core.forms import UserCreationForm
+from core.models import Organization
 
 class CreateOrganization(View):
     template_name = "organization.html"
@@ -27,7 +28,7 @@ class CreateOrganization(View):
             messages.error(request, _("Veuillez remplir correctement le formulaire"))
             return render(request, self.template_name, locals())
         
-        user.save(commit=False)
+        user = user.save(commit=False)
         organization.save()
         
         user.organization = organization.instance
@@ -35,4 +36,4 @@ class CreateOrganization(View):
         user.save()
 
         messages.success(request, _("Votre organisation a été créée avec succès"))
-        return redirect(request.GET.dict().get('next', '/'))
+        return redirect(reverse_lazy('login'))
