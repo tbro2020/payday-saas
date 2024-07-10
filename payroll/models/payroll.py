@@ -23,7 +23,7 @@ class PayrollStatus(models.TextChoices):
 class Payroll(Base):
     def _metadata():
         # add forex exchange rate api from bcc
-        return dict(TAUX_USD_CDF=2000, LITRAGE=3650)
+        return dict(TAUX_USD_CDF=2000, litrage=3650)
 
     additional_items = models.FileField(verbose_name=_('éléments additionnels'), upload_to=upload_directory_file, blank=True, null=True, default=None)
     canvas = models.FileField(verbose_name=_('canevas'), upload_to=upload_directory_file, blank=True, null=True, default=None)
@@ -173,18 +173,18 @@ class Payroll(Base):
         items_paid = apps.get_model('payroll', 'itempaid').objects.filter(payslip__payroll=self)
 
         legals = apps.get_model('payroll', 'legalitem').objects.values_list('code', flat=True)
-        impact = payslips.values('_employee__status__name').annotate(count=models.Count('_employee__status__name'), net=models.Sum('net'))
+        impact = payslips.values('employee__status__name').annotate(count=models.Count('employee__status__name'), net=models.Sum('net'))
         legals = items_paid.filter(code__in=legals).values('name').annotate(amount=models.Sum(models.Func(models.F('amount_qp_employee') + models.F('amount_qp_employer'), function='ABS')))
 
         # Impact
         impact = pd.DataFrame(list(impact))
         impact['net_usd'] = round(impact['net'] / self.metadata.get('taux', 2800), 2)
-        impact = impact[['_employee__status__name', 'count', 'net', 'net_usd']]
+        impact = impact[['employee__status__name', 'count', 'net', 'net_usd']]
         impact = impact.sort_values(by='net', ascending=False)
 
         # add sum line
         impact_total = pd.DataFrame({
-            '_employee__status__name': ['TOTAL'],
+            'employee__status__name': ['TOTAL'],
             'count': [impact['count'].sum()],
             'net': [impact['net'].sum()],
             'net_usd': [impact['net_usd'].sum()]
@@ -195,7 +195,7 @@ class Payroll(Base):
             impact[column] = impact[column].apply(intcomma)
 
         columns = {
-            '_employee__status__name': 'CATEGORIE',
+            'employee__status__name': 'CATEGORIE',
             'count': 'EFFECTIFS',
             'net': 'IMPACT EN FC',
             'net_usd': 'SOIT EN USD'
@@ -265,9 +265,9 @@ class Payroll(Base):
             'net': self.overall_net,
             'payslips': payslips,
 
-            'branches': payslips.values_list('_employee__branch__name', flat=True).distinct(),
-            'statues': payslips.values_list('_employee__status__name', flat=True).distinct(),
-            'branks': payslips.values_list('_employee__payer__name', flat=True).distinct(),
+            'branches': payslips.values_list('employee__branch__name', flat=True).distinct(),
+            'statues': payslips.values_list('employee__status__name', flat=True).distinct(),
+            'branks': payslips.values_list('employee__payer__name', flat=True).distinct(),
             
             'impact': impact,
             'legals': legals,
