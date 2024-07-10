@@ -11,8 +11,6 @@ from core.models.fields import ModelSelect
 from core.models import Base
 
 
-EmployeeSerializer = model_serializer_factory(Employee)
-
 class Payslip(Base):
     payroll = models.ForeignKey(Payroll, verbose_name=_('paie'), null=True, on_delete=models.CASCADE)
 

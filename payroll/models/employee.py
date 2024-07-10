@@ -31,7 +31,6 @@ class Employee(Base):
     grade = ModelSelect('employee.grade', verbose_name=_('grade'), blank=True, null=True, on_delete=models.SET_NULL, related_name='%(app_label)s_%(class)s_grade')
     branch = ModelSelect('employee.Branch', verbose_name=_('site'),  null=True, on_delete=models.SET_NULL, related_name='%(app_label)s_%(class)s_branch')
     
-
     sub_direction = ModelSelect('employee.subdirection', verbose_name=_('sous-direction'), blank=True, null=True, on_delete=models.SET_NULL, default=None, related_name='%(app_label)s_%(class)s_sub_direction')
     service = ModelSelect('employee.service', verbose_name=_('service'), blank=True, null=True, on_delete=models.SET_NULL, default=None, related_name='%(app_label)s_%(class)s_service')
     direction = ModelSelect('employee.direction', verbose_name=_('direction'), null=True, on_delete=models.SET_NULL, default=None, related_name='%(app_label)s_%(class)s_direction')
