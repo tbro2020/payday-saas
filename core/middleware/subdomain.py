@@ -1,4 +1,3 @@
-from django.contrib.auth import logout
 from django.shortcuts import redirect
 from core.models import Organization
 from django.urls import reverse_lazy

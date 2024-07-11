@@ -39,6 +39,7 @@ class Payer(Task):
         DEBUG = settings.DEBUG
         self.today = datetime.now()
         self.chunks_size = 1 if DEBUG else 100
+        
         self.workers = os.cpu_count() * (1.0 if DEBUG else 1.5)
         self.payroll = get_object_or_404(Payroll, pk=pk)
 
@@ -138,9 +139,9 @@ class Payer(Task):
                     future.result()
 
             self.payroll = self.refresh_payroll(status=PayrollStatus.SUCCESS)
-            self.update_task_state(meta={'current': self.employees.count(), 'total': self.employees.count()})
+            self.update_task_state(is_last=True, meta={'current': self.employees.count(), 'total': self.employees.count()})
         except Exception as ex:
-            self.update_task_state(meta={'current': 0, 'total': self.employees.count()})
+            self.update_task_state(s_last=True, meta={'current': 0, 'total': self.employees.count()})
             self.handle_generation_exception(ex)
 
     def handle_generation_exception(self, ex):
@@ -347,7 +348,7 @@ class Payer(Task):
         result = result * hours
         result = result * 1.1818
 
-    def update_task_state(self, **kwargs):
+    def update_task_state(self, is_last=False, **kwargs):
         task_id = cache.get(f'payroll_{self.payroll.pk}', None)
         if not task_id: return
         self.update_state(**{
@@ -355,5 +356,6 @@ class Payer(Task):
             'state': self.payroll.status,
             'meta': kwargs.get('meta', {})
         })
+        if is_last: cache.delete(f'payroll_{self.payroll.pk}')
 
 app.register_task(Payer())

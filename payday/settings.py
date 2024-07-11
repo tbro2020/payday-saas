@@ -30,7 +30,7 @@ SECRET_KEY = "django-insecure-06ypcma#qfpku2z89w08jpa0o%5uy9vwsq2@7i)ierd=!jf@+g
 SECRET_KEY = os.getenv('SECRET_KEY', SECRET_KEY)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = int(os.getenv('DEBUG', 1))
+DEBUG = bool(int(os.getenv('DEBUG', 1)))
 
 ALLOWED_HOSTS = list(os.getenv('ALLOWED_HOSTS', '*').split(','))
 
@@ -87,7 +87,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_currentuser.middleware.ThreadLocalUserMiddleware",
     "core.middleware.subdomain.SubdomainMiddleware",
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware"
 ]
 
 if DEBUG:
@@ -215,8 +215,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
-EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', False)
-EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', False)
+EMAIL_USE_TLS = bool(int(os.getenv('EMAIL_USE_TLS', 0)))
+EMAIL_USE_SSL = bool(int(os.getenv('EMAIL_USE_SSL', 0)))
 EMAIL_HOST = os.getenv('EMAIL_HOST', 'localhost')
 EMAIL_PORT = os.getenv('EMAIL_PORT', 1025)
 
@@ -324,17 +324,15 @@ CELERY_BROKER_TRANSPORT_URL=os.getenv('CELERY_BROKER_TRANSPORT_URL', REDIS_URL)
 
 
 # Sentry settings
-SENTRY_DSN = os.getenv('SENTRY_DSN', '')
-if SENTRY_DSN:
-    import sentry_sdk
-    from sentry_sdk.integrations.django import DjangoIntegration
+SENTRY_DSN = "https://61630e2ac1f3c024ffa6a3d4a7207f57@o4505861077204992.ingest.us.sentry.io/4507582424612864"
+SENTRY_DSN = os.getenv("SENTRY_DSN", SENTRY_DSN)
 
-    sentry_sdk.init(
-        dsn=SENTRY_DSN,
-        integrations=[DjangoIntegration()],
-        traces_sample_rate=1.0,
-        send_default_pii=True
-    )
+import sentry_sdk
+sentry_sdk.init(
+    dsn=SENTRY_DSN,
+    traces_sample_rate=1.0,
+    profiles_sample_rate=1.0,
+)
 
 # cors header
 CORS_ALLOW_ALL_ORIGINS = True

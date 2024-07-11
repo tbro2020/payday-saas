@@ -86,6 +86,12 @@ class Payroll(Base):
     def get_absolute_url(self):
         return reverse_lazy('payroll:payslips', args=[self.pk])
     
+    def refresh(self):
+        net = self.payslip_set.aggregate(amount=models.Sum('net')).get('amount', 0)
+        net = round(net, 2) if net else 0
+        self.overall_net = net
+        self.save()
+    
     def synthesis(self):
         import pandas as pd
         from django.apps import apps
@@ -273,6 +279,9 @@ class Payroll(Base):
             'legals': legals,
             'impact_legal_total': total_global
         }
+    
+    def __str__(self):
+        return self.name
 
     class Meta:
         verbose_name = _('paie')

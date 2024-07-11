@@ -48,8 +48,21 @@ class Payslip(Change):
         instance.social_security_amount = abs(instance.social_security_amount) * instance.type_of_item
         instance.taxable_amount = abs(instance.taxable_amount) * instance.type_of_item
         instance.is_payable = True
+        instance.is_bonus = False # need to add field for this
         instance.payslip = obj
         instance.save()
+
+        # update the sum of items
+        obj.refresh()
+
+        # update the sum of legal items
+        obj.refresh_legals_items()
+
+        # update the sum of items
+        obj.refresh()
+
+        # update the sum of payroll
+        obj.payroll.refresh()
 
         messages.add_message(request, messages.SUCCESS, message=_(f'L\'element a été ajouté avec succès'))
         return redirect(request.META.get('HTTP_REFERER'))
