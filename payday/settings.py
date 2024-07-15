@@ -181,7 +181,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_URL = os.getenv("STATIC_URL", STATIC_URL)
-#STATICFILES_DIRS =[os.path.join(BASE_DIR, 'static')]
+STATICFILES_DIRS =[os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.getenv("STATIC_ROOT", STATIC_URL.replace('/', ''))
 
 AWS_LOCATION = os.getenv('AWS_LOCATION', default='')
