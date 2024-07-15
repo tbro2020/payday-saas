@@ -39,9 +39,8 @@
 </div>
 
 <div class="page-content">
-
     <div class="row">
-        <div class="col">
+        <div class="{% if list_filter %}col-md-9{% else %}col{% endif %} col-sm-12 col-xs-12">
             <div class="card">
                 <div class="card-header">
                     <form method="get" class="input-group mb-0">

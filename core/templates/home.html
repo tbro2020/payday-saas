@@ -12,10 +12,35 @@
 <script src="{% static 'assets/extensions/apexcharts/apexcharts.min.js' %}"></script>
 
 <div class="page-content">
-    <div class="row">
 
-        <!-- Retired soon -->
-        <div class="col-8">
+    <!-- Cards of attendance rate of the days, week and month -->
+    <div class="col">
+        <div class="card bg-light-danger">
+            <div class="card-header bg-light-danger">
+                <h3>Taux de présence</h3>
+            </div>
+            <div class="card-body text-center">
+                <div class="row">
+                    <a href="{% url 'core:list' 'attendance' 'attendance' %}?date={{ self.today }}" class="col text-center text-decoration-none">
+                        Aujourd'hui
+                        <h3>{{ attendance_rate_today|default:0|abs|intcomma }}%</h3>
+                    </a>
+                    <a href="{% url 'core:list' 'attendance' 'attendance' %}?date__week={{ self.today|date:"W" }}&date__year={{ self.today|date:"Y" }}" class="col text-center text-decoration-none">
+                        Cette semaine
+                        <h3>{{ attendance_rate_week|default:0|abs|intcomma }}%</h3>
+                    </a>
+                    <a href="{% url 'core:list' 'attendance' 'attendance' %}?date__month={{ self.today|date:"m" }}&date__year={{ self.today|date:"Y" }}" class="col text-center text-decoration-none">
+                        Ce mois-ci
+                        <h3>{{ attendance_rate_month|default:0|abs|intcomma }}%</h3>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Employee by status -->
+        <div class="col">
             <div class="card">
                 <div class="card-header">
                     <h4>Agent(s)</h4>
@@ -26,7 +51,7 @@
             </div>
         </div>
         
-        <!-- Payroll information -->
+        {% comment %}<!-- Payroll information -->
         <div class="col-md-4 col-sm-12">
             <div class="card">
                 <div class="card-header">
@@ -41,7 +66,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div>{% endcomment %}
     </div>
 
     <!-- Retired soon -->

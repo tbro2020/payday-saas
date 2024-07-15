@@ -2,7 +2,8 @@ services:
   web:
     build: .
     container_name: server
-    command: gunicorn --workers=4 --threads=3 --bind 0.0.0.0:80 payday.wsgi:application
+    #command: gunicorn --workers=4 --threads=3 --bind 0.0.0.0:80 payday.wsgi:application
+    command: gunicorn --bind 0.0.0.0:80 payday.wsgi:application
     volumes:
       - .:/app
     ports:
