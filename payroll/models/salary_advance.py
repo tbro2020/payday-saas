@@ -1,6 +1,6 @@
 from crispy_forms.layout import Layout, Row, Column, Fieldset
 from django.utils.translation import gettext as _
-from core.models.fields import ModelSelect
+from core.models.fields import ModelSelect, DateField
 
 from core.models import Base
 from django.db import models
@@ -9,7 +9,7 @@ class AdvanceSalary(Base):
     employee = ModelSelect('employee.Employee', verbose_name=_('employé'), on_delete=models.CASCADE)
     duration = models.IntegerField(_('durée'), help_text=_('nombre de mois'), default=36)
     amount = models.FloatField(_('montant'))
-    date = models.DateField(_('date'))
+    date = DateField(_('date'))
 
     list_display = ['employee', 'amount', 'date', 'duration']
     list_filter = ['date']

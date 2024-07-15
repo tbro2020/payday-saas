@@ -18,12 +18,15 @@ class Payslip(Base):
     employee = ModelSelect('payroll.employee', verbose_name=_('employé'), null=True, on_delete=models.SET_NULL)
     
     search_fields = ['employee__registration_number', 'employee__first_name', 'employee__middle_name', 'employee__last_name']
-    list_display = ('id', 'employee', 'gross', 'taxable_gross', 'net')
+    list_display = ('id', 'employee', 'payroll', 'gross', 'taxable_gross', 'net')
 
     @property
     def name(self):
-        return str(self.pk)
-
+        return f"Fiche de paie de {self.employee.name} de la paie {self.payroll.name}"
+    
+    def __str__(self):
+        return f"Fiche de paie de {self.employee.name} de la paie {self.payroll.name}"
+    
     def get_absolute_url(self):
         return reverse_lazy('payroll:payslip', kwargs={'pk': self.pk})
     

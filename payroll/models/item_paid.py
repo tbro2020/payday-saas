@@ -26,8 +26,11 @@ class ItemPaid(Base):
     is_bonus = models.BooleanField(_('est une prime'), help_text=_('Cet élément est un bonus'), default=False)
     is_payable = models.BooleanField(_('est payable'), help_text=_('Cet élément est payable'), default=True)
 
-    list_display = ('payslip__payroll', 'code', 'name', 'amount_qp_employee')
+    list_display = ('payslip', 'code', 'name', 'amount_qp_employee', 'amount_qp_employer')
     list_filter = ('payslip__employee__registration_number', 'is_bonus', 'is_payable', 'type_of_item')
+
+    def __str__(self):
+        return f"Element payé {self.name} de la fiche de paie du {self.payslip.payroll.name}"
 
     layout = Layout(
         'name',
@@ -45,6 +48,3 @@ class ItemPaid(Base):
     class Meta:
         verbose_name = _('element payé')
         verbose_name_plural = _('elements payé')
-        
-    def __str__(self):
-        return self.name
