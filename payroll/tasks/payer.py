@@ -38,7 +38,7 @@ class Payer(Task):
         """
         DEBUG = settings.DEBUG
         self.today = datetime.now()
-        self.chunks_size = 1 if DEBUG else 100
+        self.chunks_size = 100 if DEBUG else 125
         
         self.workers = os.cpu_count() * (1.0 if DEBUG else 1.5)
         self.payroll = get_object_or_404(Payroll, pk=pk)
