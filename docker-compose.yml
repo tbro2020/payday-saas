@@ -38,8 +38,6 @@ services:
       - POSTGRES_DB=payday
       - POSTGRES_USER=payday
       - POSTGRES_PASSWORD=payday
-    ports:
-      - "5432:5432"
 
   pgbouncer:
     image: edoburu/pgbouncer:latest
