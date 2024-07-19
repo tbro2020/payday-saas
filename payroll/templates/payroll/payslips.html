@@ -244,41 +244,16 @@
     </section>
 </div>
 
-{% with "payroll_"|add:pk as task_key %}
-    <script>
-        var progressUrl = "{% url 'api:async_result' task_key|cache_get %}";
-        function updateProgress(progressUrl) {
-            fetch(progressUrl).then(function(response) {
-                response.json().then(function(data) {
-                    $("#progress-bar").attr(
-                        "aria-valuenow", data.current
-                    ).attr(
-                        "aria-valuemax", data.total
-                    ).css(
-                        "width", (data.current / data.total * 100) + "%"
-                    );
-                    if (data.current == data.total) {
-                        location.reload();
-                    }
-                    setTimeout(updateProgress, 7500, progressUrl);
-                });
-            });
-        }
 
-        $(document).ready(function() {
-            $('input[id*="date"]').attr('type', 'month');
-            $("#filter-form").submit(function() {
-                $(this).find(':input, select').filter(function() {
-                return !this.value;
-                }).prop("disabled", true);
-                return true; // Ensure the form still submits
-            });
-
-            {% if obj.status == 'PROGRESS' %}
-                updateProgress(progressUrl);
-            {% endif %}
+<script>
+    $(document).ready(function() {
+        $('input[id*="date"]').attr('type', 'month');
+        $("#filter-form").submit(function() {
+            $(this).find(':input, select').filter(function() {
+            return !this.value;
+            }).prop("disabled", true);
+            return true; // Ensure the form still submits
         });
-    </script>
-    {% endwith %}
-
+    });
+</script>
 {% endblock %}

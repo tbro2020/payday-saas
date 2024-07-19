@@ -119,7 +119,7 @@ class Payer(Task):
         
         # update loading state
         completed = self.payroll.payslip_set.all().count()
-        self.update_task_state(meta={'current': completed, 'total': self.max_count})
+        #self.update_task_state(meta={'current': completed, 'total': self.max_count})
 
     def generate(self):
         """
@@ -139,10 +139,10 @@ class Payer(Task):
                     future.result()
 
             self.payroll = self.refresh_payroll(status=PayrollStatus.SUCCESS)
-            self.update_task_state(is_last=True, meta={'current': self.employees.count(), 'total': self.employees.count()})
+            # self.update_task_state(is_last=True, meta={'current': self.employees.count(), 'total': self.employees.count()})
         except Exception as ex:
             self.update_task_state(s_last=True, meta={'current': 0, 'total': self.employees.count()})
-            self.handle_generation_exception(ex)
+            # self.handle_generation_exception(ex)
 
     def handle_generation_exception(self, ex):
         """
