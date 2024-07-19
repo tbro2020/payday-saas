@@ -244,6 +244,9 @@
     </section>
 </div>
 
+{% if obj.status == 'PROGRESS' %}
+<script>setTimeout(() => window.location.reload(1), 5000)</script>
+{% endif %}
 
 <script>
     $(document).ready(function() {

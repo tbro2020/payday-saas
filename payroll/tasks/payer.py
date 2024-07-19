@@ -1,7 +1,6 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from employee.models import Employee as BaseEmployee
 from django.db.models import Sum, Q
-from django.core.cache import cache
 from django.conf import settings
 import os
 
@@ -38,7 +37,7 @@ class Payer(Task):
         """
         DEBUG = settings.DEBUG
         self.today = datetime.now()
-        self.chunks_size = 100 if DEBUG else 125
+        self.chunks_size = 100 if DEBUG else 100
         
         self.workers = os.cpu_count() * (1.0 if DEBUG else 1.5)
         self.payroll = get_object_or_404(Payroll, pk=pk)
@@ -106,7 +105,7 @@ class Payer(Task):
 
     def process_chunk(self, employees):
         for idx, employee in enumerate(employees):
-            payslip, created = self.create_or_get_payslip(employee)
+            payslip = self.create_payslip(employee)
 
             self.generate_items(self.items, payslip, employee)
             payslip = self.refresh_payslip(payslip)
@@ -167,22 +166,18 @@ class Payer(Task):
         except Exception as ex:
             return 0, 0, 0
 
-    def create_or_get_payslip(self, employee):
+    def create_payslip(self, employee):
         """
-        Create or get an existing payslip for the employee.
+        Create payslip for the employee.
         """
-        emp, created= Employee.objects.get_or_create(**{
-            'registration_number': employee.registration_number,
-            'payroll': self.payroll
-        })
 
-        if created:
-            for key, value in employee.__dict__.items():
-                if key in ['_state', 'id']: continue
-                setattr(emp, key, value)
-            emp.save()
+        data = employee.__dict__.items()
+        data = {k: v for k, v in data if k not in ['_state', 'id']}
 
-        return Payslip.objects.get_or_create(**{
+        emp = Employee(**data, payroll=self.payroll)
+        emp.save()
+        
+        return Payslip.objects.create(**{
             'employee': emp,
             'payroll': self.payroll,
             'created_by': self.payroll.created_by
@@ -348,6 +343,7 @@ class Payer(Task):
         result = result * hours
         result = result * 1.1818
 
+    """
     def update_task_state(self, is_last=False, **kwargs):
         task_id = cache.get(f'payroll_{self.payroll.pk}', None)
         if not task_id: return
@@ -357,5 +353,6 @@ class Payer(Task):
             'meta': kwargs.get('meta', {})
         })
         if is_last: cache.delete(f'payroll_{self.payroll.pk}')
+    """
 
 app.register_task(Payer())
