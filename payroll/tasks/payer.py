@@ -118,7 +118,7 @@ class Payer(Task):
             payslip = self.refresh_payslip(payslip)
         
         # update loading state
-        completed = self.payroll.payslip_set.all().count()
+        # completed = self.payroll.payslip_set.all().count()
         #self.update_task_state(meta={'current': completed, 'total': self.max_count})
 
     def generate(self):
