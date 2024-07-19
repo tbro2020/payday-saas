@@ -104,7 +104,7 @@ class Payer(Task):
             offset += chunk_size
 
     def process_chunk(self, employees):
-        for idx, employee in enumerate(employees):
+        for employee in employees:
             payslip = self.create_payslip(employee)
 
             self.generate_items(self.items, payslip, employee)
