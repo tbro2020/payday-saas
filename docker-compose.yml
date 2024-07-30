@@ -2,8 +2,7 @@ services:
   web:
     build: .
     container_name: server
-    #command: gunicorn --workers=4 --threads=3 --bind 0.0.0.0:80 payday.wsgi:application
-    command: gunicorn --bind 0.0.0.0:80 payday.wsgi:application
+    command: gunicorn --workers=4 --threads=3 --bind 0.0.0.0:80 payday.wsgi:application
     volumes:
       - .:/app
     ports:
@@ -13,7 +12,7 @@ services:
       - redis
       - minio
     env_file:
-      - .env
+      - .env.server
 
   worker:
     build: .
@@ -27,7 +26,7 @@ services:
       - redis
       - minio
     env_file:
-      - .env
+      - .env.worker
 
   db:
     image: postgres:latest

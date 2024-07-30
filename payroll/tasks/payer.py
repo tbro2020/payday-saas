@@ -91,10 +91,6 @@ class Payer(Task):
         """
         Iterate over a Django Queryset in chunks using itertools.islice.
         """
-        #iterator = queryset.iterator()
-        #for chunk in iter(lambda: list(islice(iterator, chunk_size)), []):
-        #    yield chunk
-
         offset, total_count = 0, queryset.count()
 
         while offset < total_count:
@@ -116,10 +112,6 @@ class Payer(Task):
             self.generate_items(self.legal_items, payslip, employee)
             payslip = self.refresh_payslip(payslip)
         
-        # update loading state
-        # completed = self.payroll.payslip_set.all().count()
-        #self.update_task_state(meta={'current': completed, 'total': self.max_count})
-
     def generate(self):
         """
         Generate payslips for all filtered employees.
@@ -342,17 +334,5 @@ class Payer(Task):
         result = items_paid / 195
         result = result * hours
         result = result * 1.1818
-
-    """
-    def update_task_state(self, is_last=False, **kwargs):
-        task_id = cache.get(f'payroll_{self.payroll.pk}', None)
-        if not task_id: return
-        self.update_state(**{
-            'task_id': task_id,
-            'state': self.payroll.status,
-            'meta': kwargs.get('meta', {})
-        })
-        if is_last: cache.delete(f'payroll_{self.payroll.pk}')
-    """
 
 app.register_task(Payer())

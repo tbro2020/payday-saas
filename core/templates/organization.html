@@ -6,23 +6,23 @@
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}">
 
-   <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      
-      <title>Payday</title>
-      <link rel="stylesheet" href="{% static 'assets/css/main/app.css' %}">
-      <link rel="stylesheet" href="{% static 'assets/css/main/app-dark.css' %}">
-      <link rel="shortcut icon" href="{% static 'assets/images/logo/favicon.svg' %}" type="image/x-icon">
-      <link rel="shortcut icon" href="{% static 'assets/images/logo/favicon.png' %}" type="image/png">
-      <link rel="stylesheet" href="{% static 'assets/css/shared/iconly.css' %}">
-      <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
-      <style>
-         html{
-            font-size: 13px;
-         }
-      </style>
-   </head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <title>{{ organization.name|default:'PayDay' }}</title>
+        <link rel="stylesheet" href="{% static 'assets/css/main/app.css' %}">
+        <link rel="stylesheet" href="{% static 'assets/css/main/app-dark.css' %}">
+        <link rel="shortcut icon" href="{% static 'assets/images/logo/favicon.svg' %}" type="image/x-icon">
+        <link rel="shortcut icon" href="{% static 'assets/images/logo/favicon.png' %}" type="image/png">
+        <link rel="stylesheet" href="{% static 'assets/css/shared/iconly.css' %}">
+        <script src="{% static 'assets/js/jquery-3.7.0.min.js' %}" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+        <style>
+        html{
+            font-size: 12px;
+        }
+        </style>
+    </head>
 
     <body>
         <script src="assets/static/js/initTheme.js"></script>

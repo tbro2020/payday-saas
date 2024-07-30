@@ -71,8 +71,8 @@ INSTALLED_APPS = [
     "api",
 
     "employee",
-    "leave",
-    "payroll"
+    "payroll",
+    "leave"
 ]
 
 MIDDLEWARE = [
@@ -121,8 +121,13 @@ WSGI_APPLICATION = "payday.wsgi.application"
 
 DATABASES = {'default': None}
 DATABASE_URL = 'sqlite:///db.sqlite3'
+TEST = {'NAME': DATABASE_URL}
 DATABASE_URL = os.getenv('DATABASE_URL', default=DATABASE_URL)
 DATABASES['default'] = dj_database_url.parse(DATABASE_URL)
+
+CONN_MAX_AGE = int(os.getenv('CONN_MAX_AGE', 0))
+DATABASES['default']['CONN_MAX_AGE'] = CONN_MAX_AGE
+DATABASES['default']['TEST'] = TEST
 
 # Redis settings
 REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379')
@@ -222,13 +227,13 @@ EMAIL_PORT = os.getenv('EMAIL_PORT', 1025)
 
 # Django Rest Framework settings
 REST_FRAMEWORK = {
-    #'DEFAULT_AUTHENTICATION_CLASSES': (
-    #    'rest_framework.authentication.SessionAuthentication',
-    #    'rest_framework.authentication.BasicAuthentication',
-    #),
-    #'DEFAULT_PERMISSION_CLASSES': (
-    #    'rest_framework.permissions.IsAuthenticated',
-    #),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
 }
 
 # Django Crispy Forms settings
@@ -236,8 +241,8 @@ CRISPY_TEMPLATE_PACK = 'bootstrap5'
 CRISPY_ALLOWED_TEMPLATE_PACKS = ['bootstrap', 'bootstrap5', 'uni_form']
 
 # Django JSON Widget settings
-JSON_WIDGET_JS = 'https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.0.0/jsoneditor.min.js'
 JSON_WIDGET_CSS = 'https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.0.0/jsoneditor.min.css'
+JSON_WIDGET_JS = 'https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.0.0/jsoneditor.min.js'
 
 # Django Money settings
 DEFAULT_CURRENCY = 'CDF'

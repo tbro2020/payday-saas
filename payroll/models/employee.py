@@ -7,8 +7,6 @@ from core.models.fields import ModelSelect
 from core.models.fields import DateField
 from django.urls import reverse_lazy
 from django.db import models
-
-from employee.models.managers import EmployeeQuerySet
 from core.models import Base
 from random import randint
 
@@ -69,8 +67,6 @@ class Employee(Base):
         editable=False,
         related_name='%(app_label)s_%(class)s_organization'
     )
-
-    objects = EmployeeQuerySet()
 
     list_filter = ('payroll', 'grade', 'direction', 'branch', 'position', 'status', 'date_of_join', 'date_of_birth')
     list_display = ('payroll', 'registration_number', 'grade', 'branch', 'last_name', 'middle_name', 'status')

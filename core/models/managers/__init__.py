@@ -1,2 +1,2 @@
 from .user import UserManager
-from .base import QuerySet
+from .base import CustomManager

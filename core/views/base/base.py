@@ -9,7 +9,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.admin.models import LogEntry
 
 from django.utils.encoding import force_str
+from django.urls import reverse_lazy
 from django.apps import apps
+
+
 
 class BaseView(LoginRequiredMixin, PermissionRequiredMixin, View):
     template_name = None
@@ -19,12 +22,14 @@ class BaseView(LoginRequiredMixin, PermissionRequiredMixin, View):
         return self.action
 
     def get_permission_required(self):
+        if not self.request.user.is_authenticated: return []
         if 'app' not in self.kwargs or 'model' not in self.kwargs: return []
         return [f"{self.kwargs.get('app')}.{i}_{self.kwargs.get('model')}" for i in self.get_action()]
     
     def handle_no_permission(self) -> HttpResponseRedirect:
-        messages.warning(self.request, _('Vous n\'avez pas permission d\'effectuer cette action'))
-        return HttpResponseRedirect(self.request.META.get('HTTP_REFERER'))
+        if self.get_permission_required():
+            messages.warning(self.request, _('Vous n\'avez pas permission d\'effectuer cette action'))
+        return HttpResponseRedirect(self.request.META.get('HTTP_REFERER', reverse_lazy('login')))
 
     def activities(self):
         pk = self.kwargs.get('pk')

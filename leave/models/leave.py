@@ -1,6 +1,5 @@
 from crispy_forms.layout import Layout, Row, Column
 from django.utils.translation import gettext as _
-from django.forms import ValidationError
 from django.db import models
 
 from core.models.fields import ModelSelect, DateField
@@ -11,7 +10,6 @@ from employee.models import Employee
 
 
 class Leave(Base):
-    interim = ModelSelect(Employee, verbose_name=_('remplaçant'), null=True, default=None, on_delete=models.SET_NULL, related_name='interim')
     type_of_leave = models.ForeignKey(TypeOfLeave, verbose_name=_('type de congé'), null=True, default=None, on_delete=models.SET_NULL)
     employee = ModelSelect(Employee, verbose_name=_('employé'), null=True, default=None, on_delete=models.SET_NULL)
 
@@ -40,17 +38,7 @@ class Leave(Base):
     @property
     def available_days(self):
         return self.type_of_leave.max_days_per_year - self.taken
-    
-    def clean(self):
-        available_days = self.available_days
-        if self.days > available_days:
-            raise ValidationError(_('vous ne pouvez pas demander plus de jours que ceux disponibles (Il vous reste %d jour(s))') 
-                                  % (available_days))
-        return super().clean()
 
     class Meta:
         verbose_name = _('congé')
         verbose_name_plural = _('congés')
-
-        #managed = False
-        #db_table = 'leave'

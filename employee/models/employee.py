@@ -19,8 +19,6 @@ from .service import Service
 
 from core.models import Base
 from datetime import date
-
-from employee.models.managers import EmployeeQuerySet
 from random import randint
 
 default_photo = lambda: "place_pics/default_pic.jpg"
@@ -70,8 +68,6 @@ class Employee(Base):
 
     comment = models.TextField(_('commentaire'), blank=True, null=True, default=None)
     status = ModelSelect('employee.Status', verbose_name=_('code d\'activité'), null=True, on_delete=models.SET_NULL, default=None)
-
-    objects = EmployeeQuerySet()
 
     list_filter = ('grade', 'direction', 'branch', 'position', 'status', 'date_of_join', 'date_of_birth')
     list_display = ('registration_number', 'grade', 'branch', 'last_name', 'middle_name', 'status')
