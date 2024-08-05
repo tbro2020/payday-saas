@@ -121,10 +121,12 @@ WSGI_APPLICATION = "payday.wsgi.application"
 
 DATABASES = {'default': None}
 DATABASE_URL = 'sqlite:///db.sqlite3'
+#DATABASE_URL='postgresql://payday:13615c0d20e345681bc1472793e8c055@localhost:6432/payday'
 TEST = {'NAME': DATABASE_URL}
 DATABASE_URL = os.getenv('DATABASE_URL', default=DATABASE_URL)
 DATABASES['default'] = dj_database_url.parse(DATABASE_URL)
 
+print(DATABASE_URL)
 CONN_MAX_AGE = int(os.getenv('CONN_MAX_AGE', 0))
 DATABASES['default']['CONN_MAX_AGE'] = CONN_MAX_AGE
 DATABASES['default']['TEST'] = TEST
