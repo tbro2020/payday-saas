@@ -1,6 +1,7 @@
 services:
   web:
     build: .
+    restart: unless-stopped
     container_name: server
     command: gunicorn --workers=4 --threads=3 --bind 0.0.0.0:80 payday.wsgi:application
     volumes:
@@ -16,7 +17,7 @@ services:
 
   worker:
     build: .
-    restart: always
+    restart: unless-stopped
     container_name: worker
     command: celery -A payday worker -l INFO -E
     volumes:
