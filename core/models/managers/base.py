@@ -5,6 +5,9 @@ from operator import or_
 class CustomQuerySet(models.QuerySet):
     def _all(self, subdomain=None, user=None, *args, **kwargs):
         # Check if required parameters are provided
+        return super().all(*args, **kwargs)
+    
+        """
         if not subdomain or not user:
             return self.none()
 
@@ -47,6 +50,7 @@ class CustomQuerySet(models.QuerySet):
         qs = qs.filter(**filters)
 
         return qs
+        """
 
 class CustomManager(models.Manager):
     def get_queryset(self):
