@@ -69,9 +69,9 @@ class Employee(Base):
     comment = models.TextField(_('commentaire'), blank=True, null=True, default=None)
     status = ModelSelect('employee.Status', verbose_name=_('code d\'activité'), null=True, on_delete=models.SET_NULL, default=None)
 
-    list_filter = ('grade', 'direction', 'branch', 'position', 'status', 'date_of_join', 'date_of_birth')
+    list_filter = ('grade', 'grade__category', 'direction', 'branch', 'position', 'status', 'status__category', 'date_of_join', 'date_of_birth')
     list_display = ('registration_number', 'grade', 'branch', 'last_name', 'middle_name', 'status')
-    search_fields = ('registration_number', )
+    search_fields = ('registration_number',)
 
     inlines = ['employee.child', 'employee.education', 'employee.experience', 'employee.document', 'payroll.specialemployeeitem']
 
