@@ -116,11 +116,28 @@
     </div>
 </div>
 
-<script src="https://unpkg.com/html2pdf.js"></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js"
+	integrity="sha512-MpDFIChbcXl2QgipQrt1VcPHMldRILetapBl5MPCA9Y8r7qvlwx1/Mc9hNTzY+kS5kX6PdoDq41ws1HiVNLdZA=="
+	crossorigin="anonymous"
+	referrerpolicy="no-referrer"
+></script>
+
 <script>
     $(document).ready(function() {
         $('#print-employee-body').on('click', function() {
-            html2pdf().from(document.getElementById('page-content')).set({
+            // Select all elements with the class 'content'
+            var contentElements = $('.tab-pane');
+
+            // Create a temporary container to merge the content
+            var combinedContent = document.createElement('div');
+
+            // Append all selected elements (cloned) to the temporary container
+            contentElements.each(function() {
+                combinedContent.appendChild(this.cloneNode(true));
+            });
+
+            html2pdf().from(combinedContent).set({
                 margin: 1,
                 filename: '{{ obj.registration_number }}.pdf',
                 html2canvas: { scale: 2 },
