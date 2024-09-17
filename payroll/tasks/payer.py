@@ -72,10 +72,7 @@ class Payer(Task):
         Load Excel file into a DataFrame, fill NaN with 0, and convert the first column to string.
         """
         # Load DataFrame from Excel if path exists, otherwise create an empty DataFrame
-        df = pd.read_excel(obj.url, dtype={
-            'matricule': str, 
-            'registration_number': str
-        }) if obj and obj.url else pd.DataFrame()
+        df = pd.read_excel(obj.url, dtype={'matricule': str, 'registration_number': str}) if obj and obj.url else pd.DataFrame()
         
         # Fill NaN values with 0
         df.fillna(0, inplace=True)
@@ -91,8 +88,8 @@ class Payer(Task):
         return df
     
     def get_df_row_from_column_value(self, df, column, value):
-        if not df or column not in df.columns: return pd.DataFrame()
-        return df.loc[df[column] == value] or pd.DataFrame()
+        if df.empty or column not in df.columns: return pd.DataFrame()
+        return df.loc[df[column] == value]
     
     def df_column_sum(self, df, columns):
         if not all(col in df.columns for col in columns): return 0
