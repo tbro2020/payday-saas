@@ -75,12 +75,12 @@ class BaseView(LoginRequiredMixin, PermissionRequiredMixin, View):
         else:
             return _("No changes made.")
 
-    def log(self, model, form, action, formsets=None, change_message=[]):
+    def log(self, model, form, action, change_message=''):
         LogEntry.objects.log_action(
             user_id=self.request.user.id,
             content_type_id=ContentType.objects.get_for_model(model).id,
             object_id=form.instance.pk,
             object_repr=force_str(str(form.instance)),
             action_flag=action,
-            change_message=' '.join(change_message)
+            change_message=change_message
         )
