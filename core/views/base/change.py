@@ -59,7 +59,7 @@ class Change(BaseView):
         form.save()
         [formset.save() for formset in formsets]
 
-        self.log(model, form, action=CHANGE, formsets=formsets)
+        self.log(model, form, action=CHANGE, formsets=formsets, change_message=self.generate_change_message(obj, form.instance))
         messages.add_message(request, messages.SUCCESS,  message=_('Le {model} #{pk} a été mis à jour avec succès').format(**{'model': model._meta.model_name, 'pk': pk}))
 
         next = request.GET.dict().get('next', reverse_lazy('core:list', kwargs={'app': app, 'model': model._meta.model_name}))
