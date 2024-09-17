@@ -40,7 +40,7 @@ class BaseView(LoginRequiredMixin, PermissionRequiredMixin, View):
         content_type = ContentType.objects.get_for_model(model)
         return LogEntry.objects.filter(**{'content_type_id': content_type.id, 'object_id': pk})
     
-    def generate_change_message(old_instance, new_instance):
+    def generate_change_message(self, old_instance, new_instance):
         """
         Compares the field values of two model instances and generates a change message.
         
