@@ -92,7 +92,7 @@ class Payer(Task):
     
     def get_df_row_from_column_value(self, df, column, value):
         if not df or column not in df.columns: return pd.DataFrame()
-        return df.loc[df[column] == value]
+        return df.loc[df[column] == value] or pd.DataFrame()
     
     def df_column_sum(self, df, columns):
         if not all(col in df.columns for col in columns): return 0
