@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from core.views import BaseView
 
-from employee.models import Employee, Grade
+from employee.models import Employee
 import pandas as pd
 
 from django.utils.text import slugify
@@ -13,8 +13,7 @@ class Canvas(BaseView):
         qs = Employee.objects.filter(**query) \
             .values('registration_number', 'last_name', 'middle_name', 'branch__name', 'grade__name')
         
-        grades = Grade.objects.all().values_list('name', flat=True)
-        columns = ['absence', 'mise à pied', 'grade.interim', 'nbre.jr.interm', 'grade.com.', 'nbre.jr.com']
+        columns = ['absence', 'mise à pied', 'absence.justifiee', 'grade.interim', 'nbre.jr.interm', 'grade.com.', 'nbre.jr.com']
         field_no_numbers = ['grade.interim', 'grade.com.']
 
         data = [{

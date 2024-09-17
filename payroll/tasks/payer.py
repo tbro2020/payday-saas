@@ -47,7 +47,7 @@ class Payer(Task):
         self.additional_items = self.load_excel(self.payroll.additional_items)
         if not self.additional_items.empty:
             self.additional_items = self.re_base_additional_element_column(self.additional_items)
-            
+        
         self.legal_items = LegalItem.objects.all()
         self.items = Item.objects.exclude(Q(condition='0') | Q(condition__isnull=True)).order_by('code')
 
@@ -86,6 +86,9 @@ class Payer(Task):
         
         # Return the DataFrame
         return df
+    
+    def get_df_row_from_column_value(self, df, column, value):
+        return df.loc[df[column] == value]
     
     def queryset_iterator(self, queryset, chunk_size=100):
         """
