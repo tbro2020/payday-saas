@@ -126,22 +126,29 @@
 <script>
     $(document).ready(function() {
         $('#print-employee-body').on('click', function() {
-            // Select all elements with the class 'content'
-            var contentElements = $('.tab-pane');
-
-            // Create a temporary container to merge the content
+            // Create a temporary container to hold all content
             var combinedContent = document.createElement('div');
 
-            // Append all selected elements (cloned) to the temporary container
-            contentElements.each(function() {
-                combinedContent.appendChild(this.cloneNode(true));
+            // Select all elements with the class 'content' and append them to the temporary container
+            $('.tab-pane').each(function() {
+                // Create a wrapper div for each .content element to preserve styles and structure
+                var wrapper = document.createElement('div');
+                wrapper.appendChild(this.cloneNode(true)); // Clone the .content div and append to wrapper
+                combinedContent.appendChild(wrapper); // Append the wrapper to combinedContent
+            });
+
+            $('.page-footer').each(function() {
+                // Create a wrapper div for each .content element to preserve styles and structure
+                var wrapper = document.createElement('div');
+                wrapper.appendChild(this.cloneNode(true)); // Clone the .content div and append to wrapper
+                combinedContent.appendChild(wrapper); // Append the wrapper to combinedContent
             });
 
             html2pdf().from(combinedContent).set({
                 margin: 1,
                 filename: '{{ obj.registration_number }}.pdf',
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+                // html2canvas: { scale: 1 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
             }).save();
         });
     });
