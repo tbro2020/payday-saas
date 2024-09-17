@@ -72,7 +72,10 @@ class Payer(Task):
         Load Excel file into a DataFrame, fill NaN with 0, and convert the first column to string.
         """
         # Load DataFrame from Excel if path exists, otherwise create an empty DataFrame
-        df = pd.read_excel(obj.url, dtype={'matricule': str}) if obj and obj.url else pd.DataFrame()
+        df = pd.read_excel(obj.url, dtype={
+            'matricule': str, 
+            'registration_number': str
+        }) if obj and obj.url else pd.DataFrame()
         
         # Fill NaN values with 0
         df.fillna(0, inplace=True)
