@@ -88,7 +88,12 @@ class Payer(Task):
         return df
     
     def get_df_row_from_column_value(self, df, column, value):
+        if not df or column not in df.columns: return pd.DataFrame()
         return df.loc[df[column] == value]
+    
+    def df_column_sum(self, df, columns):
+        if not all(col in df.columns for col in columns): return 0
+        return df.apply(lambda row: sum(row[col] for col in columns), axis=1).sum()
     
     def queryset_iterator(self, queryset, chunk_size=100):
         """

@@ -9,7 +9,7 @@ import json
 
 class Canvas(BaseView):
     def get(self, request):
-        query = {k:v for k,v in request.GET.dict().items() if v}
+        query = {k:v.split(',') if '__in' in k else v  for k,v in request.GET.dict().items() if v}
         qs = Employee.objects.filter(**query) \
             .values('registration_number', 'last_name', 'middle_name', 'branch__name', 'grade__name')
         
