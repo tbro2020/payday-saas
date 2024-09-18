@@ -8,3 +8,4 @@ from .payslip import Payslip
 
 from .salary_advance import AdvanceSalary, AdvanceSalaryPayment
 from .employee import Employee
+from .claim import Claim

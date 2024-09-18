@@ -1,6 +1,6 @@
 from crispy_forms.layout import Layout, Row, Column, Fieldset
-from django.utils.translation import gettext as _
 from core.models.fields import ModelSelect, DateField
+from django.utils.translation import gettext as _
 
 from core.models import Base
 from django.db import models
