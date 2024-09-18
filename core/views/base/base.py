@@ -65,6 +65,8 @@ class BaseView(LoginRequiredMixin, PermissionRequiredMixin, View):
 
             # If the field value has changed, append a message
             if old_value != new_value:
+                old_value = getattr(old_instance, field, old_value)
+                new_value = getattr(new_instance, field, new_value)
                 change_messages.append(
                     _(f"Field '{field}' changed from '{old_value}' to '{new_value}'.")
                 )

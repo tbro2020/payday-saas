@@ -9,6 +9,7 @@ from django.apps import apps
 from core.forms import modelform_factory, InlineFormSetHelper
 from django.contrib.admin.models import CHANGE
 from .base import BaseView
+import copy
 
 
 class Change(BaseView):
@@ -42,6 +43,7 @@ class Change(BaseView):
         model = apps.get_model(app, model)
         obj = get_object_or_404(model, pk=pk)
                 
+        instance = copy.copy(obj)
         fields = getattr(model, 'layout', '__all__')
         fields = [field.name for field in fields.get_field_names()] if isinstance(fields, Layout) else fields
         
@@ -59,7 +61,7 @@ class Change(BaseView):
         form.save()
         [formset.save() for formset in formsets]
 
-        self.log(model, form, action=CHANGE, change_message=self.generate_change_message(obj, form.instance))
+        self.log(model, form, action=CHANGE, change_message=self.generate_change_message(instance, form.instance))
         messages.add_message(request, messages.SUCCESS,  message=_('Le {model} #{pk} a été mis à jour avec succès').format(**{'model': model._meta.model_name, 'pk': pk}))
 
         next = request.GET.dict().get('next', reverse_lazy('core:list', kwargs={'app': app, 'model': model._meta.model_name}))
