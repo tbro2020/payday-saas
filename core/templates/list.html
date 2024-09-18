@@ -201,4 +201,47 @@
     });
 </script>
 
+{% comment %}
+ <script>
+    $(function() {
+        $("#check-all-id").change(function() {
+            let value = $(this).is(":checked");
+            $("input[type='checkbox']").attr("checked", value);
+        });
+
+        $(".btn-list-action").click(function(){
+            let checked = $('input:checked').map((_, el) => el.value).get();
+            if(checked.length == 0) return;
+
+            let url = $(this).data('href');
+        });
+
+        $('input[type="checkbox"]').change(function() {
+            let checked = $('input:checked').map((_, el) => el.value).get();
+            if(checked.length > 0) {
+                $(".dropdown-toggle").attr("disabled", false);
+            } else {
+                $(".dropdown-toggle").attr("disabled", true);
+            }
+            let selected = $('input:checked').filter((_, el) => el.value !== "on").map((_, el) => el.value).get();
+
+            let href = $('#exporter-btn').attr('href').split("?")[0] + "?";
+            $('#exporter-btn').attr('href', href+"pk__in=" + selected.join(","));
+        });
+
+        $('fieldset').has('input[type="date"]').each(function() {
+            var legend = $(this).find('legend');
+            if (legend.length) legend.replaceWith($('<label>').html(legend.html()));
+        });
+
+        $("#filter-form").submit(function() {
+            $(this).find(':input, select').filter(function() {
+               return !this.value;
+            }).prop("disabled", true);
+            return true;
+        });
+    });
+</script>
+{% endcomment %}
+
 {% endblock %}
