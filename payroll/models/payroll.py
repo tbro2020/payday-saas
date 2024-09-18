@@ -56,6 +56,7 @@ class Payroll(Base):
 
     layout = Layout(
         'name',
+        Column('employee_status', css_class='col-md-12 col-sm-12'),
         Column(
             FieldWithButtons(
                 Field("canvas"), 
@@ -79,7 +80,6 @@ class Payroll(Base):
             ),
             css_class='col-md-12 col-sm-12'
         ),
-        Column('employee_status', css_class='col-md-12 col-sm-12'),
         'metadata'
     )
 

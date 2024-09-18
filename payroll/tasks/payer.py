@@ -87,7 +87,7 @@ class Payer(Task):
         # Return the DataFrame
         return df
     
-    def get_df_row_from_column_value(self, df, column, value):
+    def _get_df_row_from_column_value(self, df, column, value):
         if df.empty or column not in df.columns: return pd.DataFrame()
         return df.loc[df[column] == value]
     
@@ -95,6 +95,9 @@ class Payer(Task):
         if not all(col in df.columns for col in columns): return 0
         return df.apply(lambda row: sum(row[col] for col in columns), axis=1).sum()
     
+    def get_canvas_of(self, registration_number):
+        return self._get_df_row_from_column_value(self.canvas, 'registration_number', registration_number)
+
     def queryset_iterator(self, queryset, chunk_size=100):
         """
         Iterate over a Django Queryset in chunks using itertools.islice.
@@ -158,7 +161,7 @@ class Payer(Task):
         Safely evaluate the formulas for employee and employer.
         """
         try:
-            payroll = self.payroll
+            canvas = self.get_canvas_of(employee.registration_number)
             time = float(eval(item.time, locals()) or 0) if hasattr(item, 'time') else 0
             formula_qp_employee = abs(round(eval(item.formula_qp_employee, locals()), 2)) * item.type_of_item
             formula_qp_employer = abs(round(eval(item.formula_qp_employer, locals()), 2)) * item.type_of_item
