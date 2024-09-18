@@ -22,7 +22,7 @@
                             {% trans "Documents" %}
                         </button>
                         <div class="dropdown-menu" aria-labelledby="dropdownDocumentBtn">
-                            <a id="print-employee-body" class="dropdown-item btn-list-action" href="#">{% trans 'Imprimer' %}</a>
+                            <a class="dropdown-item btn-list-action" href="{% url 'employee:sheet' obj.pk %}">{% trans 'Imprimer' %}</a>
                             {% for document in self.documents %}
                                 <a class="dropdown-item btn-list-action" href="{% url 'core:print' document.id 'employee' 'employee' obj.pk %}">{{ document.name }}</a>
                             {% endfor %}

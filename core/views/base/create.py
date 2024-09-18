@@ -69,7 +69,7 @@ class Create(BaseView):
                 obj.save()
 
         # Log
-        self.log(model, form, action=ADDITION, formsets=formsets)
+        self.log(model, form, action=ADDITION, change_message=_('Ajout de {model} #{pk}').format(**{'model': model._meta.verbose_name, 'pk': form.instance.pk}))
         
         messages.add_message(request, messages.SUCCESS, message=_('Le {model} a été créé avec succès').format(**{'model': model._meta.model_name}))
         next = request.GET.dict().get('next', reverse_lazy('core:list', kwargs={'app': app, 'model': model._meta.model_name}))
