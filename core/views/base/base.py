@@ -35,7 +35,10 @@ class BaseView(LoginRequiredMixin, PermissionRequiredMixin, View):
     def documents(self):
         _model = apps.get_model('core', 'template')
         app, model = self.kwargs['app'], self.kwargs['model']
-        return _model.objects.filter(content_type__app_label=app, content_type__model=model)
+        return _model.objects.filter(**{
+            'content_type__app_label': app,
+            'content_type__model': model
+        }).values('id', 'name')
 
     def logs(self):
         pk = self.kwargs.get('pk')
@@ -87,7 +90,7 @@ class BaseView(LoginRequiredMixin, PermissionRequiredMixin, View):
 
     def log(self, model, form, action, change_message):
         if not change_message: return
-        LogEntry.objects.log_action(
+        return LogEntry.objects.log_action(
             user_id=self.request.user.id,
             content_type_id=ContentType.objects.get_for_model(model).id,
             object_id=form.instance.pk,
