@@ -3,6 +3,8 @@
 {% load static %}
 {% load qr_code %}
 {% get_current_language as LANGUAGE_CODE %}
+
+{% with self.organization as organization %}
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}">
   <head>
@@ -22,9 +24,6 @@
       header{
         margin-bottom: 25px !important;
       }
-      footer{
-        margin-top: 25px !important;
-      }
       .watermark{
         z-index: -1 !important;
         position: fixed !important;
@@ -36,29 +35,31 @@
       .watermark-title-text{
         font-size: 5rem !important;
       }
+      @media print {
+        .page-break {page-break-after: always;}
+      }
     </style>
   </head>
 
-  {% with self.organization as organization %}
+  
   <body class="container-fluid">
-
-    <header>
-      {% static 'assets/images/logo/logo.svg' as logo_url %}
-      <div class="row">
-        <div class="col">
-          <img src="{{ request.organization.logo.url|default:logo_url }}" alt="Logo" class="float-start" width="128"> 
+    {% for template in templates %}
+    <div class="page-break">
+      <header>
+        {% static 'assets/images/logo/logo.svg' as logo_url %}
+        <div class="row">
+          <div class="col">
+            <img src="{{ request.organization.logo.url|default:logo_url }}" alt="Logo" class="float-start" width="128"> 
+          </div>
+          <div class="col text-end" style="font-size: 12px;">
+            {% url 'core:change' app model|getattr:'_meta'|getattr:'model_name' obj.pk as qr_url %}
+            {% qr_from_text qr_url size="T" %}
+          </div>
         </div>
-        <div class="col text-end" style="font-size: 12px;">
-          {% url 'core:change' app model|getattr:'_meta'|getattr:'model_name' obj.pk as qr_url %}
-          {% qr_from_text qr_url size="T" %}
-        </div>
-      </div>
-    </header>
-
-    {{ template|safe }}
-    
-    <footer class="fw-bold" style="font-size: 12px;">
-    </footer>
-  </body>
-  {% endwith %}
+      </header>
+      {{ template|safe }}
+    </div>
+    {% endfor %}
+  </body>  
 </html>
+{% endwith %}

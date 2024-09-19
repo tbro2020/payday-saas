@@ -22,7 +22,7 @@ urlpatterns = [
     path('modal/change/<str:app>/<str:model>/<str:pk>', ChangeModal.as_view(), name='change-modal'),
     path('modal/delete/<str:app>/<str:model>/<str:pk>', DeleteModal.as_view(), name='delete-modal'),
     
-    path('print/<str:document>/<str:app>/<str:model>/<str:pk>', Print.as_view(), name='print'),
+    path('print/<str:document>/<str:app>/<str:model>', Print.as_view(), name='print'),
     path('exporter/<str:app>/<str:model>', Exporter.as_view(), name='exporter'),
 
     path('canvas/download/<str:pk>', Canvas.as_view(), name='canvas-download'),

@@ -36,7 +36,7 @@
                         </button>
                         <div class="dropdown-menu" aria-labelledby="dropdownDocumentBtn">
                             {% for document in self.documents %}
-                                <a class="dropdown-item btn-list-action" href="{% url 'core:print' document.id 'payroll' 'payslip' obj.pk %}">{{ document.name }}</a>
+                                <a class="dropdown-item btn-list-action" href="{% url 'core:print' document.id 'payroll' 'payslip' %}?pk={{ obj.pk }}">{{ document.name }}</a>
                             {% endfor %}
                         </div>
                         <a href="{% url 'core:delete' 'payroll' 'payslip' obj.pk %}?next={% url 'payroll:payslips' obj.payroll.pk %}" class="btn btn-light-danger">{% trans 'Supprimer' %}</a>

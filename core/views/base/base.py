@@ -31,14 +31,22 @@ class BaseView(LoginRequiredMixin, PermissionRequiredMixin, View):
         if self.get_permission_required():
             messages.warning(self.request, _('Vous n\'avez pas permission d\'effectuer cette action'))
         return HttpResponseRedirect(self.request.META.get('HTTP_REFERER', reverse_lazy('login')))
+    
+    def documents(self):
+        _model = apps.get_model('core', 'template')
+        app, model = self.kwargs['app'], self.kwargs['model']
+        return _model.objects.filter(content_type__app_label=app, content_type__model=model)
 
-    def activities(self):
+    def logs(self):
         pk = self.kwargs.get('pk')
         app = self.kwargs.get('app')
         model = self.kwargs.get('model')
         model = apps.get_model(app, model_name=model)
         content_type = ContentType.objects.get_for_model(model)
-        return LogEntry.objects.filter(**{'content_type_id': content_type.id, 'object_id': pk})
+        return LogEntry.objects.filter(**{
+            'content_type_id': content_type.id, 
+            'object_id': pk
+        }).values('change_message', 'action_time')
     
     def generate_change_message(self, old_instance, new_instance):
         """

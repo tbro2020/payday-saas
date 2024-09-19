@@ -82,7 +82,7 @@
                             </button>
                             <div class="dropdown-menu" aria-labelledby="dropdownDocumentBtn">
                                 {% for document in self.documents %}
-                                    <a target="_blank" class="dropdown-item btn-list-action" href="{% url 'core:print' document.id app model|getattr:'_meta'|getattr:'model_name' obj.pk %}">{{ document.name }}</a>
+                                    <a target="_blank" class="dropdown-item btn-list-action" href="{% url 'core:print' document.id app model|getattr:'_meta'|getattr:'model_name' %}?pk={{ obj.pk }}">{{ document.name }}</a>
                                 {% endfor %}
                             </div>
                         </span>

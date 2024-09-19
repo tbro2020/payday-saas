@@ -19,18 +19,16 @@
 
                 <div class="col text-end">
                     <div class="btn-group mb-1">
-                        {% comment %}<div class="dropdown">
-                            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Action(s)
-                            </button>
-                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                {% for action in self.get_queryset_actions %}
-                                    <a class="dropdown-item btn-list-action" data-href="{% url 'core:list-action' app model|getattr:'_meta'|getattr:'model_name' action.name %}">{{ action.title|title }}</a>
-                                {% endfor %}
-                            </div>
-                        </div>{% endcomment %}
+                        <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownDocumentBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            {% trans "Documents" %}
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownDocumentBtn">
+                            {% for document in self.documents %}
+                                <a target="_blank" class="dropdown-item btn-actor" href="{% url 'core:print' document.id app model|getattr:'_meta'|getattr:'model_name' %}">{{ document.name }}(s)</a>
+                            {% endfor %}
+                        </div>
                         <a href="{% url 'core:create' app model|getattr:'_meta'|getattr:'model_name' %}" class="btn btn-light-success">{% trans 'Ajouter' %}</a>
-                        <a href="{% url 'core:exporter' app model|getattr:'_meta'|getattr:'model_name' %}?{{ request.GET.urlencode }}" class="btn btn-light-primary" id="exporter-btn">{% trans 'Exporter' %}</a>
+                        <a href="{% url 'core:exporter' app model|getattr:'_meta'|getattr:'model_name' %}?{{ request.GET.urlencode }}" class="btn btn-light-primary btn-actor">{% trans 'Exporter' %}</a>
                     </div>
                 </div>
             </div>
@@ -53,7 +51,7 @@
                         <table class="table table-striped">
                             <thead>
                                 <tr class="text-uppercase">
-                                    <th><input type="checkbox" class="form-check-input" id="check-all-id"/></th>
+                                    <th><input type="checkbox" class="form-check-input" id="master-checkbox"/></th>
                                     {% for field in list_display %}
                                         <th>{{ field.verbose_name }}</th>
                                     {% empty %}
@@ -162,35 +160,35 @@
 
 <script>
     $(function() {
-        $("#check-all-id").change(function() {
+        $("#master-checkbox").change(function() {
             let value = $(this).is(":checked");
             $("input[type='checkbox']").attr("checked", value);
         });
 
-        $(".btn-list-action").click(function(){
+        /* $(".btn-actor").click(function(){
             let checked = $('input:checked').map((_, el) => el.value).get();
             if(checked.length == 0) return;
-
             let url = $(this).data('href');
-        });
+        }); */
 
         $('input[type="checkbox"]').change(function() {
             let checked = $('input:checked').map((_, el) => el.value).get();
-            if(checked.length > 0) {
-                $(".dropdown-toggle").attr("disabled", false);
-            } else {
-                $(".dropdown-toggle").attr("disabled", true);
-            }
             let selected = $('input:checked').filter((_, el) => el.value !== "on").map((_, el) => el.value).get();
 
-            let href = $('#exporter-btn').attr('href').split("?")[0] + "?";
-            $('#exporter-btn').attr('href', href+"pk__in=" + selected.join(","));
+            $('.btn-actor').each(function() {
+                let url = $(this).attr('href').split("?")[0] + "?";
+                if(selected.length > 0){
+                    $(this).attr('href', url+"pk__in=" + selected.join(","));
+                }else{
+                    $(this).attr('href', url);
+                }
+            });
         });
 
-        $('fieldset').has('input[type="date"]').each(function() {
+        /* $('fieldset').has('input[type="date"]').each(function() {
             var legend = $(this).find('legend');
             if (legend.length) legend.replaceWith($('<label>').html(legend.html()));
-        });
+        }); */
 
         $("#filter-form").submit(function() {
             $(this).find(':input, select').filter(function() {
@@ -200,48 +198,4 @@
         });
     });
 </script>
-
-{% comment %}
- <script>
-    $(function() {
-        $("#check-all-id").change(function() {
-            let value = $(this).is(":checked");
-            $("input[type='checkbox']").attr("checked", value);
-        });
-
-        $(".btn-list-action").click(function(){
-            let checked = $('input:checked').map((_, el) => el.value).get();
-            if(checked.length == 0) return;
-
-            let url = $(this).data('href');
-        });
-
-        $('input[type="checkbox"]').change(function() {
-            let checked = $('input:checked').map((_, el) => el.value).get();
-            if(checked.length > 0) {
-                $(".dropdown-toggle").attr("disabled", false);
-            } else {
-                $(".dropdown-toggle").attr("disabled", true);
-            }
-            let selected = $('input:checked').filter((_, el) => el.value !== "on").map((_, el) => el.value).get();
-
-            let href = $('#exporter-btn').attr('href').split("?")[0] + "?";
-            $('#exporter-btn').attr('href', href+"pk__in=" + selected.join(","));
-        });
-
-        $('fieldset').has('input[type="date"]').each(function() {
-            var legend = $(this).find('legend');
-            if (legend.length) legend.replaceWith($('<label>').html(legend.html()));
-        });
-
-        $("#filter-form").submit(function() {
-            $(this).find(':input, select').filter(function() {
-               return !this.value;
-            }).prop("disabled", true);
-            return true;
-        });
-    });
-</script>
-{% endcomment %}
-
 {% endblock %}
