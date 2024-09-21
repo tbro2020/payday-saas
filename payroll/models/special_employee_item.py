@@ -30,9 +30,7 @@ class SpecialEmployeeItem(Base):
 
     @property
     def name(self):
-        return self.employee.name
-    
-    layout = Layout('employee', 'item')
+        return self.employee.name + '/' + self.item.name
 
     class Meta:
         verbose_name = _('element special pour l\'employé')
