@@ -6,11 +6,11 @@ from core.models.fields import ModelSelect
 from core.models import Base
 
 class SpecialEmployeeItem(Base):
+    amount_qp_employee = models.FloatField(_('montant qp employé'), help_text=_('laisser vide pour utiliser la formule de l\'element'), default=None, null=True, blank=True)
     employee = ModelSelect('employee.Employee', verbose_name=_('employee'), null = True, on_delete = models.SET_NULL)
     item = ModelSelect('payroll.Item', verbose_name=_('element de paie'), null = True, on_delete = models.SET_NULL)
-    condition = models.CharField(_('condition'), max_length=255, default='1')
 
-    inline_form_fields = ('employee', 'item', 'condition')
+    inline_form_fields = ('employee', 'item', 'amount_qp_employee')
     list_display = ('id', 'employee', 'item')
 
     @property

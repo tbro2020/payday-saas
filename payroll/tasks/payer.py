@@ -119,8 +119,8 @@ class Payer(Task):
             self.generate_items(self.items, payslip, employee)
 
             # calculate special items of the employee
-            _items = employee.specialemployeeitem.filter(condition='1').values_list('item', flat=True)
-            self.generate_items(Item.objects.filter(pk__in=_items), payslip, employee, condition=False)
+            _items = employee.specialemployeeitem.all().select_related('item')
+            self.generate_items(_items, payslip, employee, condition=False)
 
             payslip = self.refresh_payslip(payslip)
             
@@ -169,6 +169,7 @@ class Payer(Task):
         """
         try:
             canvas = self.get_canvas_of(employee.registration_number)
+            working_days_per_month = getattr(employee, 'working_days_per_month', 26)
             time = float(eval(item.time, locals()) or 0) if hasattr(item, 'time') else 0
             formula_qp_employee = abs(round(eval(item.formula_qp_employee, locals()), 2)) * item.type_of_item
             formula_qp_employer = abs(round(eval(item.formula_qp_employer, locals()), 2)) * item.type_of_item
@@ -242,10 +243,17 @@ class Payer(Task):
         """
         item_to_pay_queryset = []
         for item in items:
+            amount_qp_employee = 0
+            if isinstance(item, SpecialEmployeeItem):
+                amount_qp_employee, item = item.amount_qp_employee, item.item
             try:
                 if condition:
                     if not eval(item.condition, locals()): continue
-                time, qpe, qpp = self.evaluate_formulas(item, employee, payslip, item_to_pay_queryset)
+                
+                time, qpe, qpp = (0, amount_qp_employee, 0)
+                if not amount_qp_employee:
+                    time, qpe, qpp = self.evaluate_formulas(item, employee, payslip, item_to_pay_queryset)
+                
                 if int(qpe) == 0 and int(qpp) == 0: continue
                 item_to_pay_queryset.append(ItemPaid(
                     code=item.code,
