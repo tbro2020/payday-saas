@@ -82,7 +82,7 @@
                             </button>
                             <div class="dropdown-menu" aria-labelledby="dropdownDocumentBtn">
                                 {% for document in self.documents %}
-                                    <a target="_blank" class="dropdown-item btn-list-action" href="{% url 'core:print' document.id app model|getattr:'_meta'|getattr:'model_name' %}?pk={{ obj.pk }}">{{ document.name }}</a>
+                                    <a target="_blank" class="dropdown-item btn-actor" href="{% url 'core:print' document.id app model|getattr:'_meta'|getattr:'model_name' %}?pk={{ obj.pk }}">{{ document.name }}</a>
                                 {% endfor %}
                             </div>
                         </span>
@@ -165,6 +165,7 @@
                                 <table class="table table-striped">
                                     <thead>
                                         <tr class="text-uppercase">
+                                            <th><input type="checkbox" class="form-check-input" id="master-checkbox"/></th>
                                             <th>{% trans 'Matricule' %}</th>
                                             <th>{% trans 'Full name' %}</th>
                                             <th>{% trans 'Net' %}</th>
@@ -174,7 +175,8 @@
                 
                                     <tbody>
                                         {% for obj in qs %}
-                                        <tr>
+                                        <tr data-id="{{ obj.id }}">
+                                            <td><input type="checkbox" class="form-check-input" value="{{ obj.pk }}" /></td>
                                             <td>{{ obj.employee.registration_number }}</td>
                                             <td>{{ obj.employee.last_name }} {{ obj.employee.middle_name }}</td>
                                             <td>{{ obj.net|intcomma }}</td>
@@ -248,7 +250,8 @@
 <script>setTimeout(() => window.location.reload(1), 5000)</script>
 {% endif %}
 
-<script>
+{% comment %}
+ <script>
     $(document).ready(function() {
         $('input[id*="date"]').attr('type', 'month');
         $("#filter-form").submit(function() {
@@ -259,4 +262,41 @@
         });
     });
 </script>
+{% endcomment %}
+
+<script>
+    $(function() {
+        $("#master-checkbox").change(function() {
+            let value = $(this).is(":checked");
+            $("input[type='checkbox']").attr("checked", value);
+        });
+
+        $('input[type="checkbox"]').change(function() {
+            let checked = $('input:checked').map((_, el) => el.value).get();
+            let selected = $('input:checked').filter((_, el) => el.value !== "on").map((_, el) => el.value).get();
+
+            $('.btn-actor').each(function() {
+                let url = $(this).attr('href').split("?")[0] + "?";
+                if(selected.length > 0){
+                    $(this).attr('href', url+"pk__in=" + selected.join(","));
+                }else{
+                    $(this).attr('href', url);
+                }
+            });
+        });
+
+        /* $('fieldset').has('input[type="date"]').each(function() {
+            var legend = $(this).find('legend');
+            if (legend.length) legend.replaceWith($('<label>').html(legend.html()));
+        }); */
+
+        $("#filter-form").submit(function() {
+            $(this).find(':input, select').filter(function() {
+               return !this.value;
+            }).prop("disabled", true);
+            return true;
+        });
+    });
+</script>
+
 {% endblock %}
