@@ -14,6 +14,7 @@ class SpecialEmployeeItem(Base):
 
     inline_form_fields = ('employee', 'item', 'amount_qp_employee', 'amount_qp_employer')
     list_display = ('id', 'employee', 'item')
+    list_filter = ('item', 'employee__status')
 
     @property
     def name(self):

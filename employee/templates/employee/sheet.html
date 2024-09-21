@@ -215,7 +215,7 @@
             <td>Meta</td>
             <td>
                 {% for k, v in obj.metadata.items %}
-                <strong>{{ k }}</strong>: {{ v }}<br>
+                <strong>{{ k }}</strong>: {{ v|default:'N/A' }}<br>
                 {% empty %}
                 N/A
                 {% endfor %}
