@@ -16,7 +16,7 @@ class SpecialEmployeeItem(Base):
                     'item__code', 'item__name')
     inline_form_fields = ('employee', 'item', 'amount_qp_employee', 'amount_qp_employer')
     
-    list_filter = ('item', 'employee__status')
+    list_filter = ('item', 'employee__status', 'created_at')
     list_display = ('id', 'employee', 'item')
 
     layout = Layout(
