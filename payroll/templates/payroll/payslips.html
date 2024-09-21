@@ -83,9 +83,9 @@
                             <div class="dropdown-menu" aria-labelledby="dropdownDocumentBtn">
                                 {% for document in self.documents %}
                                     {% if document.content_type__model == 'payroll' %}
-                                    <a target="_blank" class="dropdown-item" href="{% url 'core:print' document.id app model|getattr:'_meta'|getattr:'model_name' %}?pk={{ obj.pk }}">{{ document.name }}</a>
+                                    <a target="_blank" class="dropdown-item" href="{% url 'core:print' document.id app document.content_type__model %}?pk={{ obj.pk }}">{{ document.name }}</a>
                                     {% else %}
-                                    <a target="_blank" class="dropdown-item btn-actor" href="{% url 'core:print' document.id app model|getattr:'_meta'|getattr:'model_name' %}">{{ document.name }}</a>
+                                    <a target="_blank" class="dropdown-item btn-actor" href="{% url 'core:print' document.id app document.content_type__model %}">{{ document.name }}</a>
                                     {% endif %}
                                 {% endfor %}
                             </div>
