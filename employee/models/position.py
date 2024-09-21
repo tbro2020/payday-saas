@@ -6,10 +6,10 @@ from django.db import models
 
 class Position(Base):
     name = models.CharField(verbose_name=_('nom'), max_length=100)
+    working_days_per_month = models.IntegerField(verbose_name=_('jours de travail par mois'), default=30)
 
-    layout = Layout('name')
-    search_fields = ('name')
-    list_display = ('id', 'name')
+    layout = Layout('name', 'working_days_per_month')
+    list_display = ('id', 'name', 'working_days_per_month')
 
     class Meta:
         verbose_name = _('poste')

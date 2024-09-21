@@ -79,7 +79,7 @@ class BaseView(LoginRequiredMixin, PermissionRequiredMixin, View):
                 old_value = getattr(old_instance, field, old_value)
                 new_value = getattr(new_instance, field, new_value)
                 change_messages.append(
-                    _(f"Field '{field}' changed from '{old_value}' to '{new_value}'.")
+                    _(f"Le champ '{new_instance._meta.get_field(field).verbose_name}' est passé de '{old_value}' à '{new_value}'.")
                 )
 
         # Join all change messages into a single string

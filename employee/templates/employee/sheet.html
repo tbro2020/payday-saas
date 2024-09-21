@@ -1,146 +1,242 @@
-{% load core %}
-{% load i18n %}
-{% load static %}
-{% load mathfilters %}
-{% load crispy_forms_tags %}
-{% load crispy_forms_filters %}
-
-<html>
-
+<!DOCTYPE html>
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <title>{{ obj.full_name|slugify }}</title>
-    <link rel="stylesheet" href="{% static 'assets/css/main/app.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/main/app-dark.css' %}">
-    <link rel="shortcut icon" href="{% static 'assets/images/logo/favicon.svg' %}" type="image/x-icon">
-    <link rel="shortcut icon" href="{% static 'assets/images/logo/favicon.png' %}" type="image/png">
-    <link rel="stylesheet" href="{% static 'assets/css/shared/iconly.css' %}">
-    <script src="{% static 'assets/extensions/apexcharts/apexcharts.min.js' %}"></script>
-    <script src="{% static 'assets/js/jquery-3.7.0.min.js' %}" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-print-css/css/bootstrap-print.min.css" media="print">
-
+    <title>Profil-Employé-{{ obj.full_name }}</title>
     <style>
-       html{
-          font-size: 12px;
-       }
-       @media print {
-            .navbar, .footer, .ads {
-                display: none; /* Hide navigation bar, footer, and ads */
-            }
-            .container {
-                width: 100%; /* Ensure the container takes full width */
-            }
-        }      
-        @media print {
-            .page-break {
-                page-break-before: always;
-            }
-        }        
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 8px 12px;
+            border: 1px solid #000;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .photo {
+            width: 100px;
+        }
+        .section-title {
+            background-color: #333;
+            color: #fff;
+            text-align: left;
+            padding: 10px;
+        }
+        .profile-photo {
+            text-align: center;
+        }
     </style>
- </head>
+</head>
+<body>
 
-<body class="container-fluid bg-white">
-    <!-- Photo & Attendance Table -->
-    <div class="card mb-0">
-        <div class="card-header">
-            <h3>{{ obj.full_name }}</h3>
-        </div>
-        <div class="card-body">
-            <div class="row">
+    <h1>Profil de l'employé <small>{{ obj.full_name }}</small></h1>
+
+    <!-- Photo Section -->
+    <table>
+        <tr>
+            <th colspan="2" class="section-title">Informations Générales</th>
+        </tr>
+        <tr>
+            <td>Photo</td>
+            <td class="profile-photo">
                 {% if obj.photo %}
-                <div class="col-2">
-                    <img class="img-thumbnail" src="{{ obj.photo.url }}" />
-                    <h2 class="mt-3">{{ obj.short_name }}</h2>
-                </div>
+                <img src="{{ obj.photo.url|default:'-' }}" alt="{{ obj.full_name|slugify }}" class="photo">
+                {% else %}
+                N/A
                 {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <td>Nom</td>
+            <td>{{ obj.last_name }}</td>
+        </tr>
+        <tr>
+            <td>Prénom</td>
+            <td>{{ obj.first_name }}</td>
+        </tr>
+        <tr>
+            <td>Post-nom</td>
+            <td>{{ obj.middle_name|default:'N/A' }}</td>
+        </tr>
+        <tr>
+            <td>Date de naissance</td>
+            <td>{{ obj.date_of_birth }}</td>
+        </tr>
+        <tr>
+            <td>Genre</td>
+            <td>{{ obj.get_gender_display|default:'N/A' }}</td>
+        </tr>
+        <tr>
+            <td>État civil</td>
+            <td>{{ obj.get_marital_status_display|default:'N/A' }}</td>
+        </tr>
+        <tr>
+            <td>Conjoint</td>
+            <td>{{ obj.spouse|default:'N/A' }}</td>
+        </tr>
+    </table>
 
-                <div class="col{% if obj.photo %}-10{% endif %}">
-                    <div id="attendances-chart"></div>
-                    {{ obj.attendances|json_script:'attendances' }}
-                    <script>
-                        const getMonthName = monthNumber => new Date(0, monthNumber - 1).toLocaleString('fr', { month: 'long' });
-                        const attendances = JSON.parse(document.getElementById('attendances').textContent).map((e) => ({
-                            date: new Date(e.date),
-                            count: e.count,
-                        }));
+    <!-- Employment Information -->
+    <table>
+        <tr>
+            <th colspan="2" class="section-title">Informations d'Emploi</th>
+        </tr>
+        <tr>
+            <td>Matricule</td>
+            <td>{{ obj.registration_number|default:'N/A' }}</td>
+        </tr>
+        <tr>
+            <td>Numéro de Sécurité Sociale</td>
+            <td>{{ obj.social_security_number|default:'N/A' }}</td>
+        </tr>
+        <tr>
+            <td>Organisation</td>
+            <td>{{ obj.organization.name|default:'N/A' }}</td>
+        </tr>
+        <tr>
+            <td>Position</td>
+            <td>{{ obj.position|default:'N/A' }}</td>
+        </tr>
+        <tr>
+            <td>Grade</td>
+            <td>{{ obj.grade.name|default:'N/A' }}</td>
+        </tr>
+        <tr>
+            <td>Site</td>
+            <td>{{ obj.branch.name|default:'N/A' }}</td>
+        </tr>
+        <tr>
+            <td>Direction</td>
+            <td>{{ obj.direction.name|default:'N/A' }}</td>
+        </tr>
+        <tr>
+            <td>Sous-direction</td>
+            <td>{{ obj.sub_direction.name|default:'N/A' }}</td>
+        </tr>
+        <tr>
+            <td>Service</td>
+            <td>{{ obj.service.name|default:'N/A' }}</td>
+        </tr>
+        <tr>
+            <td>Type de Contrat</td>
+            <td>{{ obj.agreement.name|default:'N/A' }}</td>
+        </tr>
+        <tr>
+            <td>Date d'Engagement</td>
+            <td>{{ obj.date_of_join|default:'N/A' }}</td>
+        </tr>
+    </table>
 
-                        new ApexCharts(document.querySelector('#attendances-chart'), {
-                            series: Array.from({ length: 12 }, (value, index) => index+1).map(function (month){
-                                return {
-                                    name: getMonthName(month),
-                                    data: Array.from({ length: 31 }, (value, index) => index+1).map(function(day){
-                                        let y = attendances.find((item) => item.date.getMonth() === month && item.date.getDate() === day)
-                                        return {x: String(day), y: y?y.count:0}
-                                    })
-                                }
-                            }),
-                            chart: {
-                                height: 300,
-                                type: 'heatmap'
-                            },
-                            dataLabels: {
-                                enabled: false
-                            },
-                            colors: ['#008FFB'],
-                            title: {
-                                text: 'Tableau de presence',
-                                align: 'center'
-                            },
-                        }).render();
-                    </script>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Contact Information -->
+    <table>
+        <tr>
+            <th colspan="2" class="section-title">Informations de Contact</th>
+        </tr>
+        <tr>
+            <td>Numéro de téléphone mobile</td>
+            <td>{{ obj.mobile_number|default:'N/A' }}</td>
+        </tr>
+        <tr>
+            <td>Email</td>
+            <td>{{ obj.email|default:'N/A' }}</td>
+        </tr>
+        <tr>
+            <td>Adresse physique</td>
+            <td>{{ obj.physical_address }}</td>
+        </tr>
+    </table>
 
-    <!-- Employee Information -->
-    <div class="card mb-0">
-        <div class="card-body">
-            {% crispy form %}
-        </div>
-    </div>
+    <!-- Emergency Information -->
+    <table>
+        <tr>
+            <th colspan="2" class="section-title">Informations d'Urgence</th>
+        </tr>
+        <tr>
+            <td>Contact d'Urgence</td>
+            <td>{{ obj.emergency_information|default:'N/A' }}</td>
+        </tr>
+        <tr>
+            <td>Relation</td>
+            <td>N/A</td>
+        </tr>
+    </table>
 
-    <!-- Fiche de paie -->
-    <div class="page-break"></div>
-    <div class="card mb-0">
-        <div class="card-body">
-            <h3>Fiche de paie</h3>
-            <table class="table table-stripped">
-                <thead>
-                    <tr>
-                        <th>Paie</th>
-                        <th>Net</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for payslip in payslips %}
-                        <tr>
-                            <td>{{ payslip.payroll.name }}</td>
-                            <td>{{ payslip.net }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
+    <!-- Bank Information -->
+    <table>
+        <tr>
+            <th colspan="2" class="section-title">Informations Bancaires</th>
+        </tr>
+        <tr>
+            <td>Payeur</td>
+            <td>{{ obj.payer.name|default:'N/A' }}</td>
+        </tr>
+        <tr>
+            <td>Numéro de compte</td>
+            <td>{{ obj.payment_account|default:'N/A' }}</td>
+        </tr>
+        <tr>
+            <td>Mode de paiement</td>
+            <td>{{ obj.get_payment_method_display|default:'N/A' }}</td>
+        </tr>
+    </table>
 
-    <!-- Activities -->
-    <div class="page-break"></div>
-    <div class="card mb-0">
-        <div class="card-body">
-            <div class="card-title">
-                <h4>{% trans 'Activities' %}</h4>
-            </div>
-
-            <ul>
-                {% for activity in activities %}
-                    <li>{{ activity }}</li>
+    <!-- Meta Information -->
+    <table>
+        <tr>
+            <th colspan="2" class="section-title">Informations Administratives</th>
+        </tr>
+        <tr>
+            <td>Mis à jour par</td>
+            <td>{{ obj.updated_by|default:'N/A' }}</td>
+        </tr>
+        <tr>
+            <td>Créé par</td>
+            <td>{{ obj.created_by|default:'N/A' }}</td>
+        </tr>
+        <tr>
+            <td>Mis à jour le/à</td>
+            <td>{{ obj.updated_at|default:'N/A' }}</td>
+        </tr>
+        <tr>
+            <td>Créé le/à</td>
+            <td>{{ obj.createt_at|default:'N/A' }}</td>
+        </tr>
+        <tr>
+            <td>Meta</td>
+            <td>
+                {% for k, v in obj.metadata.items %}
+                <strong>{{ k }}</strong>: {{ v }}<br>
+                {% empty %}
+                N/A
                 {% endfor %}
-            </ul>
-        </div>
-    </div>
-
+            </td>
+        </tr>
+        <tr>
+            <td>Commentaire</td>
+            <td>{{ obj.comment|default:'N/A' }}</td>
+        </tr>
+        <tr>
+            <td>Status</td>
+            <td>{{ obj.status|default:'N/A' }}</td>
+        </tr>
+        <tr>
+            <td>Journal</td>
+            <td>
+                {% for log in logs %}
+                <strong>{{ log.action_time }}</strong>: {{ log.change_message }}<br>
+                {% endfor %}
+            </td>
+        </td>
+    </table>
 </body>
 </html>

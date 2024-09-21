@@ -10,3 +10,4 @@ from .action_required import *
 from .password_change import *
 from .organization import *
 
+from .activity_log import *

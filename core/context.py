@@ -69,6 +69,10 @@ def base(request):
             'title': _('Job'),
             'href': reverse_lazy('core:list', kwargs={'app': 'core', 'model': 'job'}),
             'permission': 'core.view_job'
+        }, {
+            'title': _('Journal d\'activité'),
+            'href': reverse_lazy('core:activity-log'),
+            'permission': 'admin.view_logentry'
         }] if request.user.has_perm(item.get('permission'))]
     }))
     

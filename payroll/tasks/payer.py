@@ -36,8 +36,9 @@ class Payer(Task):
         Main entry point for the task. Processes the payroll.
         """
         DEBUG = settings.DEBUG
-        self.today = datetime.now()
-        self.chunks_size = 100 if DEBUG else 100
+        self.now = datetime.now()
+        self.today = self.now.today
+        self.chunks_size = int(getattr(settings, 'PAYROLL_CHUNCKS_SIZE', 100))
         
         self.workers = os.cpu_count() * (1.0 if DEBUG else 1.5)
         self.payroll = get_object_or_404(Payroll, pk=pk)
@@ -114,7 +115,13 @@ class Payer(Task):
         for employee in employees:
             payslip = self.create_payslip(employee)
 
+            # calculate items for the employee
             self.generate_items(self.items, payslip, employee)
+
+            # calculate special items of the employee
+            _items = employee.specialemployeeitem.filter(condition='1').values_list('item', flat=True)
+            self.generate_items(Item.objects.filter(pk__in=_items), payslip, employee, condition=False)
+
             payslip = self.refresh_payslip(payslip)
             
             self.insert_items_from_df(self.additional_items, payslip, employee)
@@ -213,8 +220,16 @@ class Payer(Task):
         Payroll.objects.filter(pk=self.payroll.pk).update(**{'overall_net': net, 'status': status if status else self.payroll.status})
         return Payroll.objects.get(pk=self.payroll.pk)
 
-    def generate_items(self, items, payslip, employee):
+    def generate_items(self, items, payslip, employee, condition=True):
         """
+        - items (QuerySet or list): The items to process.
+        - payslip (Payslip): The payslip instance.
+        - employee (Employee): The employee instance.
+        - condition (bool, optional): A condition to evaluate for each item. Defaults to True.
+        list: A list of created `ItemPaid` instances.
+        Raises:
+        Exception: If an error occurs during item processing, an exception is raised with details.
+        
         Generate or update items for a payslip and employee.
         
         Parameters:
@@ -228,8 +243,8 @@ class Payer(Task):
         item_to_pay_queryset = []
         for item in items:
             try:
-                payroll = self.payroll
-                if not eval(item.condition, locals()): continue
+                if condition:
+                    if not eval(item.condition, locals()): continue
                 time, qpe, qpp = self.evaluate_formulas(item, employee, payslip, item_to_pay_queryset)
                 if int(qpe) == 0 and int(qpp) == 0: continue
                 item_to_pay_queryset.append(ItemPaid(
@@ -240,7 +255,7 @@ class Payer(Task):
                     taxable_amount=qpe if getattr(item, 'is_taxable', False) else 0,
                     social_security_amount=qpe if getattr(item, 'is_social_security', False) else 0,
                     is_bonus=getattr(item, 'is_bonus', False), is_payable=getattr(item, 'is_payable', True),
-                    payslip=payslip, created_by=payroll.created_by
+                    payslip=payslip, created_by=self.payroll.created_by
                 ))
             except Exception as ex:
                 self.errors.append({'message': str(ex), 'tag': 'error'})

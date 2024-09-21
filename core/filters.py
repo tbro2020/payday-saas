@@ -49,22 +49,11 @@ def filter_set_factory(_model, fields):
         model = _model
         fields = _fields
 
-    for base_field in _fields:
-        params = {}
-        field_name, subfield = (base_field.split('__') + [None])[:2]
-        
-        try:
-            field = _model._meta.get_field(field_name)
-        except Exception as e:
-            continue  # If the field does not exist, skip it
-
+    for field in _fields:
+        if field not in _model._meta.fields: continue
+        field = _model._meta.get_field(field)
         if field.get_internal_type() in ['DateTimeField', 'DateField']:
-            filter_class = django_filters.DateFromToRangeFilter if field.get_internal_type() == 'DateField' else django_filters.DateTimeFromToRangeFilter
-            widget_class = core_forms.DateRangeWidget if field.get_internal_type() == 'DateField' else core_forms.DateTimeRangeWidget
-            params['widget'] = widget_class()
-
-            attrs[base_field] = filter_class(**params)
+            attrs[field.name] = django_filters.DateFromToRangeFilter()
 
     attrs['Meta'] = Meta
-
     return type(f"{_model._meta.object_name}FilterSet", (AdvanceFilterSet,), attrs)

@@ -24,6 +24,7 @@ urlpatterns = [
     
     path('print/<str:document>/<str:app>/<str:model>', Print.as_view(), name='print'),
     path('exporter/<str:app>/<str:model>', Exporter.as_view(), name='exporter'),
+    path('activity-log', ActivityLog.as_view(), name='activity-log'),
 
     path('canvas/download/<str:pk>', Canvas.as_view(), name='canvas-download'),
     path('action/required', ActionRequired.as_view(), name='action-required')
