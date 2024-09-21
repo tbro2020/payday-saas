@@ -244,14 +244,15 @@ class Payer(Task):
         item_to_pay_queryset = []
         for item in items:
             amount_qp_employee = 0
+            amount_qp_employer = 0
             if isinstance(item, SpecialEmployeeItem):
-                amount_qp_employee, item = item.amount_qp_employee, item.item
+                amount_qp_employee, amount_qp_employer, item = item.amount_qp_employee, item.amount_qp_employer, item.item
             try:
                 if condition:
                     if not eval(item.condition, locals()): continue
                 
-                time, qpe, qpp = (0, amount_qp_employee, 0)
-                if not amount_qp_employee:
+                time, qpe, qpp = (0, amount_qp_employee, amount_qp_employer)
+                if not any([amount_qp_employee, amount_qp_employer]):
                     time, qpe, qpp = self.evaluate_formulas(item, employee, payslip, item_to_pay_queryset)
                 
                 if int(qpe) == 0 and int(qpp) == 0: continue
