@@ -1,5 +1,5 @@
 from django.utils.translation import gettext as _
-from crispy_forms.layout import Layout
+from crispy_forms.layout import Layout, Row, Column
 from django.db import models
 
 from core.models.fields import ModelSelect
@@ -16,8 +16,17 @@ class SpecialEmployeeItem(Base):
                     'item__code', 'item__name')
     inline_form_fields = ('employee', 'item', 'amount_qp_employee', 'amount_qp_employer')
     
-    list_display = ('id', 'employee', 'item')
     list_filter = ('item', 'employee__status')
+    list_display = ('id', 'employee', 'item')
+
+    layout = Layout(
+        'employee', 'item',
+        Row(
+            Column('amount_qp_employee', css_class='col-md-6 col-sm-12'),
+            Column('amount_qp_employer', css_class='col-md-6 col-sm-12')
+        ),
+    )
+    
 
     @property
     def name(self):
