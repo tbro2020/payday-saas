@@ -1,9 +1,9 @@
-from django.utils.translation import gettext as _
 from django.db.models import Q, CharField, TextField
+from django.utils.translation import gettext as _
 from functools import reduce
-import django_filters
 from django import forms
-from core import forms as core_forms
+import django_filters
+
 
 class AdvanceFilterSet(django_filters.FilterSet):
     q = django_filters.CharFilter(label=str, method='search', widget=forms.TextInput(attrs={'class': 'form-control d-none'}))
