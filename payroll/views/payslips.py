@@ -11,14 +11,17 @@ from django.apps import apps
 
 class Payslips(Change):
     template_name = 'payroll/payslips.html'
+
+    def documents(self):
+        _model = apps.get_model('core', 'template')
+        return _model.objects.filter(**{
+            'content_type__app_label': 'payroll',
+            'content_type__model__in': ['payroll', 'payslip']
+        }).values('id', 'name', 'content_type__model')
     
     def sheets(self):
         data = [field for field in Employee._meta.fields if field.get_internal_type() == 'ModelSelect']
-        data = [{
-            'name': field.name+'__name',
-            'verbose_name': field.verbose_name,
-        } for field in data]
-        return data
+        return [{'name': field.name+'__name', 'verbose_name': field.verbose_name} for field in data]
     
     sheet_fields = {
         'employee__direction__name': _('Département'),
