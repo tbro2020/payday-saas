@@ -10,26 +10,26 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name="interim",
-            name="created_by",
-        ),
-        migrations.RemoveField(
-            model_name="interim",
-            name="employee",
-        ),
-        migrations.RemoveField(
-            model_name="interim",
-            name="grade",
-        ),
-        migrations.RemoveField(
-            model_name="interim",
-            name="organization",
-        ),
-        migrations.RemoveField(
-            model_name="interim",
-            name="updated_by",
-        ),
+        #migrations.RemoveField(
+        #    model_name="interim",
+        #    name="created_by",
+        #),
+        #migrations.RemoveField(
+        #    model_name="interim",
+        #    name="employee",
+        #),
+        #migrations.RemoveField(
+        #    model_name="interim",
+        #    name="grade",
+        #),
+        #migrations.RemoveField(
+        #    model_name="interim",
+        #    name="organization",
+        #),
+        #migrations.RemoveField(
+        #    model_name="interim",
+        #    name="updated_by",
+        #),
         migrations.DeleteModel(
             name="Commission",
         ),
