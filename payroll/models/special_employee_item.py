@@ -12,7 +12,10 @@ class SpecialEmployeeItem(Base):
     employee = ModelSelect('employee.Employee', verbose_name=_('employee'), null = True, on_delete = models.SET_NULL)
     item = ModelSelect('payroll.Item', verbose_name=_('element de paie'), null = True, on_delete = models.SET_NULL)
 
+    search_fields = ('employee__registration_number', 'employee__middle_name', 'employee__first_name', 'employee__last_name', 
+                    'item__code', 'item__name')
     inline_form_fields = ('employee', 'item', 'amount_qp_employee', 'amount_qp_employer')
+    
     list_display = ('id', 'employee', 'item')
     list_filter = ('item', 'employee__status')
 
