@@ -56,12 +56,12 @@ class Exporter(BaseView):
         filter = filter_set_factory(model, fields=list_filter)
         qs = filter(request.GET, queryset=qs).qs
 
-        fields = {k:v for k,v in request.POST.dict().items() if k not in ['csrfmiddlewaretoken']}.keys()
-        if groupBy and groupBy not in fields: fields = list(fields).insert(0, groupBy)
-        data = qs.values(*fields)
+        fields = list({k:v for k,v in request.POST.dict().items() if k not in ['csrfmiddlewaretoken', 'groupBy']}.keys())
+        if not fields: raise ValueError(_("Please select at least one field to export"))
+        if groupBy and groupBy not in fields: fields = list(fields) + [groupBy]
+        data = list(qs.values(*fields))
 
-        fields = {field : 
-                self.get_field_verbose(model._meta.get_field(field.split('__')[0]), field.split('__')[-1]) 
+        fields = {field : self.get_field_verbose(model._meta.get_field(field.split('__')[0]), field.split('__')[-1]) 
                 for field in fields}
 
         df = pd.DataFrame.from_records(data)
@@ -71,7 +71,7 @@ class Exporter(BaseView):
 
         with pd.ExcelWriter(response) as writer:
             if groupBy:
-                for name, group in df.groupby(groupBy):
+                for name, group in df.groupby(fields[groupBy]):
                     group.to_excel(writer, sheet_name=name, index=False)
             else:
                 df.to_excel(writer, index=False)
