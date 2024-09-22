@@ -13,8 +13,8 @@ class Canvas(BaseView):
         qs = Employee.objects.filter(**query) \
             .values('registration_number', 'last_name', 'middle_name', 'branch__name', 'grade__name')
         
-        columns = ['absence', 'mise à pied', 'absence.justifiee', 'heure.shift.j', 'heure.shift.k', 'heure.shift.l.m', 'traction']
-        field_no_numbers = []
+        columns = ['absence', 'mise à pied', 'absence.justifiee', 'interim', 'interim.jr', 'heure.shift.j', 'heure.shift.k', 'heure.shift.l.m', 'traction']
+        field_no_numbers = ['interim']
 
         data = [{
             'registration_number': obj['registration_number'],
