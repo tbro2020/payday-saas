@@ -26,7 +26,7 @@ class Canvas(BaseView):
         } for obj in qs]
 
         group_by = 'branch'
-        df = pd.read_json(json.dumps(data))
+        df = pd.read_json(json.dumps(data), dtype={'registration_number': str, 'interim': str, 'comm.': str})
 
         if not df.empty:
             df = df.sort_values(by=['grade', 'registration_number', 'last_name', 'middle_name'], 
