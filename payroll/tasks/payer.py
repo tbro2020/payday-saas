@@ -124,7 +124,7 @@ class Payer(Task):
             self.generate_items(self.items, payslip, employee)
 
             # calculate special items of the employee
-            _items = employee.specialemployeeitem.all().select_related('item')
+            _items = employee.specialemployeeitem_set.all().select_related('item')
             self.generate_items(_items, payslip, employee, condition=False)
 
             payslip = self.refresh_payslip(payslip)

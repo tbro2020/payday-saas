@@ -45,7 +45,9 @@
                 </div>
             </div>
             <div class="col text-end">
-                <h3 class="mb-0">{% trans 'Synthesis' %} - {{ field.verbose_name|title }}</h3>
+                <h3 class="mb-0">{% trans 'Synthesis' %} - 
+                    ({% for key, value in fields.items %}{{ value.title }}{% if not forloop.last %}{{ '|' }}{% endif %}{% endfor %})
+                </h3>
                 <small>{% trans 'Generated on' %} {% now 'M d, Y' %}</small>
             </div>
         </div>
@@ -59,36 +61,7 @@
             </small>
         </div>
 
-        <div class="col">
-            {% comment %}<table class="table table-striped">
-                <thead style="font-weight: bolder">
-                    <tr>
-                        <td>{{ model|getattr:'_meta'|getattr:'verbose_name'|default:'#'|title }}</td>
-                        <td>{% trans 'AGENTS' %}</td>
-                        {% for branch in self.branches %}
-                        <td>{{ branch.name }}</td>
-                        {% endfor %}
-                        <td>{% trans 'TOTAL' %}</td>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for group, branches in groupby.items %}
-                        <tr>
-                            <td>
-                                <b>{{ group }}</b>
-                            </td>
-                            <td>{{ branches.AGENT|toint }}</td>
-                            {% for branch in self.branches %}
-                                <td>{{ branches|getattr:branch.name|default:'0'|intcomma }}</td>
-                            {% endfor %}
-                            <td>{{ branches.TOTAL|intcomma }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>{% endcomment %}
-            {{ df|safe }}
-        </div>
-
+        <div class="col">{{ df|safe }}</div>
     </div>
 
 

@@ -59,7 +59,7 @@ class Exporter(BaseView):
         fields = list({k:v for k,v in request.POST.dict().items() if k not in ['csrfmiddlewaretoken', 'groupBy']}.keys())
         if not fields: raise ValueError(_("Please select at least one field to export"))
         if groupBy and groupBy not in fields: fields = list(fields) + [groupBy]
-        data = list(qs.values(*fields))
+        data = qs.values(*fields)
 
         fields = {field : self.get_field_verbose(model._meta.get_field(field.split('__')[0]), field.split('__')[-1]) 
                 for field in fields}

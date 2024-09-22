@@ -10,4 +10,6 @@ from .canvas import Canvas
 from .sheet_summary import SheetSummary
 from .listing import Listing
 
+from .synthesis import Synthesis
+
 #from .sheet import Sheet

@@ -44,11 +44,17 @@
                         <span>
                             <button class="btn btn-light-warning dropdown-toggle rounded-0" id="dropdown-synthesis" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Synthesis' %}</button>
                             <div class="dropdown-menu" aria-labelledby="dropdown-synthesis">
-                                <a class="dropdown-item" href="{% url 'payroll:synthesis-by-item' obj.pk %}?{{ request.GET.urlencode }}">{% trans "Global" %}</a>
+
+                                <a href="{% url 'payroll:synthesis' 'sum' obj.pk %}" class="dropdown-item">{% trans 'Par somme' %}</a>
+                                <a href="{% url 'payroll:synthesis' 'count' obj.pk %}" class="dropdown-item">{% trans 'Par eff.' %}</a>
+
+                                {% comment %}
+                                 <a class="dropdown-item" href="{% url 'payroll:synthesis-by-item' obj.pk %}?{{ request.GET.urlencode }}">{% trans "Global" %}</a>
                                 <div class="dropdown-divider"></div>
                                 {% for field in self.sheets %}
                                     <a class="dropdown-item" href="{% url 'payroll:synthesis-by-employee' obj.pk %}?field={{ field.name }}&{{ request.GET.urlencode }}">{{ field.verbose_name|title }}</a>
                                 {% endfor %}
+                                 {% endcomment %}
                             </div>
                         </span>
 
@@ -65,7 +71,8 @@
                             </div>
                         </span>
 
-                        <span>
+                        {% comment %}
+                         <span>
                             <button class="btn btn-light-primary dropdown-toggle rounded-0" id="dropdown-sheet" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Payroll sheet' %} &nbsp;</button>
                             <div class="dropdown-menu" aria-labelledby="dropdown-sheet">
                                 <a class="dropdown-item" href="{% url 'payroll:sheet' obj.pk %}?{{ request.GET.urlencode }}">{% trans 'Global' %}</a>
@@ -75,6 +82,7 @@
                                 {% endfor %}
                             </div>
                         </span>
+                        {% endcomment %}
 
                         <span>
                             <button class="btn btn-primary dropdown-toggle rounded-0" type="button" id="dropdownDocumentBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
