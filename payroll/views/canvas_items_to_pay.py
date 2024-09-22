@@ -23,7 +23,7 @@ class CanvasItemsToPay(BaseView):
         'plafond de la sécurité sociale': 0,
         'montant imposable': 0,
 
-        'est une prime': None,
+        'est une prime': 0,
         'est payable': 1,
     }]
 

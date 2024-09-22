@@ -38,7 +38,7 @@ class Canvas(BaseView):
                     'input_message': 'Select a value from the list',
                 })
 
-            if field.is_relation:
+            if field.is_relation or field.get_internal_type() in ['ForeignKey', 'OneToOneField', 'ModelSelect']:
                 worksheet.data_validation(1, index, 100000, index,  {
                     'validate': 'list',
                     'source': [obj.name for obj in field.related_model.objects.all()],

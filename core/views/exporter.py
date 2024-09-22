@@ -12,36 +12,21 @@ get_name_of_fields = lambda _list: list(map(lambda x: x.name, _list))
 class Exporter(BaseView):
     action = ["view"]
     template_name = "export.html"
-
-    def get_list_display(self, model):
-        list_display = getattr(model, 'list_display', [])
-        return [field for field in model._meta.fields if field.name in list_display]
     
-    def get_list_filter(self, model):
-        return getattr(model, 'list_filter', [])
+    def get_field_verbose(self, model, field):
+        fields = field.split('__')
+        if len(fields) == 1:
+            return model._meta.get_field(fields[0]).verbose_name.lower()
+        model = model._meta.get_field(fields[0]).related_model
+        return self.get_field_verbose(model, '__'.join(fields[1:]))
     
     def get(self, request, app, model):
         model = apps.get_model(app, model)
         return render(request, self.template_name, locals())
     
-    def get_field_verbose(self, field, subfield):
-        if field.is_relation and subfield != field.name:
-            return ".".join([field.verbose_name, field.related_model._meta.get_field(subfield).verbose_name]).lower()
-        return field.verbose_name.lower()
-    
-    def nested_getattr(self, obj, attr, default=None):
-        """
-        Recursively get attributes.
-        Example: nested_getattr(person, 'address.city') is equivalent to person.address.city
-        """
-        attributes = attr.split('.')
-        for attribute in attributes:
-            obj = getattr(obj, attribute, default)
-        return obj
-    
     def post(self, request, app, model):
         model = apps.get_model(app, model)
-        list_filter = self.get_list_filter(model)
+        list_filter = getattr(model, 'list_filter', [])
 
         qs = model.objects.select_related().prefetch_related()
         qs = qs._all(user=request.user, subdomain=request.subdomain) if hasattr(qs, '_all') else qs.all()
@@ -61,8 +46,7 @@ class Exporter(BaseView):
         if groupBy and groupBy not in fields: fields = list(fields) + [groupBy]
         data = qs.values(*fields)
 
-        fields = {field : self.get_field_verbose(model._meta.get_field(field.split('__')[0]), field.split('__')[-1]) 
-                for field in fields}
+        fields = {field : self.get_field_verbose(model, field) for field in fields}
 
         df = pd.DataFrame.from_records(data)
         df.rename(columns=fields, inplace=True)
@@ -72,7 +56,7 @@ class Exporter(BaseView):
         with pd.ExcelWriter(response) as writer:
             if groupBy:
                 for name, group in df.groupby(fields[groupBy]):
-                    group.to_excel(writer, sheet_name=name, index=False)
+                    group.to_excel(writer, sheet_name=str(name), index=False)
             else:
                 df.to_excel(writer, index=False)
         return response

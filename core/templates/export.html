@@ -37,12 +37,32 @@
                                     <ol>
                                         <li><h6>{{ field.verbose_name|title }}</h6></li>
                                         {% for subfield in field|getattr:'remote_field'|getattr:'model'|getattr:'_meta'|getattr:'fields' %}
-                                        <li>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" name="{{ field.name }}__{{ subfield.name }}" id="{{ field.name }}__{{ subfield.name }}">
-                                                <label class="form-check-label" for="{{ field.name }}__{{ subfield.name }}"> {{ subfield.verbose_name|title }} </label>
-                                            </div>
-                                        </li>
+                                            {% comment %}<li>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="{{ field.name }}__{{ subfield.name }}" id="{{ field.name }}__{{ subfield.name }}">
+                                                    <label class="form-check-label" for="{{ field.name }}__{{ subfield.name }}"> {{ subfield.verbose_name|title }} </label>
+                                                </div>
+                                            </li>{% endcomment %}
+                                            {% if subfield.get_internal_type == 'ModelSelect' %}
+                                                <ol>
+                                                    <li><h6>{{ subfield.verbose_name|title }}</h6></li>
+                                                    {% for underfield in subfield|getattr:'remote_field'|getattr:'model'|getattr:'_meta'|getattr:'fields' %}
+                                                    <li>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" name="{{ field.name }}__{{ subfield.name }}__{{ underfield.name }}" id="{{ field.name }}__{{ subfield.name }}_{{ underfield.name }}">
+                                                            <label class="form-check-label" for="{{ field.name }}__{{ subfield.name }}__{{ underfield.name }}"> {{ underfield.verbose_name|title }} </label>
+                                                        </div>
+                                                    </li>
+                                                    {% endfor %}
+                                                </ol>
+                                            {% else %}
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="{{ field.name }}__{{ subfield.name }}" id="{{ field.name }}__{{ subfield.name }}">
+                                                        <label class="form-check-label" for="{{ field.name }}__{{ subfield.name }}"> {{ subfield.verbose_name|title }} </label>
+                                                    </div>
+                                                </li>
+                                            {% endif %}
                                         {% endfor %}
                                     </ol>
                                 {% else %}
@@ -68,12 +88,27 @@
                                     <ol>
                                         <li><h6>{{ field.verbose_name|title }}</h6></li>
                                         {% for subfield in field|getattr:'remote_field'|getattr:'model'|getattr:'_meta'|getattr:'fields' %}
-                                        <li>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="groupBy" id="group-by-{{ field.name }}-{{ subfield.name }}" value="{{ field.name }}__{{ subfield.name }}">
-                                                <label class="form-check-label" for="group-by-{{ field.name }}-{{ subfield.name }}"> {{ subfield.verbose_name|title }} </label>
-                                            </div>
-                                        </li>
+                                            {% if subfield.get_internal_type == 'ModelSelect' %}
+                                                <ol>
+                                                    <li><h6>{{ subfield.verbose_name|title }}</h6></li>
+                                                    {% for underfield in subfield|getattr:'remote_field'|getattr:'model'|getattr:'_meta'|getattr:'fields' %}
+                                                    <li>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="radio" name="groupBy" value="{{ field.name }}__{{ subfield.name }}__{{ underfield.name }}" id="group-by-{{ field.name }}-{{ subfield.name }}-{{ underfield.name }}">
+                                                            <label class="form-check-label" for="group-by-{{ field.name }}-{{ subfield.name }}-{{ underfield.name }}"> {{ underfield.verbose_name|title }} </label>
+                                                        </div>
+                                                    </li>
+                                                    {% endfor %}
+                                                </ol>
+                                            {% else %}
+                                                <li>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="groupBy" value="{{ field.name }}__{{ subfield.name }}" id="group-by-{{ field.name }}-{{ subfield.name }}">
+                                                        <label class="form-check-label" for="group-by-{{ field.name }}-{{ subfield.name }}"> {{ subfield.verbose_name|title }} </label>
+                                                    </div>
+                                                </li>
+                                            {% endif %}
+
                                         {% endfor %}
                                     </ol>
                                 {% else %}

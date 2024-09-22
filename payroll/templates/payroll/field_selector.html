@@ -29,7 +29,7 @@
         <section class="col col-xs-12">
             <div class="card">
                 <div class="card-body">
-                    <h6>{% trans "Veuillez sélectionner le champ que vous souhaitez voir figurer dans la colonne du tableau" %}</h6>
+                    <h6>{% trans "Veuillez sélectionner le champ que vous souhaitez voir figurer dans la **colonne** du tableau" %}</h6>
                     <ol>
                         {% for field in model|getattr:'_meta'|getattr:'fields' %}
                             <li>
@@ -74,7 +74,7 @@
         <section class="col col-xs-12">
             <div class="card">
                 <div class="card-body">
-                    <h6>{% trans "Veuillez sélectionner le champ que vous souhaitez voir figurer dans la colonne du tableau" %}</h6>
+                    <h6>{% trans "Veuillez sélectionner le champ que vous souhaitez voir figurer dans la **ligne** du tableau" %}</h6>
                     <ol>
                         {% for field in model|getattr:'_meta'|getattr:'fields' %}
                             <li>

@@ -45,8 +45,8 @@
                 </div>
             </div>
             <div class="col text-end">
-                <h3 class="mb-0">{% trans 'Synthesis' %} - 
-                    ({% for key, value in fields.items %}{{ value.title }}{% if not forloop.last %}{{ '|' }}{% endif %}{% endfor %})
+                <h3 class="mb-0">{% trans 'Synthesis' %}
+                    ({% if value == 'count' %}{% trans "Nombre" %}{% else %}{% trans "Somme" %}{% endif %})
                 </h3>
                 <small>{% trans 'Generated on' %} {% now 'M d, Y' %}</small>
             </div>
