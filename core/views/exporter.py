@@ -11,6 +11,7 @@ get_name_of_fields = lambda _list: list(map(lambda x: x.name, _list))
 
 class Exporter(BaseView):
     action = ["view"]
+    template_name = "export.html"
 
     def get_list_display(self, model):
         list_display = getattr(model, 'list_display', [])
@@ -21,7 +22,7 @@ class Exporter(BaseView):
     
     def get(self, request, app, model):
         model = apps.get_model(app, model)
-        return render(request, "export.html", locals())
+        return render(request, self.template_name, locals())
     
     def get_field_verbose(self, field, subfield):
         if field.is_relation and subfield != field.name:
@@ -46,6 +47,7 @@ class Exporter(BaseView):
         qs = qs._all(user=request.user, subdomain=request.subdomain) if hasattr(qs, '_all') else qs.all()
 
         # apply hard filter based on fields
+        groupBy = request.POST.get('groupBy', None)
         fields = [field.name for field in model._meta.fields]
         query = {k:v for k, v in request.GET.dict().items() if k.split('__')[0] in fields}
         query = {k: v for k, v in query.items() if v not in [None, 'unknown', 'true', 'false']}
@@ -55,6 +57,7 @@ class Exporter(BaseView):
         qs = filter(request.GET, queryset=qs).qs
 
         fields = {k:v for k,v in request.POST.dict().items() if k not in ['csrfmiddlewaretoken']}.keys()
+        if groupBy and groupBy not in fields: fields = list(fields).insert(0, groupBy)
         data = qs.values(*fields)
 
         fields = {field : 
@@ -67,5 +70,9 @@ class Exporter(BaseView):
         response['Content-Disposition'] = f'attachment; filename="{model._meta.verbose_name}.xlsx"'
 
         with pd.ExcelWriter(response) as writer:
-            df.to_excel(writer)
+            if groupBy:
+                for name, group in df.groupby(groupBy):
+                    group.to_excel(writer, sheet_name=name, index=False)
+            else:
+                df.to_excel(writer, index=False)
         return response

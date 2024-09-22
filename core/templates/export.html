@@ -23,14 +23,13 @@
     </div>
 </div>
 
-<div class="page-content">
-    <section>
-        <div class="card">
-            <div class="card-body">
-                <h6>{% trans "Veuillez sélectionner le champ que vous souhaitez voir figurer dans le rapport" %}</h6>
-
-                <form method="post" id="form-{{ model|getattr:'_meta'|getattr:'model_name' }}">
-                    {% csrf_token %}
+<form method="post" id="form-{{ model|getattr:'_meta'|getattr:'model_name' }}">
+    {% csrf_token %}
+    <div class="page-content row">
+        <section class="col col-xs-12">
+            <div class="card">
+                <div class="card-body">
+                    <h6>{% trans "Veuillez sélectionner le champ que vous souhaitez voir figurer dans le rapport" %}</h6>
                     <ol>
                         {% for field in model|getattr:'_meta'|getattr:'fields' %}
                             <li>
@@ -55,9 +54,40 @@
                             </li>
                         {% endfor %}
                     </ol>
-                </form>
+                </div>
             </div>
-        </div>
-    </section>
-</div>
+        </section>
+        <section class="col col-xs-12">
+            <div class="card">
+                <div class="card-body">
+                    <h6>{% trans "Regrouper la feuille par" %}</h6>
+                    <ol>
+                        {% for field in model|getattr:'_meta'|getattr:'fields' %}
+                            <li>
+                                {% if field.get_internal_type == 'ModelSelect' %}
+                                    <ol>
+                                        <li><h6>{{ field.verbose_name|title }}</h6></li>
+                                        {% for subfield in field|getattr:'remote_field'|getattr:'model'|getattr:'_meta'|getattr:'fields' %}
+                                        <li>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="groupBy" id="group-by-{{ field.name }}-{{ subfield.name }}" value="{{ field.name }}__{{ subfield.name }}">
+                                                <label class="form-check-label" for="group-by-{{ field.name }}-{{ subfield.name }}"> {{ subfield.verbose_name|title }} </label>
+                                            </div>
+                                        </li>
+                                        {% endfor %}
+                                    </ol>
+                                {% else %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="groupBy" id="group-by-{{ field.name }}" value="{{ field.name }}">
+                                    <label class="form-check-label" for="group-by-{{ field.name }}"> {{ field.verbose_name|title }} </label>
+                                </div>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ol>
+                </div>
+            </div>
+        </section>
+    </div>
+</form>
 {% endblock %}
