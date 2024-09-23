@@ -50,8 +50,10 @@ class Exporter(BaseView):
 
         df = pd.DataFrame.from_records(data)
         df.rename(columns=fields, inplace=True)
+        
+        filename = f"{model._meta.verbose_name}.xlsx"
         response = HttpResponse(content_type='application/xlsx')
-        response['Content-Disposition'] = f'attachment; filename="{model._meta.verbose_name}.xlsx"'
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
 
         with pd.ExcelWriter(response) as writer:
             if groupBy:
