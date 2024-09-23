@@ -20,6 +20,13 @@ class Synthesis(BaseView):
         model = model._meta.get_field(fields[0]).related_model
         return self.get_field_verbose(model, '__'.join(fields[1:]))
     
+    def get_field(self, model, field):
+        fields = field.split('__')
+        if len(fields) == 1:
+            return model._meta.get_field(fields[0])
+        model = model._meta.get_field(fields[0]).related_model
+        return self.get_field(model, '__'.join(fields[1:]))
+    
     def get(self, request, func, pk):
         model = apps.get_model('payroll', 'payslip')
         return render(request, self.template_name_field_selector, locals())
@@ -35,7 +42,6 @@ class Synthesis(BaseView):
         if 'net' not in fields: fields.append('net')
         qs = qs.filter(payroll=obj)
         data = qs.values(*fields)
-        print(data)
 
         fields = {field : self.get_field_verbose(model, field) for field in fields}
         df = pd.DataFrame.from_records(data)
@@ -68,7 +74,14 @@ class Synthesis(BaseView):
         df.columns.name = None  # Remove column index name if it exists
 
         # Rename columns to flatten and make them more readable
-        df = df.map(intcomma)
+        if func == 'sum': df = df.map(intcomma)
+
+        fields = {field : self.get_field(model, field).model._meta.verbose_name 
+                  for field in fields.keys() if field != 'net'}
+        
+        # Rename the 'index' column to 'name'
+        df.rename(columns={'index': fields.get(request.POST.get('row'), '-').title()}, inplace=True)
+        fields = fields.values()
 
         df = df.to_html(index=False, classes='table table-striped mt-3')
         df = df.replace('text-align: right;', 'text-align: left;')

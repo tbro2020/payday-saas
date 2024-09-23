@@ -46,7 +46,7 @@
             </div>
             <div class="col text-end">
                 <h3 class="mb-0">{% trans 'Synthesis' %}
-                    ({% if value == 'count' %}{% trans "Nombre" %}{% else %}{% trans "Somme" %}{% endif %})
+                    ({% if func == 'count' %}{% trans "Nombre" %}{% else %}{% trans "Somme" %}{% endif %})
                 </h3>
                 <small>{% trans 'Generated on' %} {% now 'M d, Y' %}</small>
             </div>
@@ -59,6 +59,11 @@
                 to
                 <b>{{ obj.end_dt }}</b>
             </small>
+            <h4>
+                {% for field in fields %}
+                    {{ field|title }} {% if not forloop.last %} / {% endif %}
+                {% endfor %}
+            </h4>
         </div>
 
         <div class="col">{{ df|safe }}</div>

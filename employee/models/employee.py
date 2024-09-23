@@ -62,6 +62,9 @@ class Employee(Base):
     physical_address = models.TextField(_('adresse physique'), null=True, default=None)
     emergency_information = models.TextField(_('informations d\'urgence'), null=True, default=None)
 
+    is_housed = models.BooleanField(_('logé'), default=False)
+    mileage_allowance = models.BooleanField(_('indemnité kilométrique'), default=0)
+
     payer = ModelSelect('employee.payer', verbose_name=_('banque'), null=True, on_delete=models.SET_NULL, default=None)
     payment_account = models.CharField(_('numéro de compte'), max_length=50, blank=True, null=True, default=None)
     payment_method = models.CharField(_('mode de paiement'), max_length=20, choices=PAYMENT_METHODS)
@@ -69,7 +72,7 @@ class Employee(Base):
     comment = models.TextField(_('commentaire'), blank=True, null=True, default=None)
     status = ModelSelect('employee.Status', verbose_name=_('code d\'activité'), null=True, on_delete=models.SET_NULL, default=None)
 
-    list_filter = ('grade', 'grade__category', 'direction', 'branch', 'position', 'status', 'status__category', 'date_of_join', 'date_of_birth')
+    list_filter = ('grade', 'grade__category', 'direction', 'branch', 'branch__category', 'status', 'status__category', 'date_of_join', 'date_of_birth')
     list_display = ('registration_number', 'grade', 'branch', 'last_name', 'middle_name', 'status')
     search_fields = ('registration_number',)
 
@@ -115,6 +118,10 @@ class Employee(Base):
         Row(
             Column('physical_address', css_class='col-md-6 col-sm-12'),
             Column('emergency_information', css_class='col-md-6 col-sm-12'),
+        ),
+        Row(
+            Column('is_housed', css_class='col-md-6 col-sm-12'),
+            Column('mileage_allowance', css_class='col-md-6 col-sm-12'),
         ),
         Row(
             Column('payment_method', css_class='col-md-4 col-sm-12'),
