@@ -168,12 +168,11 @@ class Payer(Task):
         Payroll.objects.filter(pk=self.payroll.pk).update(**{'status': PayrollStatus.WARNING, 'metadata': self.payroll.metadata})
         self.payroll.refresh_from_db()
 
-    def evaluate_formulas(self, item, employee, payslip, items_paid=[]):
+    def evaluate_formulas(self, item, employee, payslip, canvas, items_paid=[]):
         """
         Safely evaluate the formulas for employee and employer.
         """
         try:
-            canvas = self.get_canvas_of(employee.registration_number)
             working_days_per_month = getattr(employee, 'working_days_per_month', 26)
             time = float(eval(item.time, locals()) or 0) if hasattr(item, 'time') else 0
             formula_qp_employee = abs(round(eval(item.formula_qp_employee, locals()), 2)) * item.type_of_item
@@ -248,17 +247,19 @@ class Payer(Task):
         """
         item_to_pay_queryset = []
         for item in items:
+            canvas = None
             amount_qp_employee = 0
             amount_qp_employer = 0
             if isinstance(item, SpecialEmployeeItem):
                 amount_qp_employee, amount_qp_employer, item = item.amount_qp_employee, item.amount_qp_employer, item.item
             try:
                 if condition:
+                    canvas = self.get_canvas_of(employee.registration_number)
                     if not eval(item.condition, locals()): continue
                 
                 time, qpe, qpp = (0, amount_qp_employee, amount_qp_employer)
                 if not any([amount_qp_employee, amount_qp_employer]):
-                    time, qpe, qpp = self.evaluate_formulas(item, employee, payslip, item_to_pay_queryset)
+                    time, qpe, qpp = self.evaluate_formulas(item, employee, payslip, canvas, item_to_pay_queryset)
                 
                 if int(qpe) == 0 and int(qpp) == 0: continue
                 item_to_pay_queryset.append(ItemPaid(
