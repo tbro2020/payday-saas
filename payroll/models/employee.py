@@ -24,7 +24,7 @@ class Employee(Base):
     agreement = ModelSelect('employee.agreement', verbose_name=_('type de contrat'), blank=True, null=True, on_delete=models.SET_NULL, related_name='%(app_label)s_%(class)s_agreement')
     photo = models.ImageField(_('photo'), blank=True, null=True)
 
-    date_of_leave = DateField(_('date de fin de service'), null=True, default=None)
+    date_of_leave = DateField(_('date de fin de service'), null=True, default=None, blank=True)
     date_of_join = DateField(_('date d\'engagement'), null=True, default=None)
 
     position = ModelSelect('employee.position', verbose_name=_('position'), blank=True, null=True, on_delete=models.SET_NULL, related_name='%(app_label)s_%(class)s_position')
