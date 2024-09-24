@@ -1,20 +1,18 @@
 from crispy_forms.layout import Layout, Row, Column, Div, Fieldset
 from phonenumber_field.modelfields import PhoneNumberField
 
+from core.models.fields import ModelSelect, JSONField
 from crispy_forms.bootstrap import PrependedText
 from django.utils.translation import gettext as _
-from core.models.fields import ModelSelect
+
 from core.models.fields import DateField
 from django.urls import reverse_lazy
 from django.db import models
 from django.apps import apps
 
-from .position import Position
-from .agreement import Agreement
-from .grade import Grade
-
 from .sub_direction import SubDirection
 from .direction import Direction
+from .agreement import Agreement
 from .service import Service
 
 from core.models import Base
@@ -22,10 +20,25 @@ from datetime import date
 from random import randint
 
 default_photo = lambda: "place_pics/default_pic.jpg"
-#default_registration_number = lambda: randint(100000000, 999999999)
-
+fields = ['MOIS', 'NOMS', 'ZONE', 'ANNEE', 
+          'RENTE', 'VILLE', 'AGENCE', 'EQUIPE', 
+          'PRENOM', 'RESEAU', 'CHEVRON', 'COMMUNE', 
+          'ECHELON', 'CARPLANE', 'COTATION', 'DIVISION', 
+          'ECHELLON', 'QUARTIER', 'CATEGORIE', 'CODE_SEXE', 
+          'MATRICULE', 'AVENUE_RUE', 'CODE_MOTIF', 'DATE_MOTIF', 
+          'ETAT_CIVIL', 'LETTRE_CLE', 'CODE_BANQUE', 'CODE_METIER', 
+          'DEPARTEMENT', 'NATIONALITE', 'NUMERO_INSS', 'AGENCE_AUTRE', 
+          'CODE_DIPLOME', 'CODE_ORIGINE', 'DATE_ATTENTE', 'NUM_SINDICAT', 
+          'CODE_ACTIVITE', 'CODE_LOGEMENT', 'DATE_FONCTION', 'DATE_IDENTITE', 
+          'LIEU_IDENTITE', 'NOMBRE_ENFANT', 'NUMERO_INDICE', 'TYPE_IDENTITE', 
+          'CODE_TRANSPORT', 'DATE_NAISSANCE', 'DATE_PROMOTION', 'GRADE_FONCTION', 
+          'LIEU_NAISSANCE', 'COMPTE_BANCAIRE', 'DATE_ENGAGEMENT', 'GRADE_PERSONNEL', 
+          'LIEU_ENGAGEMENT', 'NUMERO_IDENTITE', 'ANCIENNETE_GRADE', 'CODE_BANQUE_AUTRE', 
+          'NUMERO_HABITATION', 'TRAITEMENT_ANNUEL', 'TRAITEMENT_MENSUEL', 'COMPTE_BANCAIRE_AUTRE']
+_metadata = lambda: dict(**{k:None for k in fields})
 
 class Employee(Base):
+
     PAYMENT_METHODS = (('cash', _('Cash')), ('bank', _('Bank')), ('mobile Money', _('Mobile Money')))
     MARITAL_STATUS = (('married', _('Marié')), ('widower', _('Veuf')), ('single', _('Célibataire')))
     GENDERS = (('male', _('Homme')), ('female', _('Femme')))
@@ -62,8 +75,8 @@ class Employee(Base):
     physical_address = models.TextField(_('adresse physique'), null=True, default=None)
     emergency_information = models.TextField(_('informations d\'urgence'), null=True, default=None)
 
-    is_housed = models.BooleanField(_('logé'), default=False)
-    mileage_allowance = models.BooleanField(_('indemnité kilométrique'), default=0)
+    is_housed = models.BooleanField(_('logé'), help_text=_("L'employé est-il logé par l'organisation ?"), default=False)
+    mileage_allowance = models.BooleanField(_('indemnité kilométrique'), help_text=_("L'employé bénéficie-t-il de l'indemnité kilométrique ?"), default=0)
 
     payer = ModelSelect('employee.payer', verbose_name=_('banque'), null=True, on_delete=models.SET_NULL, default=None)
     payment_account = models.CharField(_('numéro de compte'), max_length=50, blank=True, null=True, default=None)
@@ -71,6 +84,8 @@ class Employee(Base):
 
     comment = models.TextField(_('commentaire'), blank=True, null=True, default=None)
     status = ModelSelect('employee.Status', verbose_name=_('code d\'activité'), null=True, on_delete=models.SET_NULL, default=None)
+
+    metadata = JSONField(verbose_name=_('meta'), default=_metadata, blank=True)
 
     list_filter = ('grade', 'grade__category', 'direction', 'branch', 'branch__category', 'status', 'status__category', 'date_of_join', 'date_of_birth')
     list_display = ('registration_number', 'grade', 'branch', 'last_name', 'middle_name', 'status')
@@ -119,9 +134,11 @@ class Employee(Base):
             Column('physical_address', css_class='col-md-6 col-sm-12'),
             Column('emergency_information', css_class='col-md-6 col-sm-12'),
         ),
-        Row(
-            Column('is_housed', css_class='col-md-6 col-sm-12'),
-            Column('mileage_allowance', css_class='col-md-6 col-sm-12'),
+        Fieldset(
+            'Options',
+            'is_housed',
+            'mileage_allowance',
+            css_class='mb-4 bg-light-success p-3 rounded'
         ),
         Row(
             Column('payment_method', css_class='col-md-4 col-sm-12'),

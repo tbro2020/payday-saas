@@ -158,18 +158,18 @@
     </div>
 </div>
 
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+<script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+
 <script>
     $(function() {
+        $('.datepicker').datepicker({dateFormat: 'dd/mm/yy'});
+        $('.datetimeinput').datepicker({dateFormat: 'dd/mm/yy'});
+
         $("#master-checkbox").change(function() {
             let value = $(this).is(":checked");
             $("input[type='checkbox']").attr("checked", value);
         });
-
-        /* $(".btn-actor").click(function(){
-            let checked = $('input:checked').map((_, el) => el.value).get();
-            if(checked.length == 0) return;
-            let url = $(this).data('href');
-        }); */
 
         $('input[type="checkbox"]').change(function() {
             let checked = $('input:checked').map((_, el) => el.value).get();
@@ -184,11 +184,6 @@
                 }
             });
         });
-
-        /* $('fieldset').has('input[type="date"]').each(function() {
-            var legend = $(this).find('legend');
-            if (legend.length) legend.replaceWith($('<label>').html(legend.html()));
-        }); */
 
         $("#filter-form").submit(function() {
             $(this).find(':input, select').filter(function() {

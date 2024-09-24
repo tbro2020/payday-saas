@@ -1,11 +1,15 @@
 from django.utils.translation import gettext as _
 from core.filters import filter_set_factory
 from django.shortcuts import HttpResponse
+from django.utils.text import slugify
 from django.shortcuts import render
 
-from django.apps import apps
 from .base.base import BaseView
+from django.apps import apps
+from django.db import models
 import pandas as pd
+
+
 
 get_name_of_fields = lambda _list: list(map(lambda x: x.name, _list))
 
@@ -19,6 +23,13 @@ class Exporter(BaseView):
             return model._meta.get_field(fields[0]).verbose_name.lower()
         model = model._meta.get_field(fields[0]).related_model
         return self.get_field_verbose(model, '__'.join(fields[1:]))
+    
+    def get_field(self, model, field):
+        fields = field.split('__')
+        if len(fields) == 1:
+            return model._meta.get_field(fields[0])
+        model = model._meta.get_field(fields[0]).related_model
+        return self.get_field(model, '__'.join(fields[1:]))
     
     def get(self, request, app, model):
         model = apps.get_model(app, model)
@@ -48,10 +59,11 @@ class Exporter(BaseView):
 
         fields = {field : self.get_field_verbose(model, field) for field in fields}
 
-        df = pd.DataFrame.from_records(data)
+        df = pd.DataFrame.from_records(data).astype(str)
         df.rename(columns=fields, inplace=True)
+        df.astype(str)
         
-        filename = f"{model._meta.verbose_name}.xlsx"
+        filename = f"{slugify(model._meta.verbose_name)}.xlsx"
         response = HttpResponse(content_type='application/xlsx')
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
 

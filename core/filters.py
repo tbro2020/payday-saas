@@ -1,9 +1,9 @@
 from django.db.models import Q, CharField, TextField
 from django.utils.translation import gettext as _
+from core.forms import DateRangeWidget
 from functools import reduce
 from django import forms
 import django_filters
-
 
 class AdvanceFilterSet(django_filters.FilterSet):
     q = django_filters.CharFilter(label=str, method='search', widget=forms.TextInput(attrs={'class': 'form-control d-none'}))
@@ -50,10 +50,11 @@ def filter_set_factory(_model, fields):
         fields = _fields
 
     for field in _fields:
-        if field not in _model._meta.fields: continue
-        field = _model._meta.get_field(field)
+        field = _model._meta.get_field(field.split('__')[0])
         if field.get_internal_type() in ['DateTimeField', 'DateField']:
-            attrs[field.name] = django_filters.DateFromToRangeFilter()
+            attrs[field.name] = django_filters.DateFromToRangeFilter(**{
+                'widget': DateRangeWidget()
+            })
 
     attrs['Meta'] = Meta
     return type(f"{_model._meta.object_name}FilterSet", (AdvanceFilterSet,), attrs)
