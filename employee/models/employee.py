@@ -49,15 +49,16 @@ class Employee(Base):
     social_security_number = models.CharField(_('numéro de sécurité sociale'), max_length=50, blank=True, null=True, default=None)
     
     agreement = ModelSelect(Agreement, verbose_name=_('type de contrat'), blank=True, null=True, on_delete=models.SET_NULL)
-    date_of_join = DateField(_('date d\'engagement'), null=True, default=None)
     photo = models.ImageField(_('photo'), blank=True, null=True)
+
+    date_of_leave = DateField(_('date de fin de service'), null=True, default=None)
+    date_of_join = DateField(_('date d\'engagement'), null=True, default=None)
 
     position = ModelSelect('employee.Position', verbose_name=_('position'), blank=True, null=True, on_delete=models.SET_NULL)
     grade = ModelSelect('employee.grade', verbose_name=_('grade'), blank=True, null=True, on_delete=models.SET_NULL)
     branch = ModelSelect('employee.Branch', verbose_name=_('site'),  null=True, on_delete=models.SET_NULL)
     
-
-    direction = ModelSelect(Direction, verbose_name=_('direction'), null=True, on_delete=models.SET_NULL, default=None)
+    direction = ModelSelect(Direction, verbose_name=_('departement'), null=True, on_delete=models.SET_NULL, default=None)
     sub_direction = ModelSelect(SubDirection, verbose_name=_('sous-direction'), blank=True, null=True, on_delete=models.SET_NULL, default=None)
     service = ModelSelect(Service, verbose_name=_('service'), blank=True, null=True, on_delete=models.SET_NULL, default=None)
 
@@ -102,9 +103,12 @@ class Employee(Base):
             Column('social_security_number', css_class='col-md-6 col-sm-12')
         ),
         Row(
-            Column('branch', css_class='col-md-4 col-sm-12'),
-            Column('agreement', css_class='col-md-4 col-sm-12'),
-            Column('date_of_join', css_class='col-md-4 col-sm-12')
+            Column('branch', css_class='col-md-6 col-sm-12'),
+            Column('agreement', css_class='col-md-6 col-sm-12')
+        ),
+        Row(
+            Column('date_of_join', css_class='col-md-6 col-sm-12'),
+            Column('date_of_leave', css_class='col-md-6 col-sm-12')
         ),
         Row(
             Column('direction', css_class='col-md-4 col-sm-12'),

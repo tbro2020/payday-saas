@@ -12,8 +12,8 @@ class Direction(Base):
     layout = Layout('name')
 
     class Meta:
-        verbose_name = _('direction')
-        verbose_name_plural = _('directions')
+        verbose_name = _('departement')
+        verbose_name_plural = _('departements')
         
     def __str__(self):
         return self.name
