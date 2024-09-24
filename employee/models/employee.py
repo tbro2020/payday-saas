@@ -35,7 +35,9 @@ fields = ['MOIS', 'NOMS', 'ZONE', 'ANNEE',
           'LIEU_NAISSANCE', 'COMPTE_BANCAIRE', 'DATE_ENGAGEMENT', 'GRADE_PERSONNEL', 
           'LIEU_ENGAGEMENT', 'NUMERO_IDENTITE', 'ANCIENNETE_GRADE', 'CODE_BANQUE_AUTRE', 
           'NUMERO_HABITATION', 'TRAITEMENT_ANNUEL', 'TRAITEMENT_MENSUEL', 'COMPTE_BANCAIRE_AUTRE']
-_metadata = lambda: dict(**{k:None for k in fields})
+
+def _metadata():
+        return dict(**{k:None for k in fields})
 
 class Employee(Base):
 
