@@ -49,6 +49,9 @@ class Employee(Base):
     physical_address = models.TextField(_('adresse physique'), null=True, default=None)
     emergency_information = models.TextField(_('informations d\'urgence'), null=True, default=None)
 
+    is_housed = models.BooleanField(_('logé'), help_text=_("L'employé est-il logé par l'organisation ?"), default=False)
+    mileage_allowance = models.BooleanField(_('indemnité kilométrique'), help_text=_("L'employé bénéficie-t-il de l'indemnité kilométrique ?"), default=0)
+
     payer = ModelSelect('employee.payer', verbose_name=_('banque'), null=True, on_delete=models.SET_NULL, default=None, related_name='%(app_label)s_%(class)s_payer')
     payment_account = models.CharField(_('numéro de compte'), max_length=50, blank=True, null=True, default=None)
     payment_method = models.CharField(_('mode de paiement'), max_length=20, choices=PAYMENT_METHODS)
@@ -115,6 +118,12 @@ class Employee(Base):
         Row(
             Column('physical_address', css_class='col-md-6 col-sm-12'),
             Column('emergency_information', css_class='col-md-6 col-sm-12'),
+        ),
+        Fieldset(
+            'Options',
+            'is_housed',
+            'mileage_allowance',
+            css_class='mb-4 bg-light-success p-3 rounded'
         ),
         Row(
             Column('payment_method', css_class='col-md-4 col-sm-12'),
