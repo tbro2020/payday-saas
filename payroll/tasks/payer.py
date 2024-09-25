@@ -55,7 +55,7 @@ class Payer(Task):
         if not self.additional_items.empty:
             self.additional_items = self.re_base_additional_element_column(self.additional_items)
         
-        self.legal_items = payroll_model.egalItem.objects.all()
+        self.legal_items = payroll_model.LegalItem.objects.all()
         self.items = payroll_model.Item.objects.exclude(Q(condition='0') | Q(condition__isnull=True)).order_by('code')
 
         # Build and apply employee filter
