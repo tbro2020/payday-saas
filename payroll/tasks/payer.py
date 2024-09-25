@@ -1,5 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from employee.models import Employee as BaseEmployee
+from employee import models as employee_model
 from django.db.models import Sum, Q
 from django.conf import settings
 import os
@@ -7,7 +7,7 @@ import os
 from django.utils.translation import gettext as _
 from django.shortcuts import get_object_or_404
 
-from payroll.models import *
+from payroll import models as payroll_model
 from celery import Task
 import pandas as pd
 
@@ -15,6 +15,7 @@ from datetime import datetime
 from payday.celery import app
 import json
 
+remove_leading_zero = lambda x: str(int(x)) if x.isdigit() else x
 
 class Payer(Task):
     """
@@ -22,7 +23,12 @@ class Payer(Task):
     """
     errors = []
     name = 'payer'
-    ignore_result = True        
+    ignore_result = True
+
+    baremes = {
+        remove_leading_zero(grade['name']): grade['metadata']
+        for grade in employee_model.Grade.objects.values('name', 'metadata')
+    }     
 
     TRANCHES = {
         0.03: [0, 162000],
@@ -41,7 +47,7 @@ class Payer(Task):
         self.chunks_size = int(getattr(settings, 'PAYROLL_CHUNCKS_SIZE', 100))
         
         self.workers = os.cpu_count() * (1.0 if DEBUG else 1.5)
-        self.payroll = get_object_or_404(Payroll, pk=pk)
+        self.payroll = get_object_or_404(payroll_model.Payroll, pk=pk)
 
         # Load additional items from Excel
         self.canvas = self.load_excel(self.payroll.canvas)
@@ -49,11 +55,11 @@ class Payer(Task):
         if not self.additional_items.empty:
             self.additional_items = self.re_base_additional_element_column(self.additional_items)
         
-        self.legal_items = LegalItem.objects.all()
-        self.items = Item.objects.exclude(Q(condition='0') | Q(condition__isnull=True)).order_by('code')
+        self.legal_items = payroll_model.egalItem.objects.all()
+        self.items = payroll_model.Item.objects.exclude(Q(condition='0') | Q(condition__isnull=True)).order_by('code')
 
         # Build and apply employee filter
-        self.employees = BaseEmployee.objects.select_related().all()
+        self.employees = employee_model.Employee.objects.select_related().all()
         self.employees = self.employees.filter(**{
             k:v for k, v in {
                 'grade__in': self.payroll.employee_grade.values_list('id', flat=True),
@@ -152,7 +158,7 @@ class Payer(Task):
                 for future in as_completed(future_to_chunk):
                     future.result()
 
-            self.payroll = self.refresh_payroll(status=PayrollStatus.SUCCESS)
+            self.payroll = self.refresh_payroll(status=payroll_model.PayrollStatus.SUCCESS)
             # self.update_task_state(is_last=True, meta={'current': self.employees.count(), 'total': self.employees.count()})
         except Exception as ex:
             #self.update_task_state(s_last=True, meta={'current': 0, 'total': self.employees.count()})
@@ -165,7 +171,7 @@ class Payer(Task):
         self.payroll.metadata.setdefault('errors', []).append({'message': str(ex), 'tag': 'error'})
         self.payroll.created_by.email_user(_(f"Erreur paie #{self.payroll.name}"), str(ex))
         
-        Payroll.objects.filter(pk=self.payroll.pk).update(**{'status': PayrollStatus.WARNING, 'metadata': self.payroll.metadata})
+        payroll_model.Payroll.objects.filter(pk=self.payroll.pk).update(**{'status': payroll_model.PayrollStatus.WARNING, 'metadata': self.payroll.metadata})
         self.payroll.refresh_from_db()
 
     def evaluate_formulas(self, item, employee, payslip, canvas, items_paid=[]):
@@ -173,7 +179,7 @@ class Payer(Task):
         Safely evaluate the formulas for employee and employer.
         """
         try:
-            working_days_per_month = getattr(employee, 'working_days_per_month', 26)
+            working_days_per_month = getattr(employee, 'working_days_per_month', 30)
             time = float(eval(item.time, locals()) or 0) if hasattr(item, 'time') else 0
             formula_qp_employee = abs(round(eval(item.formula_qp_employee, locals()), 2)) * item.type_of_item
             formula_qp_employer = abs(round(eval(item.formula_qp_employer, locals()), 2)) * item.type_of_item
@@ -190,10 +196,10 @@ class Payer(Task):
         data = employee.__dict__.items()
         data = {k: v for k, v in data if k not in ['_state', 'id']}
 
-        emp = Employee(**data, payroll=self.payroll)
+        emp = payroll_model.Employee(**data, payroll=self.payroll)
         emp.save()
         
-        return Payslip.objects.create(**{
+        return payroll_model.Payslip.objects.create(**{
             'employee': emp,
             'payroll': self.payroll,
             'created_by': self.payroll.created_by
@@ -206,14 +212,14 @@ class Payer(Task):
         amount_qp_employee = round(items_paid.aggregate(amount=Sum('amount_qp_employee'))['amount'] or 0, 2)
         taxable_amount = round(items_paid.aggregate(amount=Sum('taxable_amount'))['amount'] or 0, 2)
 
-        Payslip.objects.filter(pk=payslip.pk).update(**{
+        payroll_model.Payslip.objects.filter(pk=payslip.pk).update(**{
             'social_security_threshold': social_security_amount,
             'taxable_gross': taxable_amount,
             'gross': amount_qp_employee,
             'net': amount_qp_employee
         })
 
-        return Payslip.objects.get(pk=payslip.pk)
+        return payroll_model.Payslip.objects.get(pk=payslip.pk)
     
     def refresh_payroll(self, status=None):
         """
@@ -222,8 +228,8 @@ class Payer(Task):
         net = self.payroll.payslip_set.aggregate(amount=Sum('net')).get('amount', 0)
         net = round(net, 2) if net else 0
 
-        Payroll.objects.filter(pk=self.payroll.pk).update(**{'overall_net': net, 'status': status if status else self.payroll.status})
-        return Payroll.objects.get(pk=self.payroll.pk)
+        payroll_model.Payroll.objects.filter(pk=self.payroll.pk).update(**{'overall_net': net, 'status': status if status else self.payroll.status})
+        return payroll_model.Payroll.objects.get(pk=self.payroll.pk)
 
     def generate_items(self, items, payslip, employee, condition=True):
         """
@@ -248,9 +254,8 @@ class Payer(Task):
         item_to_pay_queryset = []
         for item in items:
             canvas = None
-            amount_qp_employee = 0
-            amount_qp_employer = 0
-            if isinstance(item, SpecialEmployeeItem):
+            amount_qp_employee, amount_qp_employer = 0, 0
+            if isinstance(item, payroll_model.SpecialEmployeeItem):
                 amount_qp_employee, amount_qp_employer, item = item.amount_qp_employee, item.amount_qp_employer, item.item
             try:
                 if condition:
@@ -262,7 +267,7 @@ class Payer(Task):
                     time, qpe, qpp = self.evaluate_formulas(item, employee, payslip, canvas, item_to_pay_queryset)
                 
                 if int(qpe) == 0 and int(qpp) == 0: continue
-                item_to_pay_queryset.append(ItemPaid(
+                item_to_pay_queryset.append(payroll_model.ItemPaid(
                     code=item.code,
                     type_of_item=item.type_of_item,
                     name=item.name, time=time, rate=round(qpe/time, 2) if time else 0,
@@ -281,7 +286,7 @@ class Payer(Task):
                 }
                 message = [f"{k}:{v} \n " for k,v in message.items()]
                 raise Exception(str(ex)+" \n ".join(message))
-        return ItemPaid.objects.bulk_create(item_to_pay_queryset)
+        return payroll_model.ItemPaid.objects.bulk_create(item_to_pay_queryset)
 
     def re_base_additional_element_column(self, df):
         columns = {
@@ -316,8 +321,8 @@ class Payer(Task):
         df.pop('matricule')
 
         data = json.loads(df.to_json(orient='records'))
-        data = [ItemPaid(**obj, payslip=payslip) for obj in data]
-        return ItemPaid.objects.bulk_create(data)
+        data = [payroll_model.ItemPaid(**obj, payslip=payslip) for obj in data]
+        return payroll_model.ItemPaid.objects.bulk_create(data)
 
     def get_tranche(self, taxable_gross):
         for percentage, (lower_bound, upper_bound) in self.TRANCHES.items():
