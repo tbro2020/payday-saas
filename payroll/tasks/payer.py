@@ -15,7 +15,7 @@ from datetime import datetime
 from payday.celery import app
 import json
 
-remove_leading_zero = lambda x: str(int(x)) if x.isdigit() else x
+remove_leading_zero = lambda x: str(int(x)) if x and x.isdigit() else x
 
 class Payer(Task):
     """
