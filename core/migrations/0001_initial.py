@@ -23,7 +23,7 @@ import django_currentuser.middleware
 from django.conf import settings
 from django.db import migrations, models
 
-def add_default_data(apps, schema_editor):
+def default_data(apps, schema_editor):
     print("Adding default data")
 
 class Migration(migrations.Migration):
