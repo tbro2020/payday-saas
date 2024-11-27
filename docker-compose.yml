@@ -1,10 +1,10 @@
+version: '3.8'
+
 services:
   web:
     build: .
     restart: unless-stopped
     container_name: server
-    # command: gunicorn --workers=4 --threads=3 --bind 0.0.0.0:80 payday.wsgi:application
-    # command: gunicorn --bind 0.0.0.0:80 payday.wsgi:application
     command: >
       sh -c "python manage.py migrate && 
              gunicorn --bind 0.0.0.0:80 payday.wsgi:application"
@@ -38,25 +38,33 @@ services:
     restart: unless-stopped
     container_name: primary
     volumes:
+      - ./postgres/primary/postgresql.conf:/var/lib/postgresql/data/postgresql.conf
+      - ./postgres/primary/pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
       - primary:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=primary
       - POSTGRES_USER=payday
       - POSTGRES_PASSWORD=payday
+      - REPLICATION_ROLE=master
+      - REPLICATION_USER=rep_user
+      - REPLICATION_PASSWORD=rep_pass
 
   replica:
     image: postgres:latest
     restart: unless-stopped
     container_name: replica
     volumes:
+      - ./postgres/replica/postgresql.conf:/var/lib/postgresql/data/postgresql.conf
+      - ./postgres/replica/recovery.conf:/var/lib/postgresql/data/recovery.conf
       - replica:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=replica 
-      - POSTGRES_USER=payday 
-      - POSTGRES_PASSWORD=payday 
-      - POSTGRES_MASTER_USER=payday 
-      - POSTGRES_MASTER_PASSWORD=payday 
-      - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_DB=replica
+      - POSTGRES_USER=payday
+      - POSTGRES_PASSWORD=payday
+      - REPLICATION_ROLE=slave
+      - REPLICATION_USER=rep_user
+      - REPLICATION_PASSWORD=rep_pass
+      - PRIMARY_HOST=primary
     depends_on:
       - primary
 
