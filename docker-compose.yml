@@ -31,8 +31,6 @@ services:
       - minio
     env_file:
       - .env.worker
-    network:
-      - primary
 
   primary:
     image: postgres:latest
