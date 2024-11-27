@@ -1,9 +1,17 @@
-FROM minio/mc:latest
+# Use a Debian-based image as the base image
+FROM debian:bullseye-slim
 
-# Install curl using Alpine's package manager
-RUN apk add --no-cache curl
+# Install curl and the MinIO client (mc)
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && curl -LO https://dl.min.io/client/mc/release/linux-amd64/mc \
+    && chmod +x mc \
+    && mv mc /usr/local/bin/
 
-# Set the entrypoint script
-COPY bucket.sh /app/bucket
-RUN chmod +x /app/bucket
+# Copy your bucket script
+COPY bucket.sh /app/
+RUN chmod +x /app/bucket.sh
+
+# Set entrypoint to run the script
 ENTRYPOINT ["/app/bucket"]
