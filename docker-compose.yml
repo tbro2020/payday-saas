@@ -1,10 +1,10 @@
-version: '3.8'
-
 services:
   web:
     build: .
     restart: unless-stopped
     container_name: server
+    # command: gunicorn --workers=4 --threads=3 --bind 0.0.0.0:80 payday.wsgi:application
+    # command: gunicorn --bind 0.0.0.0:80 payday.wsgi:application
     command: >
       sh -c "python manage.py migrate && 
              gunicorn --bind 0.0.0.0:80 payday.wsgi:application"
@@ -43,15 +43,6 @@ services:
       - POSTGRES_DB=primary
       - POSTGRES_USER=payday
       - POSTGRES_PASSWORD=payday
-    ports:
-      - "5433:5432"
-    networks:
-      - pgnetwork
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U payday"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   replica:
     image: postgres:latest
@@ -60,23 +51,14 @@ services:
     volumes:
       - replica:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=replica
-      - POSTGRES_USER=payday
-      - POSTGRES_PASSWORD=payday
-      - POSTGRES_MASTER_USER=payday
-      - POSTGRES_MASTER_PASSWORD=payday
+      - POSTGRES_DB=replica 
+      - POSTGRES_USER=payday 
+      - POSTGRES_PASSWORD=payday 
+      - POSTGRES_MASTER_USER=payday 
+      - POSTGRES_MASTER_PASSWORD=payday 
       - POSTGRES_HOST_AUTH_METHOD=trust
     depends_on:
       - primary
-    ports:
-      - "5434:5432"
-    networks:
-      - pgnetwork
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U payday"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   pgbouncer:
     image: edoburu/pgbouncer:latest
@@ -95,8 +77,6 @@ services:
     depends_on:
       - primary
       - replica
-    networks:
-      - pgnetwork
   
   redis:
     image: redis:latest
@@ -119,10 +99,6 @@ services:
     command: server /data --address :9000 --console-address ":9001"
     volumes:
       - minio:/data
-
-networks:
-  pgnetwork:
-    driver: bridge
 
 volumes:
   primary:
