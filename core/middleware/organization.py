@@ -10,7 +10,7 @@ class OrganizationMiddleware:
     
     def organization(self):
         model = apps.get_model('core.organization')
-        return model.objects.first()
+        return model.objects.all().first()
 
     def __call__(self, request):
         path = request.path
@@ -18,5 +18,5 @@ class OrganizationMiddleware:
         request.organization = organization
         
         if organization == None and path != self.organization_path:
-            return redirect(reverse_lazy('core:create-organization')+"?next="+request.path)
+            return redirect(reverse_lazy('core:create-organization')+"?next="+path)
         return self.get_response(request)
