@@ -21,6 +21,10 @@ COPY . /app/
 # Copy the .env file to the working directory
 COPY .env /app/.env
 
+# Set environment variables for Django Database settings
+ENV REPLICATED_DATABASE_URL=postgres://payday:13615c0d20e345681bc1472793e8c055@pgbouncer:6432/replica
+ENV DEFAULT_DATABASE_URL=postgres://payday:13615c0d20e345681bc1472793e8c055@pgbouncer:6432/primary
+
 # Collect static files
 # RUN python manage.py collectstatic --noinput
 
