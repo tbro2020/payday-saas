@@ -135,8 +135,6 @@ if REPLICATED_DATABASE_URL:
     # Database router
     DATABASE_ROUTERS = ['payday.db_routers.PrimaryReplicaRouter']
 
-print(DEFAULT_DATABASE_URL)
-
 # Redis settings
 REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379')
 REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
