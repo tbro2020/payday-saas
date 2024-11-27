@@ -1,0 +1,12 @@
+<table>
+    <tbody>
+        <tr>
+        {% for approved in obj.approbations.approved %}
+            <td>
+                <b>{{ approved.user.employee.designation|default:'-' }}</b>
+                <p>{{ approved.user.employee.full_name|default:approved.user }}</p>
+            </td>
+        {% endfor %}
+        </tr>
+    </tbody>
+</table>

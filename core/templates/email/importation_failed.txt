@@ -1,0 +1,6 @@
+Cher(e) utilisateur(trice),,
+
+Il s'agit d'une notification automatisée vous informant que la tentative d'importation du fichier Excel a échoué. Le système a rencontré une erreur au cours du processus et n'a pas pu terminer l'importation.
+Nous vous prions de nous excuser pour les désagréments que cela a pu causer. Notre équipe technique en a été informée et elle examinera le problème dans les plus brefs délais. Nous nous efforçons de résoudre ce problème dès que possible et nous vous informerons dès que le processus d'importation aura repris son cours normal.
+Si vous avez besoin d'une assistance immédiate, veuillez contacter notre équipe d'assistance.
+Nous vous remercions de votre compréhension.

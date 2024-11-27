@@ -1,0 +1,34 @@
+{% load i18n %}
+{% load static %}
+{% get_current_language as LANGUAGE_CODE %}
+
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+    <head>
+        <title>PayDay</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{% static 'assets/css/main/app.css' %}">
+        <link rel="stylesheet" href="{% static 'assets/css/pages/auth.css' %}">
+        <link rel="shortcut icon" href="{% static 'assets/images/logo/favicon.svg' %}" type="image/x-icon">
+        <link rel="shortcut icon" href="{% static 'assets/images/logo/favicon.png' %}" type="image/png">
+    </head>
+
+    <body>
+        <div id="auth">
+            <div class="row h-100">
+                <div class="col-lg-5 col-12">
+                    <div id="auth-left">
+                        {% block left_content %}
+                        {% endblock %}
+                    </div>
+                </div>
+                <div class="col-lg-7 d-none d-lg-block">
+                    <div id="auth-right">
+            
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

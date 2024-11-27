@@ -1,0 +1,51 @@
+{% load core %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+<style>
+  span.select2-container {
+    width: 100% !important;
+  }
+  span.select2-selection--single{
+    height: 40px !important;
+  }
+</style>
+<form hx-post="{{ request.path }}" class="modal-content" id="form">
+    {% csrf_token %}
+    <div class="modal-header">
+      <h5 class="modal-title">{{ model|getattr:'_meta'|getattr:'verbose_name'|title }}</h5>
+    </div>
+    <div class="modal-body">
+
+        <dl class="row">
+            {% for field in model|getattr:"_meta"|getattr:"fields" %}
+
+                {% if field.get_internal_type == 'ForeignKey' or field.get_internal_type == 'OneToOneField' %}
+                <dt class="col-sm-3 text-capitalized">{{ field.verbose_name }}</dt>
+                <dd class="col-sm-9">
+
+                    <dl class="row">
+                        {% for sub_field in field.remote_field.model|getattr:"_meta"|getattr:"fields" %}
+                            <dt class="col-sm-3 text-capitalized">{{ sub_field.verbose_name|title }}</dt>
+                            <dd class="col-sm-9">{{ obj|getattr:field.name|getattr:sub_field.name }}</dd>
+                        {% endfor %}
+                    </dl>
+
+                </dd>
+                {% else %}
+                    {% with obj|getattr:field.name as value %}
+                        {% if value %}
+                            <dt class="col-sm-3 text-capitalized">{{ field.verbose_name|title }}</dt>
+                            <dd class="col-sm-9">{{ value }}</dd>
+                        {% endif %}
+                    {% endwith %}
+                {% endif %}
+            {% endfor %}
+        </dl>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" type="button" data-bs-dismiss="modal">{% trans 'Annuler' %}</button>
+      <button class="btn btn-danger" type="submit">{% trans 'Supprimer' %}</button>
+    </div>
+</form>

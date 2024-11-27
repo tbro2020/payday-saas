@@ -1,0 +1,27 @@
+{% load core %}
+{% load i18n %}
+
+<ol class="breadcrumb mb-0">
+    <li class="breadcrumb-item"><a href="{% url 'core:home' %}">{% trans 'Tableau de bord' %}</a></li>
+    {% if qs and app and model %}
+    <li class="breadcrumb-item">
+        <a href="{% url 'core:list' app model|getattr:'_meta'|getattr:'model_name' %}">
+            {{ model|getattr:'_meta'|getattr:'verbose_name_plural'|title }}
+        </a>
+    </li>
+    {% endif %}
+    
+    {% if obj and app and model %}
+    <li class="breadcrumb-item">
+        <a href="{% url 'core:list' app model|getattr:'_meta'|getattr:'model_name'%}">
+            {{ model|getattr:'_meta'|getattr:'verbose_name_plural'|title }}
+        </a>
+    </li>
+    
+    <li class="breadcrumb-item">
+        <a href="{% url 'core:change' app model|getattr:'_meta'|getattr:'model_name' obj.pk %}">
+            {{ model|getattr:'_meta'|getattr:'verbose_name'|title }} #{{ obj.pk }}
+        </a>
+    </li>
+    {% endif %}
+</ol>

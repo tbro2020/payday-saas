@@ -1,0 +1,21 @@
+{% load core %}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            {% for field in fields %}
+                <th>{{ field.verbose_name|title }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for obj in qs %}
+            <tr>
+                {% for field in fields %}
+                    <td>{{ obj|getattr:field.name }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

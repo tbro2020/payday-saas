@@ -1,0 +1,21 @@
+{% load core %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+<style>
+  .select2-container{
+    width: 100% !important;
+  }
+</style>
+<form hx-post="{{ request.path }}" class="modal-content" id="form">
+    {% csrf_token %}
+    <div class="modal-header">
+      <h5 class="modal-title">{{ model|getattr:'_meta'|getattr:'verbose_name'|title }}</h5>
+    </div>
+    <div class="modal-body">
+        {{ form|crispy }}
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" type="button" data-bs-dismiss="modal">{% trans 'Annuler' %}</button>
+      <button class="btn btn-primary" type="submit">{% trans 'Sauvegarder' %}</button>
+    </div>
+</form>

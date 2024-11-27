@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% load core %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="page-heading">
+    <div class="row">
+        <div class="col">
+            <h3 class="mb-0">{% trans 'Delete' %} {{ model|getattr:'_meta'|getattr:'verbose_name'|title }}</h3>
+            <h6>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'core:home' %}">{% trans 'Home' %}</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'core:list' app model|getattr:'_meta'|getattr:'model_name' %}">{{ model|getattr:'_meta'|getattr:'verbose_name_plural'|title }}</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">{% trans 'Delete' %} {{ obj.name }}</li>
+                    </ol>
+                </nav>
+            </h6>
+        </div>
+        <div class="col text-end">
+            {% url 'core:change' app model|getattr:'_meta'|getattr:'model_name' obj.pk as next %}
+          <a href="{{ request.GET.next|default:next }}" class="btn btn-light-success">{% trans 'Annuler' %}</a>
+          <button type="submit" form="form-{{ model|getattr:'_meta'|getattr:'model_name' }}" class="btn btn-light-danger">{% trans 'Supprimer' %}</button>
+        </div>
+    </div>
+</div>
+
+<div class="col">
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">
+                <h6 class="m-0 p-0">{% trans 'Êtes-vous sûr de votre action ?' %}</h6>
+                <small class="text-danger">{% trans 'Cette action n est pas réversible' %}</small>
+            </div>
+        </div>
+        <div class="card-body">
+            <form id="form-{{ model|getattr:'_meta'|getattr:'model_name' }}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <dl class="row">
+                    {% for field in model|getattr:"_meta"|getattr:"fields" %}
+
+                        {% if field.get_internal_type == 'ForeignKey' or field.get_internal_type == 'OneToOneField' %}
+                        <dt class="col-sm-3 text-capitalized">{{ field.verbose_name }}</dt>
+                        <dd class="col-sm-9">
+
+                            <dl class="row">
+                                {% for sub_field in field.remote_field.model|getattr:"_meta"|getattr:"fields" %}
+                                    <dt class="col-sm-3 text-capitalized">{{ sub_field.verbose_name|title }}</dt>
+                                    <dd class="col-sm-9">{{ obj|getattr:field.name|getattr:sub_field.name }}</dd>
+                                {% endfor %}
+                            </dl>
+
+                        </dd>
+                        {% else %}
+                            {% with obj|getattr:field.name as value %}
+                                {% if value %}
+                                    <dt class="col-sm-3 text-capitalized">{{ field.verbose_name|title }}</dt>
+                                    <dd class="col-sm-9">{{ value }}</dd>
+                                {% endif %}
+                            {% endwith %}
+                        {% endif %}
+                    {% endfor %}
+                </dl>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

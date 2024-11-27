@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% load static %}
+{% load humanize %}
+{% load mathfilters %}
+
+{% block content %}
+{% load static slick_reporting_tags %}
+{% get_current_language as LANGUAGE_CODE %}
+
+<script src="{% static 'assets/extensions/apexcharts/apexcharts.min.js' %}"></script>
+
+<div class="page-content">
+    <div class="row">
+        {% for widget in widgets %}
+            <div class="{{ widget.column }}">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">{{ widget.title }}</h4>
+                    </div>
+                    <div class="card-body">
+                        {{ widget.content }}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

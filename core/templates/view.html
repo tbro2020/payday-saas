@@ -1,0 +1,26 @@
+<script>
+  function toggleReadOnly(readOnly) {
+    // Select all elements inside .content-wrapper containers
+    $('.page-content').each(function() {
+      // Find input, textarea, and standard select elements (not Select2)
+      $(this).find('input, textarea, select').not('.select2').each(function() {
+        $(this).prop('readonly', readOnly); // For input and textarea
+        $(this).prop('disabled', readOnly); // For select elements
+      });
+
+      // Handle Select2 fields within this container
+      $(this).find('.select2').each(function() {
+        // Check if the select element is initialized with Select2 before destroying
+        if ($(this).data('select2')) {
+          if (readOnly) {
+            $(this).prop('disabled', true); // Disable the Select2 field
+            $(this).select2('destroy'); // Destroy Select2's UI
+          } else {
+            $(this).prop('disabled', false); // Enable the Select2 field
+            $(this).select2(); // Reinitialize Select2's UI
+          }
+        }
+      });
+    });
+  }
+</script>

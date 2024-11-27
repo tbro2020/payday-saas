@@ -1,0 +1,243 @@
+
+# PayDay
+
+Payday is a comprehensive software solution designed to automate and optimise your company's payroll and human resources management. With its intuitive interface and advanced features, Payday makes it easy to manage payroll, leave, benefits and much more. With Payday, you can ensure full compliance with local regulations and improve the efficiency of your HR processes.
+
+---
+# Intellectual Property Notice
+
+#### Important Notice:
+
+The source code and all related assets of the Payday application are the intellectual property of Kaditaj SARL. Unauthorized use, sharing, reproduction, or distribution of this code, in whole or in part, is strictly prohibited. Any use of this code must be explicitly authorized by Kaditaj SARL. Failure to comply with these terms will result in legal action.
+
+---
+
+# Deployment with Docker Compose
+
+This guide will help you deploy the Payday application using Docker Compose. The provided `docker-compose.yml` file sets up multiple services, including the web server, worker, database, PGBouncer, Redis, and MinIO. The application environment variables are configured through an `.env` file.
+
+## Prerequisites
+
+Ensure you have the following installed on your system:
+
+### Docker
+You can install Docker by following the instructions for your operating system from the [official Docker website](https://docs.docker.com/get-docker/).
+
+### Docker Compose
+You can install Docker Compose by following the instructions from the [official Docker Compose website](https://docs.docker.com/compose/install/).
+
+### Verify Installation
+After installation, verify that Docker and Docker Compose are installed correctly by running the following commands:
+```sh
+docker --version
+docker-compose --version
+```
+
+## Environment Variables
+
+Create a file named `.env` in the root directory of your project with the following content:
+
+```env
+DEBUG=0
+ALLOWED_HOSTS=*
+DJANGO_SETTINGS_MODULE=payday.settings
+
+# Broker
+CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND:-redis://redis:6379/0}
+CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://redis:6379/0}
+
+REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+REDIS_HOST=${REDIS_HOST:-redis}
+REDIS_PORT=${REDIS_PORT:-6379}
+
+# Database
+DATABASE_URL=postgres://payday:13615c0d20e345681bc1472793e8c055@pgbouncer:6432/payday
+
+# Files
+DEFAULT_FILE_STORAGE=storages.backends.s3boto3.S3Boto3Storage
+AWS_S3_ENDPOINT_URL=http://onatra.payday.cd:9000
+AWS_SECRET_ACCESS_KEY=minioadmin
+AWS_STORAGE_BUCKET_NAME=payday
+AWS_ACCESS_KEY_ID=minioadmin
+MINIO_ACCESS_KEY=minioadmin
+MINIO_SECRET_KEY=minioadmin
+MINIO_ENDPOINT=minio:9000
+MINIO_USE_SSL=false
+
+# Email
+EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST_PASSWORD=payday
+EMAIL_HOST_USER=notification@payday.cd
+EMAIL_USE_TLS=1
+EMAIL_USE_SSL=0
+EMAIL_PORT=587
+```
+
+### Environment Variables Configuration
+
+This section describes the necessary environment variables required for the `payday` project. Ensure these variables are set appropriately in your `.env` file.
+
+#### General Settings
+- `DEBUG`: Set to `0` to disable debug mode.
+- `ALLOWED_HOSTS`: Define the hosts allowed to connect. Set to `*` to allow all hosts.
+- `DJANGO_SETTINGS_MODULE`: Specifies the settings module for Django. Set to `payday.settings`.
+
+#### Broker Configuration
+- `CELERY_RESULT_BACKEND`: Backend URL for Celery results, defaulting to `redis://redis:6379/0`.
+- `CELERY_BROKER_URL`: URL for the Celery broker, defaulting to `redis://redis:6379/0`.
+
+#### Redis Configuration
+- `REDIS_URL`: URL for Redis, defaulting to `redis://redis:6379/0`.
+- `REDIS_HOST`: Host for Redis, defaulting to `redis`.
+- `REDIS_PORT`: Port for Redis, defaulting to `6379`.
+
+#### Database Configuration
+- `DATABASE_URL`: URL for the database connection. Example: `postgres://payday:13615c0d20e345681bc1472793e8c055@pgbouncer:6432/payday`.
+
+#### File Storage Configuration
+- `DEFAULT_FILE_STORAGE`: Backend for file storage. Set to `storages.backends.s3boto3.S3Boto3Storage`.
+- `AWS_S3_ENDPOINT_URL`: Endpoint URL for S3, e.g., `http://onatra.payday.cd:9000`.
+- `AWS_SECRET_ACCESS_KEY`: Secret access key for AWS.
+- `AWS_STORAGE_BUCKET_NAME`: Name of the S3 bucket, e.g., `payday`.
+- `AWS_ACCESS_KEY_ID`: Access key ID for AWS.
+- `MINIO_ACCESS_KEY`: Access key for MinIO, e.g., `minioadmin`.
+- `MINIO_SECRET_KEY`: Secret key for MinIO, e.g., `minioadmin`.
+- `MINIO_ENDPOINT`: Endpoint for MinIO, e.g., `minio:9000`.
+- `MINIO_USE_SSL`: Set to `false` to disable SSL for MinIO.
+
+#### Email Configuration
+- `EMAIL_BACKEND`: Backend for email, set to `django.core.mail.backends.smtp.EmailBackend`.
+- `EMAIL_HOST_PASSWORD`: Password for the email host.
+- `EMAIL_HOST_USER`: User for the email host, e.g., `notification@payday.cd`.
+- `EMAIL_USE_TLS`: Set to `1` to enable TLS.
+- `EMAIL_USE_SSL`: Set to `0` to disable SSL.
+- `EMAIL_PORT`: Port for the email service, e.g., `587`.
+
+Ensure all sensitive information, such as passwords and access keys, are stored securely and not exposed publicly.
+
+## Docker Compose File
+
+Here is the `docker-compose.yml` file for the deployment:
+
+```yaml
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: server
+    command: gunicorn --workers=4 --threads=3 --bind 0.0.0.0:80 payday.wsgi:application
+    volumes:
+      - .:/app
+    ports:
+      - "80:80"
+    depends_on:
+      - pgbouncer
+      - redis
+      - minio
+    env_file:
+      - .env
+
+  worker:
+    build: .
+    restart: always
+    container_name: worker
+    command: celery -A payday worker -l INFO -E
+    volumes:
+      - .:/app
+    depends_on:
+      - pgbouncer
+      - redis
+      - minio
+    env_file:
+      - .env
+
+  db:
+    image: postgres:latest
+    container_name: pay_base
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=payday
+      - POSTGRES_USER=payday
+      - POSTGRES_PASSWORD=payday
+
+  pgbouncer:
+    image: edoburu/pgbouncer:latest
+    container_name: pgbouncer
+    ports:
+      - "6432:6432"
+    volumes:
+      - ./pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini
+      - ./pgbouncer/userlist.txt:/etc/pgbouncer/userlist.txt
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+    depends_on:
+      - db
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+      - MINIO_OPTS=--address :9000 --console-address :9001
+    command: server /data --address :9000 --console-address ":9001"
+    volumes:
+      - minio_data:/data
+
+volumes:
+  postgres_data:
+  minio_data:
+```
+
+## Steps to Deploy
+
+1. **Clone the repository**:
+   ```sh
+   git clone https://github.com/tbro2020/payday-saas.git
+   cd payday-saas
+   ```
+
+2. **Build and run the Docker containers**:
+   ```sh
+   docker-compose up --build -d
+   ```
+
+3. **Apply database migrations**:
+   ```sh
+   docker-compose exec web python manage.py migrate
+   ```
+
+4. **Collect static files**:
+   ```sh
+   docker-compose exec web python manage.py collectstatic --noinput
+   ```
+
+5. **Create a superuser**:
+   ```sh
+   docker-compose exec web python manage.py createsuperuser
+   ```
+
+Your application should now be running and accessible on `http://localhost`.
+
+## Accessing Services
+
+- **Django web application**: http://localhost
+- **Redis**: http://localhost:6379
+- **MinIO Console**: http://localhost:9001
+- **PGBouncer**: http://localhost:6432
+
+Ensure all environment variables in the `.env` file are correctly set and match your deployment requirements.
+
+For any further configuration or troubleshooting, refer to the [Django documentation](https://docs.djangoproject.com/) and the documentation for the other services included in the Docker Compose file.

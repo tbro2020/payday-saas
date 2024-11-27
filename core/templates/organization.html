@@ -1,0 +1,63 @@
+{% load i18n %}
+{% load static %}
+{% load crispy_forms_filters %}
+{% get_current_language as LANGUAGE_CODE %}
+
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <title>PayDay</title>
+        <link rel="stylesheet" href="{% static 'assets/css/main/app.css' %}">
+        <link rel="stylesheet" href="{% static 'assets/css/main/app-dark.css' %}">
+        <link rel="shortcut icon" href="{% static 'assets/images/logo/favicon.svg' %}" type="image/x-icon">
+        <link rel="shortcut icon" href="{% static 'assets/images/logo/favicon.png' %}" type="image/png">
+        <link rel="stylesheet" href="{% static 'assets/css/shared/iconly.css' %}">
+        <script src="{% static 'assets/js/jquery-3.7.0.min.js' %}" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+        <style>
+        html{
+            font-size: 12px;
+        }
+        </style>
+    </head>
+
+    <body>
+        <script src="assets/static/js/initTheme.js"></script>
+        <nav class="navbar navbar-light">
+            <div class="container d-block">
+                <a class="navbar-brand ms-4" href="index.html">
+                    <img src="{% static 'assets/images/logo/logo.png' %}">
+                </a>
+            </div>
+        </nav>
+        
+
+        <div class="container">
+            <div class="card mt-5">
+                <div class="card-header">
+                    <h2>{% trans "Créez votre organisation" %}</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ organization|crispy }}
+
+                        <fieldset class="bg-light p-3 rounded">
+                            <h3 class="mb-3">{% trans 'Utilisateur' %}</h3>
+                            {{ user|crispy }}
+                        </fielset>
+
+                        <div class="d-grid gap-2 col-6 mx-auto">
+                            <button type="submit" class="btn btn-primary btn-lg me-1 mb-1 mt-2">{% trans "Soumettre" %}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <script src="{% static 'assets/js/bootstrap.js' %}"></script>
+        <script src="{% static 'assets/js/app.js' %}"></script>
+    </body>
+</html>

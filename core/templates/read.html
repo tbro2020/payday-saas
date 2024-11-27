@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% load core %}
+{% load i18n %}
+{% load static %}
+{% load mathfilters %}
+{% load crispy_forms_filters %}
+
+{% block content %}
+<div class="page-heading">
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col text-start">
+                    <h3 class="m-0">{{ model|getattr:'_meta'|getattr:'verbose_name'|title }} #{{ obj.id }}</h3>
+                    {% include 'components/breadcrumb.html' %}
+                </div>
+
+                <div class="col text-end">
+                    {% with approbations=self.approbations %}
+                        {% if request.user.email in approbations and not approbations|getattr:request.user.email %}
+                            {% with content_type=self.get_content_type %}
+                            <div class="btn-group">
+                                <a href="{% url 'core:create' 'core' 'approval' %}?content_type={{ content_type.pk }}&object_pk={{ obj.pk }}&action=approve&next={{ request.path }}" class="btn btn-light-success">{% trans 'Approuver' %}</a>
+                                <a href="{% url 'core:create' 'core' 'approval' %}?content_type={{ content_type.pk }}&object_pk={{ obj.pk }}&action=reject&next={{ request.path }}" class="btn btn-light-warning">{% trans 'Désapprouver' %}</a>
+                            </div>
+                            {% endwith %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownDocumentBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            {% trans "Documents" %}
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownDocumentBtn">
+                            {% for document in self.documents %}
+                                <a target="_blank" class="dropdown-item btn-list-action" href="{% url 'core:print' document.id app model|getattr:'_meta'|getattr:'model_name' %}?pk={{ obj.pk }}">{{ document.name }}</a>
+                            {% endfor %}
+                        </div>
+                        <a href="{% url 'core:delete' app model|getattr:'_meta'|getattr:'model_name' obj.pk %}" class="btn btn-light-danger">{% trans 'Supprimer' %}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-content">
+    <section>
+        {% if self.approvals %}
+        <div class="card">
+            <div class="card-body">
+                {% include 'components/approvers.html' %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="card">
+            <div class="card-body">
+                {% include 'components/read_form.html' %}
+            </div>
+        </div>
+    </section>
+</div>
+
+<div class="page-footer">
+    <div class="card">
+        <div class="card-body">
+            <div class="card-title">
+                <h4>{% trans 'Activities' %}</h4>
+            </div>
+
+            <ul>
+                {% for log in self.logs %}
+                    <li>{{ log.action_time }}: {{ log.change_message }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

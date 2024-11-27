@@ -1,0 +1,55 @@
+{% extends 'registration/base.html' %}
+
+{% load i18n %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block left_content %}
+    <style>
+      #auth #auth-left .auth-logo img {
+        height: 8rem;
+      }
+    </style>
+
+    {% static 'assets/images/logo/logo.png' as logo %}
+    <div class="auth-logo mb-4"><a href="#"><img src="{{ organization.logo.url|default:logo }}" alt="Logo"></a></div>
+    
+    <h1 class="auth-title fs-1">{% trans 'Se connecter' %}.</h1>
+    <p class="auth-subtitle mb-5">{% trans 'Se connecter avec les informations fournies' %}.</p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% for field in form.visible_fields %}
+        <div class="form-group position-relative has-icon-left mb-4">
+              {% if form.is_bound %}
+                {% if field.errors %}
+                  {% render_field field class="form-control form-control-xl is-invalid" placeholder=field.name %}
+                  {% for error in field.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                {% else %}
+                  {% render_field field class="form-control form-control-xl" placeholder=field.name %}
+                {% endif %}
+              {% else %}
+                {% render_field field class="form-control form-control-xl" placeholder=field.label %}
+              {% endif %}
+                <div class="form-control-icon">
+                    {% if field.name == 'username' %}
+                    <i class="bi bi-person"></i>
+                    {% elif field.name == 'password' %}
+                    <i class="bi bi-shield-lock"></i>
+                    {% endif %}
+                </div>
+              {% if field.help_text %}
+                <small class="form-text text-muted">{{ field.help_text }}</small>
+              {% endif %}
+        </div>
+      {% endfor %}
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg shadow-lg mt-5">
+          {% trans 'Se connecter' %}
+        </button>
+    </form>
+    <div class="text-center mt-5 text-lg fs-4">
+        <p><a class="font-bold" href="{% url 'password_reset' %}">{% trans 'Mot de passe oublié ?' %}</a>.</p>
+    </div>
+{% endblock %}

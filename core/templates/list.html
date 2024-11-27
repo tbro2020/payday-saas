@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+
+{% load core %}
+{% load i18n %}
+{% load static %}
+{% load humanize %}
+{% load mathfilters %}
+{% load crispy_forms_filters %}
+
+{% block content %}
+<div class="page-heading">
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col text-start">
+                    <h3 class="m-0">{{ model|getattr:'_meta'|getattr:'verbose_name_plural'|title }}</h3>
+                    {% include 'components/breadcrumb.html' %}
+                </div>
+
+                <div class="col text-end">
+                    <div class="btn-group mb-1">
+                        <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownDocumentBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            {% trans "Documents" %}
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownDocumentBtn">
+                            {% for document in self.documents %}
+                                <a target="_blank" class="dropdown-item btn-actor" href="{% url 'core:print' document.id app model|getattr:'_meta'|getattr:'model_name' %}">{{ document.name }}(s)</a>
+                            {% endfor %}
+                        </div>
+                        <a href="{% url 'core:create' app model|getattr:'_meta'|getattr:'model_name' %}" class="btn btn-light-success">{% trans 'Ajouter' %}</a>
+                        <a href="{% url 'core:exporter' app model|getattr:'_meta'|getattr:'model_name' %}?{{ request.GET.urlencode }}" class="btn btn-light-primary btn-actor">{% trans 'Exporter' %}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-content">
+    <div class="row">
+        <div class="{% if list_filter %}col-md-9{% else %}col{% endif %} col-sm-12 col-xs-12">
+            <div class="card">
+                <div class="card-header">
+                    <form method="get" class="input-group mb-0">
+                        <span class="input-group-text" id="search-button"><i class="bi bi-search"></i></span>
+                        <input type="text" name="q" class="form-control" placeholder="{% trans 'Search' %}" aria-label="Search" aria-describedby="search-button" value="{{ request.GET.q }}">
+                    </form>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr class="text-uppercase">
+                                    <th><input type="checkbox" class="form-check-input" id="master-checkbox"/></th>
+                                    {% for field in list_display %}
+                                        <th>{{ field.verbose_name }}</th>
+                                    {% empty %}
+                                        <th>{% trans 'PK' %}</th>
+                                        <th>{% trans 'Name' %}</th>
+                                    {% endfor %}
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for obj in qs %}
+                                <tr data-id="{{ obj.id }}">
+                                    <td><input type="checkbox" class="form-check-input" value="{{ obj.pk }}" /></td>
+                                    {% for field in list_display %}
+                                        {% if field.get_internal_type == 'FloatField' %}
+                                            <td>{{ obj|getattr:field.name|intcomma|default:'-' }}</td>
+                                        {% elif field.get_internal_type == 'BooleanField' %}
+                                            <td>
+                                                {% if obj|getattr:field.name %}
+                                                    <i class="bi bi-check-circle-fill text-success"></i>
+                                                {% else %}
+                                                    <i class="bi bi-slash-circle-fill text-danger"></i>
+                                                {% endif %}
+                                            </td>
+                                        {% else %}
+                                            <td>{{ obj|getattr:field.name|default:'-' }}</td>
+                                        {% endif %}
+                                    {% empty %}
+                                        <td>{{ obj.pk }}</td>
+                                        <td>{{ obj }}</td>
+                                    {% endfor %}
+                                    
+                                    {% url "core:change" app model|getattr:'_meta'|getattr:'model_name' obj.pk as url %}
+                                    <td><a class="text-decoration-none" href="{{ obj.get_absolute_url|default:url }}">{% trans 'View' %}</a></td>
+                                    
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="{{ list_display|length|add:3 }}" class="text-center">
+                                        {% trans 'Oupps... We found nothing' %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-body text-center">
+                     <nav aria-label="Page navigation example">
+                       <ul class="pagination justify-content-center mb-0">
+                         {% if qs.has_previous %}
+                             <li class="page-item"><a class="page-link" href="?{{ request.GET.urlencode }}&page={{ qs.previous_page_number }}">{% trans 'Prev' %}</a></li>
+                         {% else %}
+                             <li class="page-item disabled"><a class="page-link">{% trans 'Prev' %}</a></li>
+                         {% endif %}
+     
+                         {% if qs.page > 10 %}
+                             {% for i in qs.paginator.page_range %}
+                               {% if qs.number == i %}
+                                 <li class="page-item active"><a class="page-link">{{ i }}</a></li>
+                               {% else %}
+                                 <li class="page-item"><a class="page-link" href="?{{ request.GET.urlencode }}&page={{ i }}">{{ i }}</a></li>
+                               {% endif %}
+                             {% endfor %}
+                         {% endif %}
+     
+                         {% if qs.has_next %}
+                           <li class="page-item"><a class="page-link" href="?{{ request.GET.urlencode }}&page={{ qs.next_page_number }}">{% trans 'Next' %}</a></li>
+                         {% else %}
+                           <li class="page-item disabled"><a class="page-link">{% trans 'Next' %}</a></li>
+                         {% endif %}
+                       </ul>
+                     </nav>
+                 </div>
+            </div>
+            
+        </div>
+        
+        {% if list_filter %}
+        <div class="col-md-3 col-sm-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-title row">
+                        <div class="col">
+                            <h3 class="mb-0">{% trans 'Filter' %}</h3>
+                        </div>
+                        <div class="col text-end">
+                            <div class="row">
+                                <div class="col text-end">
+                                    <button type="submit" form="filter-form"  class="btn btn-primary btn-sm">{% trans 'Soumettre' %}</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <form name="GET" type="Search" id="filter-form">
+                        {{ filter.form|crispy }}
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+<script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+
+<script>
+    $(function() {
+        $('.datepicker').datepicker({dateFormat: 'dd/mm/yy'});
+        $('.datetimeinput').datepicker({dateFormat: 'dd/mm/yy'});
+
+        $("#master-checkbox").change(function() {
+            let value = $(this).is(":checked");
+            $("input[type='checkbox']").attr("checked", value);
+        });
+
+        $('input[type="checkbox"]').change(function() {
+            let checked = $('input:checked').map((_, el) => el.value).get();
+            let selected = $('input:checked').filter((_, el) => el.value !== "on").map((_, el) => el.value).get();
+
+            $('.btn-actor').each(function() {
+                let url = $(this).attr('href').split("?")[0] + "?";
+                if(selected.length > 0){
+                    $(this).attr('href', url+"pk__in=" + selected.join(","));
+                }else{
+                    $(this).attr('href', url);
+                }
+            });
+        });
+
+        $("#filter-form").submit(function() {
+            $(this).find(':input, select').filter(function() {
+               return !this.value;
+            }).prop("disabled", true);
+            return true;
+        });
+    });
+</script>
+{% endblock %}
