@@ -109,6 +109,8 @@ services:
     command: server /data --address :9000 --console-address ":9001"
     volumes:
       - minio:/data
+      - ./bucket.sh:/docker-entrypoint-init.d/bucket.sh
+    entrypoint: /bin/sh -c "/usr/bin/docker-entrypoint.sh && /docker-entrypoint-init.d/bucket.sh"
 
 volumes:
   primary:
