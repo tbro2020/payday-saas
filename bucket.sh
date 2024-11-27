@@ -2,7 +2,7 @@
 
 # Wait for MinIO to be ready
 echo "Waiting for MinIO to be ready..."
-while ! nc -z minio 9000; do
+until curl -s http://minio:9000; do
   sleep 1
 done
 

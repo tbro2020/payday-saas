@@ -1,0 +1,9 @@
+FROM minio/mc:latest
+
+# Install nc (netcat)
+RUN apk add --no-cache netcat-openbsd
+
+# Set the entrypoint script
+COPY bucket /app/bucket
+RUN chmod +x /app/bucket
+ENTRYPOINT ["/app/bucket"]

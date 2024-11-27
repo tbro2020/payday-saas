@@ -112,12 +112,11 @@ services:
       - ./bucket.sh:/docker-entrypoint-init.d/bucket.sh
 
   minio-init:
-    image: minio/mc:latest
+    build:
+      context: .
+      dockerfile: Miniofile
     depends_on:
       - minio
-    entrypoint: /app/bucket.sh
-    volumes:
-      - ./bucket.sh:/app/bucket.sh
     environment:
       MINIO_BUCKET_NAME: payday
       MINIO_ROOT_USER: minioadmin
