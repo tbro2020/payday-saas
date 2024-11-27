@@ -28,7 +28,7 @@ COPY .env /app/.env
 # RUN python manage.py makemigrations
 
 # Apply the migrations
-RUN python manage.py migrate
+# RUN python manage.py migrate
 
 # Run migrations and start the Django application using Gunicorn
 CMD ["gunicorn", "--bind", "0.0.0.0:80", "payday.wsgi:application"]
