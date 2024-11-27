@@ -4,6 +4,6 @@ FROM minio/mc:latest
 RUN apt-get update && apt-get install -y netcat
 
 # Set the entrypoint script
-COPY bucket /app/bucket
+COPY bucket.sh /app/bucket
 RUN chmod +x /app/bucket
 ENTRYPOINT ["/app/bucket"]
