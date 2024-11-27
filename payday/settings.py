@@ -116,10 +116,10 @@ ASGI_APPLICATION = "payday.asgi.application"
 
 DATABASE_URL = 'sqlite:///db.sqlite3'
 DATABASES = {'default': None}
-# TEST = {'NAME': DATABASE_URL}
+TEST = {'NAME': DATABASE_URL}
 
 # Default database
-DEFAULT_DATABASE_URL = os.getenv('DATABASE_URL', default=DATABASE_URL)
+DEFAULT_DATABASE_URL = os.getenv('DEFAULT_DATABASE_URL', default=DATABASE_URL)
 DATABASES['default'] = dj_database_url.parse(DEFAULT_DATABASE_URL)
 
 # DATABASES['default']['TEST'] = TEST
