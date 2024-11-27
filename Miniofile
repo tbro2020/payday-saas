@@ -1,7 +1,7 @@
 FROM minio/mc:latest
 
-# Install curl (for Debian-based images)
-RUN apt-get update && apt-get install -y curl
+# Install curl using Alpine's package manager
+RUN apk add --no-cache curl
 
 # Set the entrypoint script
 COPY bucket.sh /app/bucket
