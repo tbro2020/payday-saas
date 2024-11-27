@@ -1,5 +1,8 @@
 FROM minio/mc:latest
 
+# Install curl (for Debian-based images)
+RUN apt-get update && apt-get install -y curl
+
 # Set the entrypoint script
 COPY bucket.sh /app/bucket
 RUN chmod +x /app/bucket
