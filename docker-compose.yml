@@ -15,8 +15,6 @@ services:
       - minio
     env_file:
       - .env.server
-    network:
-      - primary
 
   worker:
     build: .
@@ -76,18 +74,13 @@ services:
     depends_on:
       - primary
       - replica
-    network:
-      - primary
-
+  
   redis:
     image: redis:latest
     container_name: redis
     restart: unless-stopped
     ports:
       - "6379:6379"
-    network:
-      - primary
-  
 
   minio:
     image: minio/minio:latest
@@ -103,11 +96,6 @@ services:
     command: server /data --address :9000 --console-address ":9001"
     volumes:
       - minio:/data
-    network:
-      - primary
-
-networks:
-  primary:
 
 volumes:
   primary:
