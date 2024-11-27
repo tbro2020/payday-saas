@@ -14,4 +14,4 @@ COPY bucket.sh /app/bucket.sh
 RUN chmod +x /app/bucket.sh
 
 # Set entrypoint to run the script
-ENTRYPOINT ["/app/bucket"]
+ENTRYPOINT ["/app/bucket.sh"]
