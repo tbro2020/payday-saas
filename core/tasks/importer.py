@@ -1,12 +1,10 @@
 from django.utils.translation import gettext as _
+from core.models import ImporterStatus
+from django.template import loader
 from celery import shared_task
 from django.apps import apps
 import pandas as pd
 
-from core.message import message_user
-from core.models import ImporterStatus
-
-from django.template import loader
 
 @shared_task(name='importer')
 def importer(pk):
@@ -20,9 +18,8 @@ def importer(pk):
         obj.status = ImporterStatus.ERROR
         obj.save()
 
-        message_user(obj.created_by, _('L\'importation a échoué en raison d\'un problème d\'autorisation'))
         obj.created_by.email_user(**{
-            'subject': _(f'PayDay | L\'importation du/de {obj.content_type.model} a échoué'),
+            'subject': _(f'Importation a échoué'),
             'message': loader.render_to_string('email/importation_failed.txt')
         })
 
@@ -53,17 +50,15 @@ def importer(pk):
 
         model.objects.bulk_create(data, ignore_conflicts=True)
     except Exception as e:
-        message_user(obj.created_by, _(f'L\'importation a échoué en de : {str(e)}'))
         obj.status = ImporterStatus.ERROR
         obj.message = str(e)
         obj.save()
         return
 
-    message_user(obj.created_by, _(f'L\'importation de {model._meta.verbose_name} est effectuée'))
     obj.status = ImporterStatus.SUCCESS
     obj.save()
 
     obj.created_by.email_user(**{
-        'subject': _(f'PayDay | L\'importation du/de {obj.content_type.model} réussie'),
+        'subject': _(f'Importation réussie'),
         'message': loader.render_to_string('email/importation_success.txt')
     })

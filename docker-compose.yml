@@ -30,16 +30,32 @@ services:
     env_file:
       - .env.worker
 
-  db:
+  primary:
     image: postgres:latest
     restart: unless-stopped
-    container_name: pay_base
+    container_name: primary
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - primary:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=payday
+      - POSTGRES_DB=primary
       - POSTGRES_USER=payday
       - POSTGRES_PASSWORD=payday
+
+  replica:
+    image: postgres:latest
+    restart: unless-stopped
+    container_name: replica
+    volumes:
+      - replica:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=replica
+      - POSTGRES_USER=payday
+      - POSTGRES_PASSWORD=payday
+      - POSTGRES_MASTER_USER=payday
+      - POSTGRES_MASTER_PASSWORD=payday
+      - POSTGRES_MASTER_SERVICE_NAME=primary
+    depends_on:
+      - primary
 
   pgbouncer:
     image: edoburu/pgbouncer:latest
@@ -51,10 +67,12 @@ services:
       - ./pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini
       - ./pgbouncer/userlist.txt:/etc/pgbouncer/userlist.txt
     environment:
-      - DB_HOST=db
+      - DB_PASSWORD=payday
+      - DB_HOST=primary
+      - DB_USER=payday
       - DB_PORT=5432
     depends_on:
-      - db
+      - primary
 
   redis:
     image: redis:latest
@@ -76,8 +94,9 @@ services:
       - MINIO_OPTS=--address :9000 --console-address :9001
     command: server /data --address :9000 --console-address ":9001"
     volumes:
-      - minio_data:/data
+      - minio:/data
 
 volumes:
-  postgres_data:
-  minio_data:
+  primary:
+  replica:
+  minio:

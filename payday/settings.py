@@ -69,12 +69,6 @@ INSTALLED_APPS = [
 
     "core",
     "api",
-
-    "employee",
-    "leave",
-    "logistic",
-    "sanction",
-    "social"
 ]
 
 MIDDLEWARE = [
@@ -86,10 +80,9 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
-    "core.middleware.message.AsyncMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_currentuser.middleware.ThreadLocalUserMiddleware",
-    "core.middleware.subdomain.SubdomainMiddleware"
+    "core.middleware.organization.OrganizationMiddleware"
 ]
 
 if DEBUG:
@@ -121,16 +114,26 @@ ASGI_APPLICATION = "payday.asgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {'default': None}
 DATABASE_URL = 'sqlite:///db.sqlite3'
-
+DATABASES = {'default': None}
 TEST = {'NAME': DATABASE_URL}
-DATABASE_URL = os.getenv('DATABASE_URL', default=DATABASE_URL)
-DATABASES['default'] = dj_database_url.parse(DATABASE_URL)
 
+# Default database
+DEFAULT_DATABASE_URL = os.getenv('DATABASE_URL', default=DATABASE_URL)
+DATABASES['default'] = dj_database_url.parse(DEFAULT_DATABASE_URL)
+
+DATABASES['default']['TEST'] = TEST
 CONN_MAX_AGE = int(os.getenv('CONN_MAX_AGE', 0))
 DATABASES['default']['CONN_MAX_AGE'] = CONN_MAX_AGE
-DATABASES['default']['TEST'] = TEST
+
+# Replica database
+REPLICATED_DATABASE_URL = os.getenv('REPLICATED_DATABASE_URL', default=None)
+if REPLICATED_DATABASE_URL:
+    DATABASES['replica'] = dj_database_url.parse(REPLICATED_DATABASE_URL)
+    DATABASES['replica']['CONN_MAX_AGE'] = CONN_MAX_AGE
+
+    # Database router
+    DATABASE_ROUTERS = ['payday.db_routers.PrimaryReplicaRouter']
 
 # Redis settings
 REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379')
@@ -344,17 +347,12 @@ CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', REDIS_URL)
 CELERY_BROKER_TRANSPORT_URL=os.getenv('CELERY_BROKER_TRANSPORT_URL', REDIS_URL)
 
 
-
 # Sentry settings
 SENTRY_DSN = "https://61630e2ac1f3c024ffa6a3d4a7207f57@o4505861077204992.ingest.us.sentry.io/4507582424612864"
 SENTRY_DSN = os.getenv("SENTRY_DSN", SENTRY_DSN)
 
 import sentry_sdk
-sentry_sdk.init(
-    dsn=SENTRY_DSN,
-    traces_sample_rate=1.0,
-    profiles_sample_rate=1.0,
-)
+sentry_sdk.init(dsn=SENTRY_DSN, traces_sample_rate=1.0, profiles_sample_rate=1.0,)
 
 # cors header
 CORS_ALLOW_ALL_ORIGINS = True

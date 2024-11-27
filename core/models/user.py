@@ -10,23 +10,13 @@ from core.models import fields
 
 
 class User(AbstractUser):
-    first_name, last_name, username = None, None, None
-
-    employee = fields.ModelSelect2SingleField('employee.Employee', 
-                                  verbose_name=_('employé'), 
-                                  on_delete=models.CASCADE, blank=True, null=True, default=None)
+    organization = fields.ModelSelectField('core.organization', verbose_name=_('organisation'), on_delete=models.SET_NULL, null=True, blank=True, default=None, editable=False)
     updated_at = fields.DateTimeField(verbose_name=_('mis à jour le/à'), auto_now=True)
     created_at = fields.DateTimeField(verbose_name=_('créé le/à'), auto_now_add=True)
+    first_name, last_name, username = None, None, None
 
-    organization = fields.ForeignKey(
-        'core.organization', 
-        verbose_name=_('organisation'), 
-        on_delete=models.SET_NULL, 
-        null=True, 
-        blank=True, 
-        default=None, 
-        editable=False
-    )
+    user_permissions = fields.ModelSelect2Multiple('auth.permission', verbose_name=_('permissions'), blank=True)
+    groups = fields.ModelSelect2Multiple('auth.group', verbose_name=_('groupes'), blank=True)
     
     email = fields.EmailField(unique=True, db_index=True, verbose_name=_('email'))
     password = fields.CharField(_('mot de passe'), max_length=128, blank=True)
@@ -42,8 +32,7 @@ class User(AbstractUser):
     
     layout = Layout(
         Row(
-            #Column('organization'),
-            Column('employee'),
+            Column('organization'),
             Column('email')
         ),
         Row(

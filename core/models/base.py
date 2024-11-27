@@ -1,4 +1,3 @@
-from django.contrib.contenttypes.models import ContentType
 from django_currentuser.db.models import CurrentUserField
 from django.utils.translation import gettext as _
 from .managers.base import CustomManager
@@ -12,33 +11,22 @@ from api.serializers import model_serializer_factory
 from django.apps import apps
 
 class Base(models.Model):
+    organization = fields.ForeignKey('core.organization', verbose_name=_('organisation'), on_delete=models.SET_NULL, null=True, blank=True, default=None, editable=False)
+
     updated_by = CurrentUserField(verbose_name=_('mis à jour par') , related_name='%(app_label)s_%(class)s_updated_by', on_update=True)
     created_by = CurrentUserField(verbose_name=_('créé par') , related_name='%(app_label)s_%(class)s_created_by')
 
     approved = fields.BooleanField(verbose_name=_('approuvé'), default=False, editable=False)
     updated_at = fields.DateTimeField(verbose_name=_('mis à jour le/à'), auto_now=True)
     created_at = fields.DateTimeField(verbose_name=_('créé le/à'), auto_now_add=True)
-    
-    organization = fields.ForeignKey(
-        'core.organization', 
-        verbose_name=_('organisation'), 
-        on_delete=models.SET_NULL, 
-        null=True, 
-        blank=True, 
-        default=None, 
-        editable=False
-    )
 
     metadata = fields.JSONField(verbose_name=_('meta'), default=dict, blank=True)
     objects = CustomManager()
 
     list_display = ('id', 'name')
-    search_fields = ()
+    search_fields = ('id',)
     layout = Layout()
     list_filter = ()
-
-    def __str__(self):
-        return self.name
     
     @property
     def serialized(self):
@@ -47,11 +35,6 @@ class Base(models.Model):
     
     def get_absolute_url(self):
         return reverse_lazy('core:change', args=[self._meta.app_label, self._meta.model_name, self.pk])
-    
-    def delete_qs(request, qs):
-        pass
-    delete_qs.short_description = _('supprimer(s)')
-    delete_qs.permissions = ['delete']
 
     def approvers(self):
         app, model = self._meta.app_label, self._meta.model_name
@@ -71,15 +54,14 @@ class Base(models.Model):
         })
 
     def approve(self):
-        content_type = ContentType.objects.get_for_model(self)
-
-        UserContentTypeApprover = apps.get_model('core', 'usercontenttypeapprover')
-        approvers = UserContentTypeApprover.objects.filter(**{
+        user_content_type_approver = apps.get_model('core', 'usercontenttypeapprover')
+        content_type = apps.get_model('contenttypes', 'contenttype')
+        approvers = user_content_type_approver.objects.filter(**{
             'content_type_approver__content_type': content_type
         }).values('user').distinct()
 
-        Approval = apps.get_model('core', 'approval')
-        approvals = Approval.objects.filter(**{
+        approval = apps.get_model('core', 'approval')
+        approvals = approval.objects.filter(**{
             'content_type': content_type,
             'object_pk': self.pk,
             'action': 'approve'
@@ -88,8 +70,11 @@ class Base(models.Model):
         self.approved = False
         if approvers.count() == approvals.count():
             self.approved = True
-            self.send_notification()
         self.save()
+
+        # emit signal to the specific model
+        from core.signals.approval import approved_signal
+        approved_signal.send(sender=content_type.model, instance=approval.object)
 
     def send_notification(self):
         model = apps.get_model('core', 'notification')

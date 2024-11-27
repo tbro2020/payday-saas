@@ -21,21 +21,21 @@ class ContentTypeApprover(Base):
         return self.content_type.name
 
     class Meta:
-        verbose_name = _('flow approbateur')
-        verbose_name_plural = _('flows approbateurs')
+        verbose_name = _('approbation')
+        verbose_name_plural = _('approbations')
 
 class UserContentTypeApprover(Base):
     content_type_approver = fields.ModelSelectField(ContentTypeApprover, verbose_name=_('type de contenu'), on_delete=models.CASCADE, inline=True)
     user = fields.ModelSelectField(get_user_model(), verbose_name=_('utilisateur'), on_delete=models.CASCADE, inline=True)
     
     search_field = ('user__email', 'content_type_approver__content_type__model')
-    list_display = ('id', 'user', 'content_type_approver')
+    list_display = ('id', 'user', 'content_type_approver', 'updated_at')
     inline_form_fields = ('user', 'content_type_approver')
     layout = Layout('user', 'content_type_approver')
 
     @property
     def name(self):
-        return f"Approbateur de {self.content_type_approver.content_type.name} pour {self.user.name}"
+        return f"{self.content_type_approver.content_type.name}/{self.user.name}"
     
     class Meta:
         verbose_name = _('approbateur')
