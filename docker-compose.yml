@@ -4,7 +4,10 @@ services:
     restart: unless-stopped
     container_name: server
     # command: gunicorn --workers=4 --threads=3 --bind 0.0.0.0:80 payday.wsgi:application
-    command: gunicorn --bind 0.0.0.0:80 payday.wsgi:application
+    # command: gunicorn --bind 0.0.0.0:80 payday.wsgi:application
+    command: >
+      sh -c "python manage.py migrate && 
+             gunicorn --bind 0.0.0.0:80 payday.wsgi:application"
     volumes:
       - .:/app
     ports:
