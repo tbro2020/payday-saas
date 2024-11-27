@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
     && mv mc /usr/local/bin/
 
 # Copy your bucket script
-COPY bucket.sh /app/
+COPY bucket.sh /app/bucket.sh
 RUN chmod +x /app/bucket.sh
 
 # Set entrypoint to run the script
