@@ -19,7 +19,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /app/
 
 # Copy the .env file to the working directory
-COPY .env /app/.env
+COPY .env.server /app/.env
 
 # Collect static files
 # RUN python manage.py collectstatic --noinput

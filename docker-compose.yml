@@ -73,6 +73,7 @@ services:
       - DB_PORT=5432
     depends_on:
       - primary
+      - replica
 
   redis:
     image: redis:latest
