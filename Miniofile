@@ -1,8 +1,5 @@
 FROM minio/mc:latest
 
-# Install netcat (for Debian-based images)
-RUN apt-get update && apt-get install -y netcat
-
 # Set the entrypoint script
 COPY bucket.sh /app/bucket
 RUN chmod +x /app/bucket
