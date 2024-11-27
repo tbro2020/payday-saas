@@ -116,13 +116,13 @@ ASGI_APPLICATION = "payday.asgi.application"
 
 DATABASE_URL = 'sqlite:///db.sqlite3'
 DATABASES = {'default': None}
-TEST = {'NAME': DATABASE_URL}
+# TEST = {'NAME': DATABASE_URL}
 
 # Default database
 DEFAULT_DATABASE_URL = os.getenv('DATABASE_URL', default=DATABASE_URL)
 DATABASES['default'] = dj_database_url.parse(DEFAULT_DATABASE_URL)
 
-DATABASES['default']['TEST'] = TEST
+# DATABASES['default']['TEST'] = TEST
 CONN_MAX_AGE = int(os.getenv('CONN_MAX_AGE', 0))
 DATABASES['default']['CONN_MAX_AGE'] = CONN_MAX_AGE
 
