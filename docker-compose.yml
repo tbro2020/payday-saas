@@ -9,8 +9,9 @@ services:
       POSTGRES_PASSWORD: payday
       POSTGRES_DB: payday
     volumes:
-      - ./postgres/master_data:/var/lib/postgresql/data  # Bind mount for master data
+      - ./postgres/master_data:/var/lib/postgresql/data
       - ./postgres/master/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./postgres/master/init-replication.sh:/docker-entrypoint-initdb.d/init-replication.sh
     ports:
       - "5432:5432"
     healthcheck:
@@ -30,7 +31,7 @@ services:
       master:
         condition: service_healthy
     volumes:
-      - ./postgres/slave_data:/var/lib/postgresql/data  # Bind mount for slave data
+      - ./postgres/slave_data:/var/lib/postgresql/data
       - ./postgres/slave/entrypoint.sh:/docker-entrypoint-initdb.d/entrypoint.sh
     ports:
       - "5433:5432"
