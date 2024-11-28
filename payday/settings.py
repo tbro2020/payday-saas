@@ -119,17 +119,17 @@ DATABASES = {'default': None}
 TEST = {'NAME': DATABASE_URL}
 
 # Default database
-DEFAULT_DATABASE_URL = os.getenv('DEFAULT_DATABASE_URL', default=DATABASE_URL)
-DATABASES['default'] = dj_database_url.parse(DEFAULT_DATABASE_URL)
+MASTER_DATABASE_URL = os.getenv('MASTER_DATABASE_URL', default=DATABASE_URL)
+DATABASES['default'] = dj_database_url.parse(MASTER_DATABASE_URL)
 
 # DATABASES['default']['TEST'] = TEST
 CONN_MAX_AGE = int(os.getenv('CONN_MAX_AGE', 0))
 DATABASES['default']['CONN_MAX_AGE'] = CONN_MAX_AGE
 
 # Replica database
-REPLICATED_DATABASE_URL = os.getenv('REPLICATED_DATABASE_URL', default=None)
-if REPLICATED_DATABASE_URL:
-    DATABASES['replica'] = dj_database_url.parse(REPLICATED_DATABASE_URL)
+SLAVE_DATABASE_URL = os.getenv('SLAVE_DATABASE_URL', default=None)
+if SLAVE_DATABASE_URL:
+    DATABASES['replica'] = dj_database_url.parse(SLAVE_DATABASE_URL)
     DATABASES['replica']['CONN_MAX_AGE'] = CONN_MAX_AGE
 
     # Database router
