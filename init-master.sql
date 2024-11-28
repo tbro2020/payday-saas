@@ -18,7 +18,9 @@ ALTER SYSTEM SET listen_addresses = '*';
 ALTER SYSTEM SET wal_level = logical;
 ALTER SYSTEM SET max_replication_slots = 4;
 ALTER SYSTEM SET max_wal_senders = 4;
-ALTER SYSTEM SET max_wal_size = 2GB;
+
+-- Set the max_wal_size in bytes (2GB = 2147483648 bytes)
+ALTER SYSTEM SET max_wal_size = 2147483648;
 
 -- Reload PostgreSQL configuration to apply changes
 SELECT pg_reload_conf();
