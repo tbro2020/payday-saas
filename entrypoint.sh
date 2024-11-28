@@ -12,6 +12,8 @@ if [ "$POSTGRES_REPLICATION_ROLE" == "master" ]; then
   echo "max_wal_senders = 5" >> "$PGDATA/postgresql.conf"
   echo "wal_keep_size = 64" >> "$PGDATA/postgresql.conf"
   echo "archive_mode = on" >> "$PGDATA/postgresql.conf"
+  # Create replication user
+  psql -U postgres -c "CREATE USER replica WITH REPLICATION PASSWORD 'password';"
 fi
 
 # Start PostgreSQL service
@@ -25,9 +27,9 @@ if [ "$POSTGRES_REPLICATION_ROLE" == "replica" ]; then
     sleep 2
   done
   rm -rf $PGDATA/*
-  pg_basebackup -h master -D $PGDATA -U postgres -v -P -W
+  pg_basebackup -h master -D $PGDATA -U replica -v -P -W
   echo "standby_mode = 'on'" >> "$PGDATA/recovery.conf"
-  echo "primary_conninfo = 'host=master port=5432 user=postgres password=password'" >> "$PGDATA/recovery.conf"
+  echo "primary_conninfo = 'host=master port=5432 user=replica password=password'" >> "$PGDATA/recovery.conf"
 fi
 
 exec "$@"
