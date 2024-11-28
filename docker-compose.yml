@@ -45,9 +45,6 @@ services:
       - POSTGRES_DB=primary
       - POSTGRES_USER=payday
       - POSTGRES_PASSWORD=payday
-      - REPLICATION_ROLE=master
-      - REPLICATION_USER=rep_user
-      - REPLICATION_PASSWORD=rep_pass
       - PGDATA=/var/lib/postgresql/primary
 
   replica:
@@ -63,9 +60,6 @@ services:
       - POSTGRES_USER=payday
       - POSTGRES_PASSWORD=payday
       - PRIMARY_HOST=primary
-      - REPLICATION_ROLE=slave
-      - REPLICATION_USER=rep_user
-      - REPLICATION_PASSWORD=rep_pass
       - PGDATA=/var/lib/postgresql/replica
     depends_on:
       - primary
