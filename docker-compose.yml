@@ -1,49 +1,48 @@
-version: '3.8'
+version: '3.9'
 
 services:
-
   master:
     image: postgres:15
     container_name: master
     environment:
-      POSTGRES_DB: payday
       POSTGRES_USER: payday
       POSTGRES_PASSWORD: payday
+      POSTGRES_DB: payday
+    volumes:
+      - ./postgres/master/postgresql.conf:/var/lib/postgresql/data/postgresql.conf
+      - ./postgres/master/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - master_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-    volumes:
-      - master_data:/var/lib/postgresql/data
-      - ./postgres/master/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./postgres/master/postgresql.conf:/var/lib/postgresql/data/postgresql.conf
-      - ./postgres/master/pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U payday"]
+      test: ["CMD-SHELL", "pg_isready -U payday -h localhost"]
       interval: 10s
-      timeout: 5s
       retries: 5
+    command: postgres -c config_file=/var/lib/postgresql/data/postgresql.conf
 
   slave:
     image: postgres:15
     container_name: slave
     environment:
-      POSTGRES_DB: payday
       POSTGRES_USER: payday
       POSTGRES_PASSWORD: payday
-    ports:
-      - "5433:5432"
+      POSTGRES_DB: payday
+      REPLICATOR_PASSWORD: replicator_password
     depends_on:
-      - master
+      master:
+        condition: service_healthy
     volumes:
+      - ./postgres/slave/postgresql.conf:/var/lib/postgresql/data/postgresql.conf
       - slave_data:/var/lib/postgresql/data
       - ./postgres/slave/entrypoint.sh:/docker-entrypoint-initdb.d/entrypoint.sh
-    command: ["bash", "/docker-entrypoint-initdb.d/entrypoint.sh"]
+    ports:
+      - "5433:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U payday"]
+      test: ["CMD-SHELL", "pg_isready -U payday -h localhost"]
       interval: 10s
-      timeout: 5s
       retries: 5
+    entrypoint: ["/docker-entrypoint-initdb.d/entrypoint.sh"]
 
 volumes:
   master_data:
   slave_data:
-  # minio:
