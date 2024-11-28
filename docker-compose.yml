@@ -1,44 +1,30 @@
-version: '3'
+version: '3.8'
 
 services:
   master:
     image: postgres:latest
-    container_name: master_db
+    container_name: master
     environment:
-      POSTGRES_USER: payday
-      POSTGRES_PASSWORD: payday
-      POSTGRES_DB: payday
-      PGDATA: /var/lib/postgresql/data/pgdata
+      - POSTGRES_PASSWORD=payday
+      - POSTGRES_USER=payday
+      - POSTGRES_DB=payday
     volumes:
-      - master_data:/var/lib/postgresql/data
-      - ./init-master.sql:/docker-entrypoint-initdb.d/init-master.sql
-    networks:
-      - db_network
+      - ./master-init:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
     restart: always
 
   slave:
     image: postgres:latest
-    container_name: slave_db
+    container_name: slave
     environment:
-      POSTGRES_USER: payday
-      POSTGRES_PASSWORD: payday
-      POSTGRES_DB: payday
-      PGDATA: /var/lib/postgresql/data/pgdata
+      - POSTGRES_PASSWORD=payday
+      - POSTGRES_USER=payday
+      - POSTGRES_DB=payday
+    depends_on:
+      - master
     volumes:
-      - slave_data:/var/lib/postgresql/data
-      - ./init-slave.sql:/docker-entrypoint-initdb.d/init-slave.sql
-    networks:
-      - db_network
+      - ./slave-init:/docker-entrypoint-initdb.d
     ports:
       - "5433:5432"
     restart: always
-
-networks:
-  db_network:
-    driver: bridge
-
-volumes:
-  master_data:
-  slave_data:
