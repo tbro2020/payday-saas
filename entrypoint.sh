@@ -9,6 +9,8 @@ chmod +x /docker-entrypoint-initdb.d/entrypoint.sh
 if [ "$POSTGRES_REPLICATION_ROLE" == "master" ]; then
   echo "Configuring master node..."
   echo "host replication all all md5" >> "$PGDATA/pg_hba.conf"
+  echo "host all all 0.0.0.0/0 md5" >> "$PGDATA/pg_hba.conf"
+  echo "listen_addresses = '*'" >> "$PGDATA/postgresql.conf"
   echo "wal_level = replica" >> "$PGDATA/postgresql.conf"
   echo "max_wal_senders = 5" >> "$PGDATA/postgresql.conf"
   echo "wal_keep_size = 64" >> "$PGDATA/postgresql.conf"
