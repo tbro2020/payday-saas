@@ -8,9 +8,10 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
       POSTGRES_REPLICATION_ROLE: master
+      POSTGRES_REPLICATION_PASSWORD: password
     volumes:
       - ./master-data:/var/lib/postgresql/data
-      - ./entrypoint.sh:/docker-entrypoint-initdb.d/entrypoint.sh
+      - ./master-entrypoint.sh:/docker-entrypoint-initdb.d/master-entrypoint.sh
     ports:
       - "5432:5432"
   
@@ -24,7 +25,7 @@ services:
       POSTGRES_REPLICATION_PASSWORD: password
     volumes:
       - ./slave-data:/var/lib/postgresql/data
-      - ./entrypoint.sh:/docker-entrypoint-initdb.d/entrypoint.sh
+      - ./slave-entrypoint.sh:/docker-entrypoint-initdb.d/slave-entrypoint.sh
     ports:
       - "5433:5432"
     depends_on:
