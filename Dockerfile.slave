@@ -1,12 +1,12 @@
 # Dockerfile.slave for Slave Database
 FROM postgres:latest
 
-# Copy the initialization script and wait-for-it script
+# Copy the initialization script and standby.signal file
 COPY ./slave-init/init-slave.sql /docker-entrypoint-initdb.d/
-COPY ./slave-init/wait-for-it.sh /usr/local/bin/wait-for-it.sh
+COPY ./slave-init/standby.signal /tmp/standby.signal
 
-# Ensure proper permissions
-RUN chmod +x /usr/local/bin/wait-for-it.sh
+# Ensure proper permissions for the files
+RUN chown postgres:postgres /tmp/standby.signal
 
 # Default command ensures wait-for-it runs before PostgreSQL starts
 CMD ["sh", "-c", "wait-for-it.sh && docker-entrypoint.sh postgres"]
