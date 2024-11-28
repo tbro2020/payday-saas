@@ -1,7 +1,7 @@
 version: '3.8'
 x-postgres-common:
   &postgres-common
-  image: postgres:latest
+  image: postgres:14-alpine
   user: postgres
   restart: always
   healthcheck:
@@ -11,7 +11,7 @@ x-postgres-common:
     retries: 5
 
 services:
-  master:
+  postgres_primary:
     <<: *postgres-common
     ports:
       - 5432:5432
@@ -29,9 +29,9 @@ services:
       -c max_replication_slots=10 
       -c hot_standby_feedback=on
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/00_init.sql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
-  slave:
+  postgres_replica:
     <<: *postgres-common
     ports:
       - 5433:5432
@@ -40,7 +40,7 @@ services:
       PGPASSWORD: replicator_password
     command: |
       bash -c "
-      until pg_basebackup --pgdata=/var/lib/postgresql/data -R --slot=replication_slot --host=master --port=5432
+      until pg_basebackup --pgdata=/var/lib/postgresql/data -R --slot=replication_slot --host=postgres_primary --port=5432
       do
       echo 'Waiting for primary to connect...'
       sleep 1s
@@ -50,4 +50,4 @@ services:
       postgres
       "
     depends_on:
-      - master
+      - postgres_primary
