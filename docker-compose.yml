@@ -37,6 +37,8 @@ services:
     image: postgres:latest
     restart: unless-stopped
     container_name: primary
+    port:
+      - "5433:5432"
     volumes:
       - ./postgres/primary/postgresql.conf:/etc/postgresql/postgresql.conf
       - ./postgres/primary/pg_hba.conf:/etc/postgresql/pg_hba.conf
@@ -51,6 +53,8 @@ services:
     image: postgres:latest
     restart: unless-stopped
     container_name: replica
+    port:
+      - "5433:5432"
     volumes:
       - ./postgres/replica/postgresql.conf:/etc/postgresql/postgresql.conf
       - ./postgres/replica/recovery.conf:/etc/postgresql/recovery.conf
