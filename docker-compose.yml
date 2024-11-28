@@ -17,7 +17,7 @@ services:
   slave:
     build:
       context: .
-      dockerfile: Dockerfile.slave  # Using the custom Dockerfile for the slave
+      dockerfile: Dockerfile.slave
     container_name: slave
     environment:
       - POSTGRES_PASSWORD=payday
@@ -26,7 +26,11 @@ services:
     depends_on:
       - master
     volumes:
+      - slave_data:/var/lib/postgresql/data
       - ./slave-init:/docker-entrypoint-initdb.d
     ports:
       - "5433:5432"
     restart: always
+
+volumes:
+  slave_data:
