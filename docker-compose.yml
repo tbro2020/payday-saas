@@ -53,7 +53,7 @@ services:
     image: bitnami/postgresql
     restart: always
     ports:
-      - '5433:5433'
+      - '5433:5432'
     depends_on:
       - master
     environment:
