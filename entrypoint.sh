@@ -2,9 +2,6 @@
 
 set -e
 
-# Ensure the script is executable
-chmod +x /docker-entrypoint-initdb.d/entrypoint.sh
-
 # Master node setup
 if [ "$POSTGRES_REPLICATION_ROLE" == "master" ]; then
   echo "Configuring master node..."
