@@ -27,9 +27,7 @@ services:
     volumes:
       - .:/app
     depends_on:
-      - slave
-      - redis
-      - minio
+      - web
     env_file:
       - .env.worker
 
@@ -55,7 +53,7 @@ services:
     image: bitnami/postgresql
     restart: always
     ports:
-      - '5433:5432'
+      - '5433:5433'
     depends_on:
       - master
     environment:
