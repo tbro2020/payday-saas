@@ -6,7 +6,7 @@ services:
     restart: unless-stopped
     container_name: server
     command: >
-      sh -c "python manage.py migrate && 
+      sh -c "python manage.py migrate && python manage.py collectstatic --noinput &&
              gunicorn --bind 0.0.0.0:80 payday.wsgi:application"
     volumes:
       - .:/app
@@ -15,7 +15,6 @@ services:
     depends_on:
       - slave
       - redis
-      - minio
     env_file:
       - .env.server
 
@@ -48,6 +47,8 @@ services:
       - POSTGRESQL_PASSWORD=payday
       - POSTGRESQL_DATABASE=payday
       - ALLOW_EMPTY_PASSWORD=yes
+    depends_on:
+      - minio-init
 
   slave:
     image: bitnami/postgresql
