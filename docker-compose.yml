@@ -37,7 +37,7 @@ services:
     image: postgres:latest
     restart: unless-stopped
     container_name: primary
-    port:
+    ports:
       - "5433:5432"
     volumes:
       - ./postgres/primary/postgresql.conf:/etc/postgresql/postgresql.conf
@@ -53,7 +53,7 @@ services:
     image: postgres:latest
     restart: unless-stopped
     container_name: replica
-    port:
+    ports:
       - "5433:5432"
     volumes:
       - ./postgres/replica/postgresql.conf:/etc/postgresql/postgresql.conf
