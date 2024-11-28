@@ -2,9 +2,13 @@
 
 set -e
 
+log() {
+  echo "[$(date)] $1"
+}
+
 # Master node setup
 if [ "$POSTGRES_REPLICATION_ROLE" == "master" ]; then
-  echo "Configuring master node..."
+  log "Configuring master node..."
   echo "host replication all all md5" >> "$PGDATA/pg_hba.conf"
   echo "host all all 0.0.0.0/0 md5" >> "$PGDATA/pg_hba.conf"
   echo "listen_addresses = '*'" >> "$PGDATA/postgresql.conf"
@@ -14,22 +18,26 @@ if [ "$POSTGRES_REPLICATION_ROLE" == "master" ]; then
   echo "archive_mode = on" >> "$PGDATA/postgresql.conf"
   # Create replication user
   psql -U postgres -c "CREATE USER replica WITH REPLICATION PASSWORD 'password';"
+  log "Master node configured."
 fi
 
 # Start PostgreSQL service
+log "Starting PostgreSQL service..."
 docker-entrypoint.sh postgres &
 
 # Slave node setup
 if [ "$POSTGRES_REPLICATION_ROLE" == "replica" ]; then
-  echo "Configuring replica node..."
+  log "Configuring replica node..."
   until pg_isready -h master -p 5432 -U postgres; do
-    echo "Waiting for master to be ready..."
+    log "Waiting for master to be ready..."
     sleep 2
   done
+  log "Master is ready. Starting base backup..."
   rm -rf $PGDATA/*
   pg_basebackup -h master -D $PGDATA -U replica -v -P -W
   echo "standby_mode = 'on'" >> "$PGDATA/recovery.conf"
   echo "primary_conninfo = 'host=master port=5432 user=replica password=password'" >> "$PGDATA/recovery.conf"
+  log "Replica node configured."
 fi
 
 exec "$@"
