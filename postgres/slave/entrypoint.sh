@@ -7,6 +7,6 @@ until pg_isready -h master -p 5432 -U replicator; do
 done
 
 PGDATA="/var/lib/postgresql/data"
-rm -rf ${PGDATA}/*
+rm -rf ${PGDATA}/*  # Ensure no existing data conflicts
 pg_basebackup -h master -D ${PGDATA} -U replicator -Fp -Xs -R
 exec postgres
