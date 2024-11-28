@@ -15,7 +15,9 @@ services:
     restart: always
 
   slave:
-    image: postgres:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.slave  # Using the custom Dockerfile for the slave
     container_name: slave
     environment:
       - POSTGRES_PASSWORD=payday

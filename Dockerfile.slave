@@ -1,0 +1,9 @@
+# Dockerfile.slave for Slave Database
+FROM postgres:latest
+
+# Copy the slave initialization script and the standby.signal file
+COPY ./slave-init/standby.signal /var/lib/postgresql/data/standby.signal
+COPY ./slave-init/init-slave.sql /docker-entrypoint-initdb.d/
+
+# Ensure proper permissions for the copied files
+RUN chown postgres:postgres /var/lib/postgresql/data/standby.signal
