@@ -33,8 +33,6 @@ services:
     env_file:
       - .env.worker
 
-  version: '3.8'
-
   primary:
     image: postgres:16
     restart: unless-stopped
