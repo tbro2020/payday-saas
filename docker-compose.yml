@@ -23,6 +23,8 @@ services:
       - POSTGRES_PASSWORD=payday
       - POSTGRES_USER=payday
       - POSTGRES_DB=payday
+      - MASTER_HOST=master  # Master database host
+      - MASTER_PORT=5432       # Master database port
     depends_on:
       - master
     volumes:
