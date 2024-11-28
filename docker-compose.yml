@@ -13,7 +13,7 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - pgbouncer
+      - slave
       - redis
       - minio
     env_file:
@@ -33,67 +33,101 @@ services:
     env_file:
       - .env.worker
 
-  primary:
-    image: postgres:16
-    restart: unless-stopped
-    container_name: primary
+  master:
+    build: 
+      context: ./postgres/master
+      dockerfile: Dockerfile
+    environment:
+      - POSTGRES_DB=payday
+      - POSTGRES_USER=payday
+      - POSTGRES_PASSWORD=payday
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - master-data:/var/lib/postgresql/data
+      - ./postgres/master/pg_hba.conf:/etc/postgresql/pg_hba.conf
+      - ./postgres/master/postgresql.conf:/etc/postgresql/postgresql.conf
     ports:
       - "5432:5432"
-    volumes:
-      - ./postgres/primary/postgresql.conf:/etc/postgresql/postgresql.conf
-      - ./postgres/primary/pg_hba.conf:/etc/postgresql/pg_hba.conf
-      - ./postgres/primary/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
-      - primary_data:/var/lib/postgresql/data
+
+  slave:
+    build: 
+      context: ./postgres/slave
+      dockerfile: Dockerfile
     environment:
+      - POSTGRES_DB=payday
       - POSTGRES_USER=payday
       - POSTGRES_PASSWORD=payday
-      - POSTGRES_MULTIPLE_DATABASES=primary,replica
-    command: 
-      - postgres
-      - -c
-      - config_file=/etc/postgresql/postgresql.conf
-
-  replica:
-    image: postgres:16
-    restart: unless-stopped
-    container_name: replica
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - slave-data:/var/lib/postgresql/data
+      - ./postgres/slave/pg_hba.conf:/etc/postgresql/pg_hba.conf
+      - ./postgres/slave/postgresql.conf:/etc/postgresql/postgresql.conf
     ports:
       - "5433:5432"
-    volumes:
-      - ./postgres/replica/postgresql.conf:/etc/postgresql/postgresql.conf
-      - ./postgres/replica/pg_hba.conf:/etc/postgresql/pg_hba.conf
-      - ./postgres/replica/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
-      - ./postgres/replica/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
-      - replica_data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_USER=payday
-      - POSTGRES_PASSWORD=payday
-      - POSTGRES_MULTIPLE_DATABASES=primary,replica
-      - POSTGRES_PRIMARY_HOST=primary
     depends_on:
-      - primary
-    command: 
-      - postgres
-      - -c
-      - config_file=/etc/postgresql/postgresql.conf
+      - master
 
-  pgbouncer:
-    image: edoburu/pgbouncer:latest
-    container_name: pgbouncer
-    restart: unless-stopped
-    ports:
-      - "6432:6432"
-    volumes:
-      - ./pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini
-      - ./pgbouncer/userlist.txt:/etc/pgbouncer/userlist.txt
-    environment:
-      - DB_PASSWORD=payday
-      - DB_HOST=primary
-      - DB_USER=payday
-      - DB_PORT=5432
-    depends_on:
-      - primary
-      - replica
+  #primary:
+  #  image: postgres:16
+  #  restart: unless-stopped
+  #  container_name: primary
+  #  ports:
+  #    - "5432:5432"
+  #  volumes:
+  #    - ./postgres/primary/postgresql.conf:/etc/postgresql/postgresql.conf
+  #    - ./postgres/primary/pg_hba.conf:/etc/postgresql/pg_hba.conf
+  #    - ./postgres/primary/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+  #    - primary_data:/var/lib/postgresql/data
+  #  environment:
+  #    - POSTGRES_USER=payday
+  #    - POSTGRES_PASSWORD=payday
+  #    - POSTGRES_MULTIPLE_DATABASES=primary,replica
+  #  command: 
+  #    - postgres
+  #    - -c
+  #    - config_file=/etc/postgresql/postgresql.conf
+
+  #replica:
+  #  image: postgres:16
+  #  restart: unless-stopped
+  #  container_name: replica
+  #  ports:
+  #    - "5433:5432"
+  #  volumes:
+  #    - ./postgres/replica/postgresql.conf:/etc/postgresql/postgresql.conf
+  #    - ./postgres/replica/pg_hba.conf:/etc/postgresql/pg_hba.conf
+  #    - ./postgres/replica/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+  #    - ./postgres/replica/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+  #    - replica_data:/var/lib/postgresql/data
+  #  environment:
+  #    - POSTGRES_USER=payday
+  #    - POSTGRES_PASSWORD=payday
+  #    - POSTGRES_MULTIPLE_DATABASES=primary,replica
+  #    - POSTGRES_PRIMARY_HOST=primary
+  #  depends_on:
+  #    - primary
+  #  command: 
+  #    - postgres
+  #    - -c
+  #    - config_file=/etc/postgresql/postgresql.conf
+
+  #pgbouncer:
+  #  image: edoburu/pgbouncer:latest
+  #  container_name: pgbouncer
+  #  restart: unless-stopped
+  #  ports:
+  #    - "6432:6432"
+  #  volumes:
+  #    - ./pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini
+  #    - ./pgbouncer/userlist.txt:/etc/pgbouncer/userlist.txt
+  #  environment:
+  #    - DB_PASSWORD=payday
+  #    - DB_HOST=primary
+  #    - DB_USER=payday
+  #    - DB_PORT=5432
+  #  depends_on:
+  #    - primary
+  #    - replica
   
   redis:
     image: redis:latest
@@ -130,6 +164,6 @@ services:
       MINIO_ROOT_PASSWORD: minioadmin
 
 volumes:
-  primary_data:
-  replica_data:
+  master-data:
+  slave-data:
   minio:
