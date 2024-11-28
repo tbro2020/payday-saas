@@ -27,6 +27,7 @@ services:
     volumes:
       - .:/app
     depends_on:
+      - slave
       - redis
       - minio
     env_file:
