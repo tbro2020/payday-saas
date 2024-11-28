@@ -9,16 +9,14 @@ services:
       POSTGRES_PASSWORD: payday
       POSTGRES_DB: payday
     volumes:
-      - ./postgres/master/postgresql.conf:/var/lib/postgresql/data/postgresql.conf
-      - ./postgres/master/init.sql:/docker-entrypoint-initdb.d/init.sql
       - master_data:/var/lib/postgresql/data
+      - ./postgres/master/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U payday -h localhost"]
       interval: 10s
       retries: 5
-    command: postgres -c config_file=/var/lib/postgresql/data/postgresql.conf
 
   slave:
     image: postgres:15
@@ -32,7 +30,6 @@ services:
       master:
         condition: service_healthy
     volumes:
-      - ./postgres/slave/postgresql.conf:/var/lib/postgresql/data/postgresql.conf
       - slave_data:/var/lib/postgresql/data
       - ./postgres/slave/entrypoint.sh:/docker-entrypoint-initdb.d/entrypoint.sh
     ports:
