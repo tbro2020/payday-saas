@@ -1,44 +1,44 @@
-version: '3.9'
+version: '3'
 
 services:
   master:
-    image: postgres:15
-    container_name: master
+    image: postgres:latest
+    container_name: master_db
     environment:
       POSTGRES_USER: payday
       POSTGRES_PASSWORD: payday
       POSTGRES_DB: payday
+      PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - ./postgres/master_data:/var/lib/postgresql/data
-      - ./postgres/master/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./postgres/master/init-replication.sh:/docker-entrypoint-initdb.d/init-replication.sh
+      - master_data:/var/lib/postgresql/data
+      - ./init-master.sql:/docker-entrypoint-initdb.d/init-master.sql
+    networks:
+      - db_network
     ports:
       - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U payday -h localhost"]
-      interval: 10s
-      retries: 5
+    restart: always
 
   slave:
-    image: postgres:15
-    container_name: slave
+    image: postgres:latest
+    container_name: slave_db
     environment:
       POSTGRES_USER: payday
       POSTGRES_PASSWORD: payday
       POSTGRES_DB: payday
-      REPLICATOR_PASSWORD: replicator_password
-    depends_on:
-      master:
-        condition: service_healthy
+      PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - ./postgres/slave_data:/var/lib/postgresql/data
-      - ./postgres/slave/entrypoint.sh:/docker-entrypoint-initdb.d/entrypoint.sh
+      - slave_data:/var/lib/postgresql/data
+      - ./init-slave.sql:/docker-entrypoint-initdb.d/init-slave.sql
+    networks:
+      - db_network
     ports:
       - "5433:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U payday -h localhost"]
-      interval: 10s
-      retries: 5
-    entrypoint: ["/docker-entrypoint-initdb.d/entrypoint.sh"]
+    restart: always
 
-volumes: {}
+networks:
+  db_network:
+    driver: bridge
+
+volumes:
+  master_data:
+  slave_data:
