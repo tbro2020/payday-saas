@@ -34,7 +34,7 @@ services:
       - .env.worker
 
   primary:
-    image: postgres:latest
+    image: postgres:16
     restart: unless-stopped
     container_name: primary
     ports:
@@ -42,31 +42,38 @@ services:
     volumes:
       - ./postgres/primary/postgresql.conf:/etc/postgresql/postgresql.conf
       - ./postgres/primary/pg_hba.conf:/etc/postgresql/pg_hba.conf
-      - primary:/var/lib/postgresql/primary
+      - primary_data:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=primary
       - POSTGRES_USER=payday
       - POSTGRES_PASSWORD=payday
-      - PGDATA=/var/lib/postgresql/primary
+    command: 
+      - postgres
+      - -c
+      - config_file=/etc/postgresql/postgresql.conf
 
   replica:
-    image: postgres:latest
+    image: postgres:16
     restart: unless-stopped
     container_name: replica
     ports:
       - "5433:5432"
     volumes:
       - ./postgres/replica/postgresql.conf:/etc/postgresql/postgresql.conf
-      - ./postgres/replica/recovery.conf:/etc/postgresql/recovery.conf
-      - replica:/var/lib/postgresql/replica
+      - ./postgres/replica/pg_hba.conf:/etc/postgresql/pg_hba.conf
+      - ./postgres/replica/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      - replica_data:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=replica
       - POSTGRES_USER=payday
       - POSTGRES_PASSWORD=payday
-      - PRIMARY_HOST=primary
-      - PGDATA=/var/lib/postgresql/replica
+      - POSTGRES_PRIMARY_HOST=primary
     depends_on:
       - primary
+    command: 
+      - postgres
+      - -c
+      - config_file=/etc/postgresql/postgresql.conf
 
   pgbouncer:
     image: edoburu/pgbouncer:latest
@@ -121,6 +128,6 @@ services:
       MINIO_ROOT_PASSWORD: minioadmin
 
 volumes:
-  primary:
-  replica:
+  primary_data:
+  replica_data:
   minio:
