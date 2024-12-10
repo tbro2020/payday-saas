@@ -15,6 +15,7 @@ services:
     depends_on:
       - slave
       - redis
+      - minio-init
     env_file:
       - .env.server
 
@@ -27,6 +28,18 @@ services:
       - .:/app
     depends_on:
       - web
+    env_file:
+      - .env.worker
+
+  beat:
+    build: .
+    restart: unless-stopped
+    container_name: beat
+    command: celery -A payday beat -l INFO
+    volumes:
+      - .:/app
+    depends_on:
+      - worker
     env_file:
       - .env.worker
 

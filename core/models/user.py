@@ -11,6 +11,7 @@ from core.models import fields
 
 class User(AbstractUser):
     organization = fields.ModelSelectField('core.organization', verbose_name=_('organisation'), on_delete=models.SET_NULL, null=True, blank=True, default=None, editable=False)
+    
     updated_at = fields.DateTimeField(verbose_name=_('mis à jour le/à'), auto_now=True)
     created_at = fields.DateTimeField(verbose_name=_('créé le/à'), auto_now_add=True)
     first_name, last_name, username = None, None, None

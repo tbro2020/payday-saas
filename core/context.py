@@ -66,7 +66,7 @@ def base(request):
             'href': reverse_lazy('core:list', kwargs={'app': 'core', 'model': 'preference'}),
             'permission': 'core.view_preference'
         }, {
-            'title': _('Équipe'),
+            'title': _('Utilisateurs'),
             'href': reverse_lazy('core:list', kwargs={'app': 'core', 'model': 'user'}),
             'permission': 'core.view_user'
         }, {

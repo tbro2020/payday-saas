@@ -33,13 +33,13 @@ class Widget(Base):
     list_display = ('id', 'name', 'column', 'updated_at')
     layout = Layout(
         Row(
-            Column('name', css_class='col-md-6'),
-            Column('column', css_class='col-md-6'),
+            Column('name'),
+            Column('column'),
         ),
         'permissions',
         Row(
-            Column('template', css_class='col-md-6'),
-            Column('view', css_class='col-md-6'),
+            Column('template'),
+            Column('view'),
         ),
         'active',
     )

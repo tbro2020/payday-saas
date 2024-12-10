@@ -11,7 +11,7 @@ class Preference(Base):
     
     search_fields = ('key', 'value')
     list_display = ('id', 'key', 'value')
-    layout = Layout(Row(Column('key'), Column('value')), 'metadata')
+    layout = Layout(Row(Column('key'), Column('value')))
     
     @property
     def name(self):

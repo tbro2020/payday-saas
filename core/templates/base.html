@@ -29,7 +29,7 @@
                   <div class="d-flex justify-content-between align-items-center">
                      <div class="logo">
                         {% static 'assets/images/logo/logo.png' as logo %}
-                        <a href="{% url 'core:home' %}"><img style="height: 6rem !important;" src="{{ request.organization.logo.url|default:logo }}" alt="{{ organization.name|default:'payday' }}"></a>
+                        <a href="{% url 'core:home' %}"><img style="height: 5rem !important;" src="{{ request.organization.logo.url|default:logo }}" alt="{{ organization.name|default:'payday' }}"></a>
                      </div>
                      <div class="theme-toggle d-flex gap-2  align-items-center mt-2">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--system-uicons" width="20" height="20" preserveAspectRatio="xMidYMid meet" viewBox="0 0 21 21">
@@ -123,16 +123,13 @@
                                         </div>
                                     </div>
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton" style="min-width: 11rem;">
+                                {% comment %}<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton" style="min-width: 11rem;">
                                     <li>
-                                        <h6 class="dropdown-header">{% trans 'Hé!' %}, {{ request.user.employee.last_name|default:'Dear' }}!</h6>
+                                        <h6 class="dropdown-header">{% trans 'Hé!' %}! {{ request.user.employee.last_name|default:'' }}!</h6>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="icon-mid bi bi-box-arrow-left me-2"></i>{% trans 'Déconnexion' %}</a></li>
-                                    <script>
-
-                                    </script>
-                                </ul>
+                                </ul>{% endcomment %}
                             </div>
                         </div>
                     </div>

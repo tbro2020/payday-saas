@@ -12,7 +12,7 @@
     </style>
 
     {% static 'assets/images/logo/logo.png' as logo %}
-    <div class="auth-logo mb-4"><a href="#"><img src="{{ organization.logo.url|default:logo }}" alt="Logo"></a></div>
+    <div class="auth-logo mb-4"><a href="#"><img src="{{ organization.logo.url|default:logo }}" style="height: 5rem !important;" alt="payday-logo"></a></div>
     
     <h1 class="auth-title fs-1">{% trans 'Se connecter' %}.</h1>
     <p class="auth-subtitle mb-5">{% trans 'Se connecter avec les informations fournies' %}.</p>

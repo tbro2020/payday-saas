@@ -4,8 +4,8 @@ from .views import *
 app_name = 'api'
 
 urlpatterns = [
-    path('list/<str:app>/<str:model>', List.as_view(), name='list'),
-    path('create/<str:app>/<str:model>', Create.as_view(), name='create'),
+    path('autocomplete/<str:app>/<str:model>/<str:to_field>', Autocomplete.as_view(), name='autocomplete'),
     path('detail/<str:app>/<str:model>/<int:pk>', Detail.as_view(), name='detail'),
-    path('autocomplete/<str:app>/<str:model>/<str:to_field>', Autocomplete.as_view(), name='autocomplete')
+    path('create/<str:app>/<str:model>', Create.as_view(), name='create'),
+    path('list/<str:app>/<str:model>', List.as_view(), name='list')
 ]

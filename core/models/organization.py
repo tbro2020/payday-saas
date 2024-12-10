@@ -24,7 +24,7 @@ class Organization(models.Model):
     name = fields.CharField(verbose_name=_('nom'), max_length=100)
     
     list_display = ('name', 'national_id', 'commercial_register_number')
-    search_fields = ('name', 'physical_address', 'national_id', 'commercial_register_number')
+    search_fields = ('name', 'national_id')
     layout = Layout('name', 'logo')
 
     class Meta:
