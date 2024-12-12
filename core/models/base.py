@@ -31,6 +31,10 @@ class Base(models.Model):
     layout = Layout()
     
     @property
+    def actions_url(self):
+        return tuple()
+
+    @property
     def serialized(self):
         serializer = model_serializer_factory(self._meta.model)
         return serializer(self).data
@@ -82,7 +86,7 @@ class Base(models.Model):
         from core.signals.approval import approved_signal
         approved_signal.send(sender=content_type.model, instance=approval.object)
 
-    def send_notification(self):
+    def notify(self):
         model = apps.get_model('core', 'notification')
         model.objects.create(
             _from=self.updated_by,

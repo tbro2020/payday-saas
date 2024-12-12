@@ -1,0 +1,90 @@
+{% load i18n %}
+{% load static %}
+{% load humanize %}
+{% load mathfilters %}
+{% get_current_language as LANGUAGE_CODE %}
+
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+      
+      <title>Listing-{{ obj.name }}-{{ item.name|slugify }}</title>
+   </head>
+   <body>
+   
+    <div class="container-fluid">
+    
+        <div class="row">
+            <div class="col">
+                <div>
+                    <h3>{{ organization.name|default:'Payday' }}</h3>
+                </div>
+                <div>
+                    <h6 class="mb-0">{% trans 'Direction des ressources humaines' %}</h6>
+                </div>
+            </div>
+            <div class="col text-end">
+                <h3 class="mb-0">{% trans 'Listing' %} {{ item.name }}</h3>
+                <small>{% trans 'Generated on' %} {% now 'M d, Y' %}</small>
+            </div>
+        </div>
+        
+        <div class="col text-center">
+            <h2 class="mb-0">{{ obj.name }}</h2>
+            <small>
+                <b>{{ obj.start_dt }}</b>
+                to
+                <b>{{ obj.end_dt }}</b>
+            </small>
+        </div>
+        
+        <div class="col">
+            {{ df|safe }}
+            {% comment %}<table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>{% trans 'Registration number' %}</th>
+                        <th>{% trans 'Full name' %}</th>
+                        <th colspan="2">{{ item }}</th>
+                    </tr>
+                    <tr>
+                        <th colspan="3"></th>
+                        <th>QPE</th>
+                        <th>QPP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for obj in qs %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ obj.registration_number }}</td>
+                        <td>{{ obj.full_name }}</td>
+                        <td>{{ obj.amount_qp_employee|intcomma }}</td>
+                        <td>{{ obj.amount_qp_employer|intcomma }}</td>
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                        <td colspan="2" class="text-center">
+                            <h4>{% trans 'TOTAL GENERAL' %}</h4>
+                        </td>
+                        
+                        <td>
+                            <h5>{{ qs|length }} {% trans 'Employees' %}</h5>
+                        </td>
+
+                        <td><h5>{{ total.amount_qp_employee|intcomma }}</h5></td>
+                        <td><h5>{{ total.amount_qp_employer|intcomma }}</h5></td>
+                    </tr>
+                </tbody>
+            </table>{% endcomment %}
+        </div>
+        
+    </div>
+   
+   
+   </body>
+</html>

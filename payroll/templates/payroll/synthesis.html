@@ -1,0 +1,74 @@
+{% load core %}
+{% load i18n %}
+{% load static %}
+{% load humanize %}
+{% load mathfilters %}
+{% get_current_language as LANGUAGE_CODE %}
+
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+
+      <title>Synthesis-{{ obj.name }}-{{ field.verbose_name|title }}</title>
+
+      <style>
+        body{
+            font-size: 12px;
+        }
+        .watermark{
+            z-index: -1 !important;
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            color:  rgba(0,0,0, 0.1) !important;
+            transform: rotate(-45deg);
+        }
+        .watermark-title-text{
+            font-size: 3.5rem !important;
+        }
+      </style>
+   </head>
+   <body>
+
+    <div class="container-fluid">
+
+        <div class="row">
+            <div class="col">
+                <div>
+                    <h3>{{ organization.name|default:'Payday' }}</h3>
+                </div>
+                <div>
+                    <h6 class="mb-0">{% trans 'Direction des ressources humaines' %}</h6>
+                </div>
+            </div>
+            <div class="col text-end">
+                <h3 class="mb-0">{% trans 'Synthesis' %}
+                    ({% if func == 'count' %}{% trans "Nombre" %}{% else %}{% trans "Somme" %}{% endif %})
+                </h3>
+                <small>{% trans 'Generated on' %} {% now 'M d, Y' %}</small>
+            </div>
+        </div>
+
+        <div class="col text-center">
+            <h2 class="mb-0">{{ obj.name }}</h2>
+            <small>
+                <b>{{ obj.start_dt }}</b>
+                to
+                <b>{{ obj.end_dt }}</b>
+            </small>
+            <h4>
+                {% for field in fields %}
+                    {{ field|title }} {% if not forloop.last %} / {% endif %}
+                {% endfor %}
+            </h4>
+        </div>
+
+        <div class="col">{{ df|safe }}</div>
+    </div>
+
+
+   </body>
+</html>

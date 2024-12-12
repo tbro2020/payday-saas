@@ -6,7 +6,6 @@
 {% load mathfilters %}
 
 {% block content %}
-{% load static slick_reporting_tags %}
 {% get_current_language as LANGUAGE_CODE %}
 
 <script src="{% static 'assets/extensions/apexcharts/apexcharts.min.js' %}"></script>
@@ -21,6 +20,14 @@
                     </div>
                     <div class="card-body">
                         {{ widget.content }}
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h4>{% trans 'Aucun widget(s)' %}</h4>
                     </div>
                 </div>
             </div>

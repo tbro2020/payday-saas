@@ -1,0 +1,143 @@
+{% extends 'change.html' %}
+
+{% load i18n %}
+{% load core %}
+{% load humanize %}
+{% load mathfilters %}
+
+{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
+
+{% block content %}
+<div class="page-heading">
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col text-start">
+                    <h3 class="mb-0">{% trans 'Payslip' %} #{{ obj.id }}</h3>
+                    
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{% url 'core:home' %}">{% trans 'Dashboard' %}</a></li>
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'payroll:payslips' obj.payroll.pk %}">
+                                {% trans 'Payslips' %}
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item">#{% trans 'Payslip' %} {{ obj.pk }}</li>
+                    </ol>
+                    
+                </div>
+
+                <div class="col text-end">
+                    <div class="btn-group">
+                        {% comment %}<a href="#" class="btn btn-info">{% trans 'Envoyer le bulletin de paie par email' %}</a>{% endcomment %}
+                        <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownDocumentBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            {% trans "Documents" %}
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownDocumentBtn">
+                            {% for document in self.documents %}
+                                <a class="dropdown-item btn-list-action" href="{% url 'core:print' document.id 'payroll' 'payslip' %}?pk={{ obj.pk }}">{{ document.name }}</a>
+                            {% endfor %}
+                        </div>
+                        <a href="{% url 'core:delete' 'payroll' 'payslip' obj.pk %}?next={% url 'payroll:payslips' obj.payroll.pk %}" class="btn btn-light-danger">{% trans 'Supprimer' %}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-content">
+    <div class="col">
+        <div class="card">
+            <div class="card-header text-bg-primary">
+                <h5 class="text-light fw-bolder mb-4">{{ obj.employee.last_name }} {{ obj.employee.middle_name }}</h5>
+                <div class="row">
+                    {% for field in model|getattr:'_meta'|getattr:'fields' %}
+                        {% if field.editable and field.name != 'metadata' %}
+                            <div class="col-6">
+                                <dl class="row m-0">
+                                    <dt class="col-sm-4 text-capitalized">{{ field.verbose_name|title }}</dt>
+                                    {% if field.get_internal_type == 'FloatField' %}
+                                        <dd class="col-sm-8">{{ obj|getattr:field.name|intcomma }}</dd>
+                                    {% elif field.get_internal_type == 'JSONField' %}
+                                        <dd class="col-sm-8">
+                                            {{ obj.employee.registration_number }} <br />
+                                            {{ obj.employee.last_name }} {{ obj.employee.middle_name }}
+                                        </dd>
+                                    {% else %}
+                                        <dd class="col-sm-8">{{ obj|getattr:field.name }}</dd>
+                                    {% endif %}
+                                </dl>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive mt-3">
+                    <form method="post">
+                        {% csrf_token %}
+                        <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>{% trans 'Code' %}</th>
+                                <th>{% trans 'Nom' %}</th>
+                                <th>{% trans 'Montant QPE' %}</th>
+                                <th>{% trans 'Montant QPP' %}</th>
+                                <th>{% trans 'Taxable' %}</th>
+                                <th>{% trans 'Sécurité sociale' %}</th>
+                                <th>{% trans 'Action' %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                                <tr class="{% if not item.is_payable %}text-bg-warning{% endif %}">
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ item.code }}</td>
+                                    <td>{{ item.name }}</td>
+
+                                    <td>{{ item.amount_qp_employee|intcomma }}</td>
+                                    <td>{{ item.amount_qp_employer|intcomma }}</td>
+
+                                    <td>{{ item.taxable_amount|intcomma }}</td>
+                                    <td>{{ item.social_security_amount|intcomma }}</td>
+                                    <td>
+                                        <a class="text-decoration-none" href="{% url 'core:delete' 'payroll' 'itempaid' item.pk %}?next={{ request.get_full_path }}">{% trans 'Remove' %}</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+
+                            <tr>
+                                <td>{{ form.type_of_item|as_crispy_field }}</td>
+                                <td>{{ form.code|as_crispy_field }}</td>
+                                <td>{{ form.name|as_crispy_field }}</td>
+
+                                <td>{{ form.amount_qp_employee|as_crispy_field }}</td>
+                                <td>{{ form.amount_qp_employer|as_crispy_field }}</td>
+                                
+                                <td>{{ form.taxable_amount|as_crispy_field }}</td>
+                                <td>{{ form.social_security_amount|as_crispy_field }}</td>
+                                <td>
+                                    <button type="submit" class="btn btn-primary">{% trans 'Save' %}</button>
+                                </td>
+                            </tr>
+
+                            <tr style="font-weight: bolder">
+                                <td colspan="3"></td>
+                                <td colspan="2" class="text-center">{{ obj.gross|intcomma }}</td>
+                                <td>{{ obj.taxable_gross|intcomma }}</td>
+                                <td>{{ obj.social_security_threshold|intcomma }}</td>
+                                <td></td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

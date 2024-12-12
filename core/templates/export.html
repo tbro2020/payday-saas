@@ -33,7 +33,7 @@
                     <ol>
                         {% for field in model|getattr:'_meta'|getattr:'fields' %}
                             <li>
-                                {% if field.get_internal_type == 'ModelSelect' %}
+                                {% if field.get_internal_type == 'ModelSelectField' %}
                                     <ol>
                                         <li><h6>{{ field.verbose_name|title }}</h6></li>
                                         {% for subfield in field|getattr:'remote_field'|getattr:'model'|getattr:'_meta'|getattr:'fields' %}
@@ -43,7 +43,7 @@
                                                     <label class="form-check-label" for="{{ field.name }}__{{ subfield.name }}"> {{ subfield.verbose_name|title }} </label>
                                                 </div>
                                             </li>{% endcomment %}
-                                            {% if subfield.get_internal_type == 'ModelSelect' %}
+                                            {% if subfield.get_internal_type == 'ModelSelectField' %}
                                                 <ol>
                                                     <li><h6>{{ subfield.verbose_name|title }}</h6></li>
                                                     {% for underfield in subfield|getattr:'remote_field'|getattr:'model'|getattr:'_meta'|getattr:'fields' %}
@@ -84,11 +84,11 @@
                     <ol>
                         {% for field in model|getattr:'_meta'|getattr:'fields' %}
                             <li>
-                                {% if field.get_internal_type == 'ModelSelect' %}
+                                {% if field.get_internal_type == 'ModelSelectField' %}
                                     <ol>
                                         <li><h6>{{ field.verbose_name|title }}</h6></li>
                                         {% for subfield in field|getattr:'remote_field'|getattr:'model'|getattr:'_meta'|getattr:'fields' %}
-                                            {% if subfield.get_internal_type == 'ModelSelect' %}
+                                            {% if subfield.get_internal_type == 'ModelSelectField' %}
                                                 <ol>
                                                     <li><h6>{{ subfield.verbose_name|title }}</h6></li>
                                                     {% for underfield in subfield|getattr:'remote_field'|getattr:'model'|getattr:'_meta'|getattr:'fields' %}

@@ -22,6 +22,6 @@ class AceField(models.TextField):
             'showprintmargin': False,
             'toolbar': False,
             'showgutter': True,
-            'behaviours': True
+            'behaviours': True,
         })
         return super().formfield(**kwargs)

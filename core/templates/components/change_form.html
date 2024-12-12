@@ -8,6 +8,29 @@
     integrity="sha512-ltwjKsDTo3hW/wV66ZaEkf2wOAFxmg7rWM76J8kOcYKLSKy44WBYO/BFaNNH3NGDS8BSz3meB9wtSnm41oL+pA=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
+<script>
+    // Define custom autocomplete keywords
+    var customKeywords = [
+    { name: 'variable1', value: 'variable_1', meta: 'custom variable' },
+    { name: 'variable2', value: 'variable_2', meta: 'custom variable' },
+    // Add more variables as needed
+];
+
+// Create a custom completer
+var customCompleter = {
+    getCompletions: function(editor, session, pos, prefix, callback) {
+        callback(null, customKeywords.map(function(keyword) {
+            return {
+                caption: keyword.name,
+                value: keyword.value,
+                meta: keyword.meta
+            };
+        }));
+    }
+};
+editor.completers = [customCompleter];
+</script>
+
 <form method="post" enctype="multipart/form-data" class="page-content" id="form-{{ model_name }}">
     <div class="card">
         <div class="card-body">

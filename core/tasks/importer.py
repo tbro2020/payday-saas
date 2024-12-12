@@ -1,5 +1,7 @@
+from core.models import ImporterStatus, Notification
 from django.utils.translation import gettext as _
-from core.models import ImporterStatus
+from django.urls import reverse_lazy
+
 from django.template import loader
 from celery import shared_task
 from django.apps import apps
@@ -37,7 +39,7 @@ def importer(pk):
     fields = {field.verbose_name:field for field in model._meta.fields}
     
     # Read excel file
-    df = pd.read_excel(obj.document)
+    df = pd.read_excel(obj.document, dtype=str)
     df = df.where(pd.notnull(df), None)
     df.columns = [fields[col.lower()].name for col in df.columns]
     fields = {field.name:field.related_model.objects.values('id', 'name') 
@@ -54,7 +56,20 @@ def importer(pk):
         data = [model(**row) for row in data]
 
         model.objects.bulk_create(data, ignore_conflicts=True)
+        Notification.objects.create(**{
+            '_from': obj.created_by,
+            '_to': obj.created_by,
+            'subject': _('Importation réussie'),
+            'message': _('Les données ont été importées avec succès'),
+            'redirect': reverse_lazy('core:list', kwargs={'app': obj.content_type.app_label, 'model': obj.content_type.model})
+        })
     except Exception as e:
+        Notification.objects.create(**{
+            '_from': obj.created_by,
+            '_to': obj.created_by,
+            'subject': _('Importation échouée'),
+            'message': str(e),
+        })
         obj.status = ImporterStatus.ERROR
         obj.message = str(e)
         obj.save()
@@ -62,11 +77,3 @@ def importer(pk):
 
     obj.status = ImporterStatus.SUCCESS
     obj.save()
-
-    try:
-        return obj.created_by.email_user(**{
-            'subject': _(f'Importation a réussi'),
-            'message': loader.render_to_string('email/importation_success.txt')
-        })
-    except:
-        print('Email not sent')

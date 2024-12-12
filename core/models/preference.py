@@ -18,7 +18,7 @@ class Preference(Base):
         return self.key
     
     @staticmethod
-    def get(key):
+    def get(key, default=None):
         return Preference.objects.filter(key=key).first()
 
     class Meta:

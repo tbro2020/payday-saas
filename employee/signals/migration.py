@@ -9,5 +9,11 @@ def add_to_menu(sender, **kwargs):
     if created: print("Menu 'employé' créé")
     content_types = apps.get_model("contenttypes", "contenttype")
     content_types = content_types.objects.filter(app_label="employee").exclude(model__in=["child", "document"])
-    menu.children.clear()
-    menu.children.add(*content_types)
+    if not menu.children.all().exists():
+        menu.children.add(*content_types)
+        print("Menu 'employé' mis à jour")
+
+    defaults = {'value': '1'}
+    preference = apps.get_model("core", "preference")
+    preference.objects.get_or_create(key="CREATE_USER_ON_EMPLOYEE", defaults=defaults)
+    preference.objects.get_or_create(key="DEFAULT_PERMISSION_GROUP", defaults=defaults)

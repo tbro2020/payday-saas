@@ -1,0 +1,52 @@
+<html>
+   <body>
+    {% load humanize %}
+    {% load mathfilters %}
+    {% with obj.statistic as statistic %}
+      <p>&nbsp;</p>
+      <h1 style="text-align: center;"><strong>Rapport de Paie - {{ obj.name }}</strong></h1>
+      <h2 style="text-align: center;"><strong>ONATRA S.A.</strong></h2>
+      <h3><strong>Informations G&eacute;n&eacute;rales</strong></h3>
+      <ul>
+         <li><strong>Nom de l'Entreprise</strong> : ONATRA S.A.</li>
+         <li><strong>P&eacute;riode de Paie</strong> : {{ obj.start_dt }} - {{ obj.end_dt }}</li>
+         <li><strong>Nombre de Zones</strong> : {{ statistic.branches.count }}</li>
+         <li><strong>Taux de change appliqu&eacute; (1 USD = CDF) :&nbsp;</strong>{{ obj.metadata.taux|intcomma }}</li>
+         <li><strong>Bareme :&nbsp;</strong>2024</li>
+      </ul>
+      <h3><strong>Sommaire du Rapport</strong></h3>
+      <ul>
+         <li><strong>Total des Salaires Bruts</strong> : {{ statistic.gross|intcomma }}</li>
+         <li><strong>Total des D&eacute;ductions</strong> : {{ statistic.deductibles|intcomma }}</li>
+         <li><strong>Total des Salaires Nets</strong> : {{ statistic.net|intcomma }}</li>
+         <li><strong>Nombre Total d'Employ&eacute;s</strong> : {{ statistic.payslips.count|intcomma }}</li>
+         <li><strong>Banques </strong>: {{ statistic.branches.count }}</li>
+      </ul>
+
+      {{ statistic.impact|safe }}
+      {{ statistic.legals|safe }}
+      {{ statistic.impact_legal_total|safe }}
+
+      <h3>D&eacute;tails des Branches</h3>
+      <ul>
+         <li>Voir document en annexes</li>
+      </ul>
+      <h3>D&eacute;tails des Employ&eacute;s par Banque</h3>
+      <ul>
+         <li>Voir document en annexes</li>
+      </ul>
+      <h3>D&eacute;tails des Employ&eacute;s par Banque</h3>
+      <ul>
+         <li>Voir document en annexes</li>
+      </ul>
+      <h3>D&eacute;tails des Employ&eacute;s par Code Activites</h3>
+      <ul>
+         <li>Voir document en annexes</li>
+      </ul>
+      <h3><strong>Statistiques Globales par Elements de paies</strong></h3>
+      <ul>
+         <li>Voir document en annexes</li>
+      </ul>
+      {% endwith %}
+   </body>
+</html>

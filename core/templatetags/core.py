@@ -97,3 +97,8 @@ def addDays(date, days):
 @register.filter(name='qs_sum_of')
 def qs_sum_of(qs, field):
     return sum([getattr(obj, field, 0) for obj in qs])
+
+@register.filter(name='qs_limit')
+def qs_limit(qs, limit):
+    if not qs: return qs
+    return qs[:limit]

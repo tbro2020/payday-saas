@@ -11,6 +11,7 @@ def base(request):
         'title': module.name,
         'href': f'#{module.name}',
         'icon': f'bi-{module.icon}',
+        'class': 'active',
         'children': [{
             'title': child.name,
             'href': reverse_lazy('core:list', kwargs={'app': child.app_label, 'model': child.model}),
@@ -35,7 +36,7 @@ def base(request):
 
     menu.insert(2, dict({
         'title': _('Notifications'),
-        'href': reverse_lazy('core:list', kwargs={'app': 'core', 'model': 'notification'}),
+        'href': reverse_lazy('core:list', kwargs={'app': 'core', 'model': 'notification'})+'?viewed=false',
         'icon': 'bi-bell',
         'forced': True,
         'badge': notifications(request).get('count', 0)

@@ -35,6 +35,11 @@
                                 </div>
                             {% endif %}
                         {% endwith %}
+
+                        {% for action in obj.actions_url %}
+                            <a href="{{ action.url }}" class="btn btn-light-info">{{ action.title|title }}</a>
+                        {% endfor %}
+
                         <a href="{% url 'core:delete' app model|getattr:'_meta'|getattr:'model_name' obj.pk %}" class="btn btn-light-danger">{% trans 'Supprimer' %}</a>
                         <button type="submit" form="form-{{ model|getattr:'_meta'|getattr:'model_name' }}" class="btn btn-light-success">{% trans 'Sauvegarder' %}</button>
                     </div>

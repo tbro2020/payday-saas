@@ -71,7 +71,7 @@
                                  {% if el.badge %}<span class="badge bg-danger">{{ el.badge }}</span>{% endif %}
                              </a>
                               {% if el.children %}
-                                  <ul class="submenu">
+                                  <ul class="submenu {{ el.class }}">
                                      {% for child in el.children %}
                                           <li class="submenu-item {% if request.path == child.href %}active{% endif %}">
                                              <a href="{{ child.href }}">{{ child.title|title }}</a>

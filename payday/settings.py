@@ -63,14 +63,15 @@ INSTALLED_APPS = [
     "qr_code",
     "django_ace",
     "phonenumber_field",
-    "slick_reporting",
     "corsheaders",
-    'django_extensions',
+    "django_extensions",
+    "djcelery_email",
 
     "core",
     "api",
 
     "employee",
+    "payroll"
 ]
 
 MIDDLEWARE = [

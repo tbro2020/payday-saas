@@ -1,5 +1,6 @@
 from django.utils.translation import gettext as _
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
 from .base import BaseView
 
 from django.views.decorators.cache import cache_page
@@ -10,7 +11,18 @@ from core.models import Widget
 class Home(BaseView):   
     template_name = "home.html"
 
+    def get_employee(self):
+        try:
+            return self.request.user.employee
+        except:
+            return None
+
     def get(self, request):
+        if not request.user.is_staff:
+            if employee:=self.get_employee():
+                return redirect(employee.get_absolute_url())
+            return redirect(reverse_lazy('core:password-change'))
+        
         widgets = [{
             'title': widget.name,
             'content': widget.render(request),

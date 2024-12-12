@@ -1,2 +1,2 @@
 from .migration import *
-#from .employee import *
+from .employee import *

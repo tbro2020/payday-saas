@@ -1,3 +1,23 @@
+// Define custom autocomplete keywords
+var customKeywords = [
+    { name: 'variable1', value: 'variable_1', meta: 'custom variable' },
+    { name: 'variable2', value: 'variable_2', meta: 'custom variable' },
+    // Add more variables as needed
+];
+
+// Create a custom completer
+var customCompleter = {
+    getCompletions: function(editor, session, pos, prefix, callback) {
+        callback(null, customKeywords.map(function(keyword) {
+            return {
+                caption: keyword.name,
+                value: keyword.value,
+                meta: keyword.meta
+            };
+        }));
+    }
+};
+
 (function() {
     function getDocHeight() {
         var D = document;
@@ -107,6 +127,9 @@
 
         // the editor is initially absolute positioned
         textarea.style.display = "none";
+
+        // Add the custom completer to Ace's language tools
+        editor.completers = [customCompleter];
 
         // options
         if (mode) {
