@@ -13,15 +13,20 @@ def importer(pk):
 
     # Check if user has permission to add
     permission = '{}.add_{}'.format(obj.content_type.app_label, obj.content_type.model)
+    
     if not obj.created_by.has_perm(permission):
         obj.message = _('Vous n\'avez pas la permission d\'ajouter des données')
         obj.status = ImporterStatus.ERROR
         obj.save()
 
-        obj.created_by.email_user(**{
-            'subject': _(f'Importation a échoué'),
-            'message': loader.render_to_string('email/importation_failed.txt')
-        })
+        try:
+            return obj.created_by.email_user(**{
+                'subject': _(f'Importation a échoué'),
+                'message': loader.render_to_string('email/importation_failed.txt')
+            })
+        except:
+            print('Email not sent')
+            return
 
     # Update status
     obj.status = ImporterStatus.PROCESSING
@@ -58,7 +63,10 @@ def importer(pk):
     obj.status = ImporterStatus.SUCCESS
     obj.save()
 
-    obj.created_by.email_user(**{
-        'subject': _(f'Importation réussie'),
-        'message': loader.render_to_string('email/importation_success.txt')
-    })
+    try:
+        return obj.created_by.email_user(**{
+            'subject': _(f'Importation a réussi'),
+            'message': loader.render_to_string('email/importation_success.txt')
+        })
+    except:
+        print('Email not sent')

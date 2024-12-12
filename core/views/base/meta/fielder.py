@@ -14,9 +14,6 @@ class Fielder:
         return fields
 
     def get_inline_form_fields(self, model):
-        if self.is_full_approved():
-            return '__all__'
-
         fields = [field.name for field in model._meta.fields if getattr(field, 'inline', False) and not getattr(field, 'approver', False)]
         if self.is_approver():
             approver_fields = [field.name for field in model._meta.fields if getattr(field, 'inline', False) and getattr(field, 'approver', False)]

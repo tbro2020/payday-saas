@@ -42,3 +42,4 @@ from .smallintegerfield import SmallIntegerField
 from .emailfield import EmailField
 from .foreignobject import ForeignObject
 from .commaseparatedintegerfield import CommaSeparatedIntegerField
+from .capture_field import CaptureField

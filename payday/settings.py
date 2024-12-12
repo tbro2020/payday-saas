@@ -69,6 +69,8 @@ INSTALLED_APPS = [
 
     "core",
     "api",
+
+    "employee",
 ]
 
 MIDDLEWARE = [

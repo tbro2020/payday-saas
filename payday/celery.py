@@ -31,10 +31,26 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
 
 app.conf.beat_schedule = {
+    'hourly': {
+        'task': 'hourly',  
+        'schedule': crontab(minute=0)
+    },
     'daily': {
         'task': 'daily',  
         'schedule': crontab(minute=0, hour=23)
     },
+    'weekly': {
+        'task': 'weekly',  
+        'schedule': crontab(minute=0, hour=23, day_of_week=0)
+    },
+    'monthly': {
+        'task': 'monthly',  
+        'schedule': crontab(minute=0, hour=23, day_of_month=1)
+    },
+    'yearly': {
+        'task': 'yearly',  
+        'schedule': crontab(minute=0, hour=23, day_of_month=1, month_of_year=1)
+    }
 }
 
 if __name__ == '__main__':

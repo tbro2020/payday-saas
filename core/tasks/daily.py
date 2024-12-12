@@ -1,9 +1,11 @@
+from core.models import Job, JobFrequencyChoice
 from celery import shared_task
-from django.apps import apps
 
 @shared_task(name='daily')
 def daily():
-    qs = apps.get_model('core', 'job').objects.all()
+    qs = Job.objects.filter(
+        frequency=JobFrequencyChoice.DAILY,
+    )
     for obj in qs:
         try:
             eval(obj.job, locals())

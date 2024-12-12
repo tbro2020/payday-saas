@@ -19,6 +19,9 @@
          html{
             font-size: 10px;
          }
+         .tox-promotion{
+            display: none !important;
+         }
       </style>
    </head>
    <body>
@@ -154,11 +157,25 @@
       <script src="{% static 'assets/js/app.js' %}"></script>
       <script>
          $(document).ready(function(){
-            // $( ".dateinput" ).datepicker();
             $("a[href='{% url 'logout' %}']").click(function(e) {
                e.preventDefault();
                $('<form action="'+$(this).attr('href')+'" method="post">{% csrf_token %}</form>').appendTo('body').submit();
            });
+
+            let isModified = false;
+            $('form :input').on('input', () => isModified = true);
+            $('button[type="submit"]').on('click', function() { 
+               isModified = false; 
+               $(this).closest('form').submit(); 
+            });
+
+            $(window).on('beforeunload', (e) => {
+                if (isModified) {
+                    const message = '{% trans "You have unsaved changes. Are you sure you want to leave?" %}';
+                    e.returnValue = message;
+                    return message;
+                }
+            });
          });
       </script>
    </body>

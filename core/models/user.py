@@ -7,6 +7,7 @@ from django.utils.translation import gettext as _
 
 from core.models import managers
 from core.models import fields
+from django.apps import apps
 
 
 class User(AbstractUser):
@@ -32,10 +33,7 @@ class User(AbstractUser):
     list_filter = ('is_active',)
     
     layout = Layout(
-        Row(
-            Column('organization'),
-            Column('email')
-        ),
+        Column('email'),
         Row(
             Column('user_permissions'),
             Column('groups')
@@ -56,6 +54,11 @@ class User(AbstractUser):
 
     def get_full_name(self):
         return self.name
+    
+    def notify(self, _from, subject, message, *args, **kwargs):
+        notification = apps.get_model('core', 'notification')
+        notification.objects.create(_from=_from,_to=self, subject=subject, message=message)
+        return self.email_user(subject, message, *args, **kwargs)
 
     def get_absolute_url(self):
         meta = self._meta

@@ -6,7 +6,12 @@ from core.models import fields
 from django.db import models
 
 class JobFrequencyChoice(models.TextChoices):
-    APPROVED = "DAILY", _("quotidien")
+    HOURLY = "HOURLY", _("horaire")
+    DAILY = "DAILY", _("quotidien")
+    WEEKLY = "WEEKLY", _("hebdomadaire")
+    MONTHLY = "MONTHLY", _("mensuel")
+    YEARLY = "YEARLY", _("annuel")
+
 
 class Job(Base):
     frequency = fields.CharField(max_length=10, choices=JobFrequencyChoice.choices, verbose_name=_('fréquence'))

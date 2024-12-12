@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+
+{% load core %}
+{% load i18n %}
+{% load static %}
+{% load mathfilters %}
+{% load crispy_forms_filters %}
+
+{% block content %}
+<div class="page-content" id="page-content">
+    <div class="col">
+        <div class="row">
+            <!-- Attendance -->
+            <div class="col-12 col-xs-12">
+                <div class="card">
+                    <script src="{% static 'assets/extensions/apexcharts/apexcharts.min.js' %}"></script>
+                    <div class="card-body p-0 p-4 pb-3">
+                        <div class="col">
+                            <div id="attendances-chart"></div>
+                            {{ obj.attendances|json_script:'attendances' }}
+                            <script>
+                                const getMonthName = monthNumber => new Date(0, monthNumber - 1).toLocaleString('fr', { month: 'long' });
+                                const attendances = JSON.parse(document.getElementById('attendances').textContent).map((e) => ({
+                                    date: new Date(e.date),
+                                    count: e.count,
+                                }));
+                
+                                new ApexCharts(document.querySelector('#attendances-chart'), {
+                                    series: Array.from({ length: 12 }, (value, index) => index+1).map(function (month){
+                                        return {
+                                            name: getMonthName(month),
+                                            data: Array.from({ length: 31 }, (value, index) => index+1).map(function(day){
+                                                let y = attendances.find((item) => item.date.getMonth() === month && item.date.getDate() === day)
+                                                return {x: String(day), y: y?y.count:0}
+                                            })
+                                        }
+                                    }),
+                                    chart: {
+                                        height: 250,
+                                        type: 'heatmap'
+                                    },
+                                    dataLabels: {
+                                        enabled: false
+                                    },
+                                    colors: ['#008FFB'],
+                                    title: {
+                                        text: '{% trans 'Tableau de presence' %}',
+                                        align: 'center'
+                                    },
+                                }).render();
+                            </script>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile view -->
+            <div class="col-4 col-xs-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col">
+                                <h5 class="card-title">{{ obj.name }}</h5>
+                            </div>
+                            <div class="col text-end">
+                                <a href="{% url 'employee:sheet' obj.pk %}?next={{ request.path }}" class="btn btn-sm btn-success">{% trans "voir" %}</a>
+                                <a href="{% url 'core:change' 'employee' 'employee' obj.pk %}?next={{ request.path }}" class="btn btn-sm btn-primary">{% trans "modifier" %}</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% for field in self.get_list_display_fields %}
+                        <div class="row">
+                            <div class="col-sm-6 text-capitalize">{{ field.verbose_name }}</div>
+                            <div class="col-sm-6">{{ obj|getattr:field.name|default:'-' }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fill missed field  -->
+            <div class="col-4 col-xs-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col">
+                                <h5 class="card-title">{% trans "Informations manquantes" %}</h5>
+                                <small class="text-muted">{% trans 'Aidez-nous à compléter ' %}</small>
+                            </div>
+                            <div class="col text-end">
+                                <button type="submit" form="missed-employee-form-id" class="btn btn-sm btn-success">{% trans "soumettre" %}</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <form id="missed-employee-form-id" action="{% url 'core:change' 'employee' 'employee' obj.pk %}?next={{ request.path }}" method="post">
+                            {% crispy self.get_missed_value_form %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Document -->
+            <div class="col-4 col-xs-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col">
+                                <h5 class="card-title">{% trans "Document(s)" %}</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <ul>
+                            {% for document in obj.document_set.all %}
+                                <li>
+                                    <a href="{{ document.document.url }}" target="_blank">{{ document.name }}</a>
+                                </li>
+                            {% empty %}
+                            <li class="text-center text-decoration-none">{% trans 'aucun document(s)' %}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Children -->
+            <div class="col-4 col-xs-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col">
+                                <h5 class="card-title">{% trans "Enfant(s)" %}</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <ul>
+                            {% for child in obj.child_set.all %}
+                                <li>
+                                    <a href="{% url 'core:change' 'employee' 'child' child.pk %}?next={{ request.path }}">{{ child.name }}</a>
+                                </li>
+                            {% empty %}
+                            <li class="text-center text-decoration-none">{% trans 'aucun enfants(s)' %}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<div class="page-footer">
+    <div class="card">
+        <div class="card-body">
+            <div class="card-title">
+                <h4>{% trans 'Activities' %}</h4>
+            </div>
+
+            <ul>
+                {% for log in self.logs %}
+                    <li>{{ log.action_time }}: {{ log.change_message }}</li>
+                {% endfor %}
+            </ul>
+
+        </div>
+    </div>
+</div>
+
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js"
+	integrity="sha512-MpDFIChbcXl2QgipQrt1VcPHMldRILetapBl5MPCA9Y8r7qvlwx1/Mc9hNTzY+kS5kX6PdoDq41ws1HiVNLdZA=="
+	crossorigin="anonymous"
+	referrerpolicy="no-referrer"
+></script>
+
+<script>
+    $(document).ready(function() {
+        $('#print-employee-body').on('click', function() {
+            // Create a temporary container to hold all content
+            var combinedContent = document.createElement('div');
+
+            // Select all elements with the class 'content' and append them to the temporary container
+            $('.tab-pane').each(function() {
+                // Create a wrapper div for each .content element to preserve styles and structure
+                var wrapper = document.createElement('div');
+                wrapper.appendChild(this.cloneNode(true)); // Clone the .content div and append to wrapper
+                combinedContent.appendChild(wrapper); // Append the wrapper to combinedContent
+            });
+
+            $('.page-footer').each(function() {
+                // Create a wrapper div for each .content element to preserve styles and structure
+                var wrapper = document.createElement('div');
+                wrapper.appendChild(this.cloneNode(true)); // Clone the .content div and append to wrapper
+                combinedContent.appendChild(wrapper); // Append the wrapper to combinedContent
+            });
+
+            html2pdf().from(combinedContent).set({
+                margin: 1,
+                filename: '{{ obj.registration_number }}.pdf',
+                // html2canvas: { scale: 1 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
+            }).save();
+        });
+    });
+</script>
+{% endblock %}

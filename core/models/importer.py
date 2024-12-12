@@ -21,7 +21,7 @@ class ImporterStatus(models.TextChoices):
 
 class Importer(Base):
     status = fields.CharField(max_length=255, verbose_name=_('status'), choices=ImporterStatus.choices, default=ImporterStatus.PENDING)
-    content_type = fields.ModelSelect(ContentType, verbose_name=_('type de contenue'), null=True, on_delete=models.SET_NULL)
+    content_type = fields.ModelSelectField(ContentType, verbose_name=_('type de contenue'), null=True, on_delete=models.SET_NULL)
     message = fields.TextField(verbose_name=_('message'), blank=True, null=True, default=None)
     document = fields.FileField(upload_to=upload_directory_file, verbose_name=_('document'))
 
@@ -29,13 +29,15 @@ class Importer(Base):
         Row(
             Column(
                 FieldWithButtons(
-                    Field("content_type"), 
+                    Field("content_type", css_class='col'), 
                     StrictButton(
                         'Télécharger le modèle', 
-                        css_class='btn btn-light-info', 
+                        css_class='btn btn-light-info col', 
                         onclick="window.open('/canvas/download/'+$('#id_content_type').val(), '_blank');"
-                    )
-                )
+                    ),
+                    css_class='col'
+                ),
+                css_class='col'
             ),
             Column('document')
         )

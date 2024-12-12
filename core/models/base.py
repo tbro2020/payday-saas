@@ -92,7 +92,8 @@ class Base(models.Model):
             message=_('Demande #{} a été approuvée'.format(self.pk))
         )
 
-    actions = [] #[delete_qs]
+    def __str__(self):
+        return self.name or str(self)
 
     class Meta:
         abstract = True

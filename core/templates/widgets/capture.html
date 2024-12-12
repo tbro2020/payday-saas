@@ -1,0 +1,16 @@
+<div class="row webcam-capture-container">
+    <div class="col-4 col-xs-12 text-center">
+        <div class="img-thumbnail">
+            <canvas id="canvas-{{ widget.name }}" style="display:none;width: 100% !important;"></canvas>
+            <video id="video-{{ widget.name }}" style="width: 100% !important;%" autoplay></video>
+        </div>
+    </div>
+    <div class="col-8 col-xs-12">
+        <input type="file" class="form-control mb-3" name="{{ widget.name }}" id="{{ widget.name }}" accept="image/*" {% if widget.value %}data-url="{{ widget.value.url }}"{% endif %} />
+        <select class="form-control mb-3" id="device-select-{{ widget.name }}">
+            <option>Choose video source</option>
+        </select>
+        <button class="btn btn-success capture" type="button" id="capture-{{ widget.name }}" style="display:inline-block;">Capture Photo</button>
+        <button class="btn btn-primary retake" type="button" id="retake-{{ widget.name }}" style="display:none;">Retake Photo</button>
+    </div>
+</div>
