@@ -240,11 +240,11 @@ PUBLIC_MEDIA_LOCATION = os.getenv('PUBLIC_MEDIA_LOCATION', default='media')
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Email settings
+# EMAIL_USE_SSL = bool(int(os.getenv('EMAIL_USE_SSL', 0)))
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_USE_TLS = bool(int(os.getenv('EMAIL_USE_TLS', 0)))
-EMAIL_USE_SSL = bool(int(os.getenv('EMAIL_USE_SSL', 0)))
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST = os.getenv('EMAIL_HOST', 'localhost')
 EMAIL_PORT = os.getenv('EMAIL_PORT', 1025)
 
