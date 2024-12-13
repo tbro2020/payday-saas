@@ -247,6 +247,7 @@ EMAIL_USE_TLS = bool(int(os.getenv('EMAIL_USE_TLS', 0)))
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST = os.getenv('EMAIL_HOST', 'localhost')
 EMAIL_PORT = os.getenv('EMAIL_PORT', 1025)
+DEFAULT_FROM_EMAIL=EMAIL_HOST_USER
 
 # Django Rest Framework settings
 REST_FRAMEWORK = {
