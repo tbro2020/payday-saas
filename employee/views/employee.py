@@ -1,9 +1,9 @@
 from core.forms import modelform_factory
 from crispy_forms.layout import Layout
-from core.views import Change
+from core.views import BaseView
 from django.apps import apps
 
-class Employee(Change):
+class Employee(BaseView):
     template_name = "employee/change.html"
 
     def get_list_display_fields(self):

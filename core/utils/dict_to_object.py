@@ -6,7 +6,7 @@ class DictToObject:
             if isinstance(value, dict):
                 value = DictToObject(value)
             _key = slugify(key).replace('-', '_')
-            setattr(self, _key, value)
+            setattr(self, _key.lower(), value)
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.__dict__})"
