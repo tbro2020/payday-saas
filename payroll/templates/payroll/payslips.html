@@ -62,9 +62,7 @@
                                     <a target="_blank" class="dropdown-item text-uppercase" href="{% url 'payroll:listing' obj.pk %}?code={{ item.code }}&{{ request.GET.urlencode }}">{{ item.name }}</a>
                                 {% endfor %}
                             </div>
-                        </span>
 
-                        <span>
                             {% with self.documents as documents %}
                                 {% if documents %}
                                     <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownDocumentBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -77,6 +75,10 @@
                                     </div>
                                 {% endif %}
                             {% endwith %}
+
+                            {% for action in obj.actions_url %}
+                                <a href="{{ action.url }}" class="btn btn-light-info">{{ action.title|title }}</a>
+                            {% endfor %}
                         </span>
 
                         {% if request.user in obj.approvers.all %}

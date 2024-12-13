@@ -41,11 +41,12 @@ class Payroll(Base):
     list_display = ('id', 'name', 'start_dt', 'end_dt', 'overall_net', 'status', 'approved')
     list_filter = ('start_dt', 'end_dt')
 
-    list_actions = [
-        {
-            "title": "Déclarations"
-        }
-    ]
+    @property
+    def actions_url(self):
+        return [{
+            'title': _('Rapport avec Metabase 📈'),
+            'url': '/metabase/',
+        }]
 
     layout = Layout(
         'name',
