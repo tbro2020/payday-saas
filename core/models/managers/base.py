@@ -31,9 +31,14 @@ class CustomQuerySet(models.QuerySet):
         all_related_fields = related_fields + nested_related_fields
 
         # apply filters on all related fields
-        filters = [models.Q(**{field: user}) for field in all_related_fields]
-        filters = reduce(or_, filters)
-        return qs.filter(**filters)
+        # filters = [models.Q(**{field: user}) for field in all_related_fields]
+        # filters = reduce(or_, filters)
+        # return qs.filter(**filters)
+        
+        # Apply filters on all related fields 
+        filters = [models.Q(**{field: user}) for field in all_related_fields] 
+        combined_filter = reduce(or_, filters) 
+        return qs.filter(combined_filter)
 
 class CustomManager(models.Manager):
     def get_queryset(self):
