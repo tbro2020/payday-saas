@@ -198,7 +198,7 @@ class Payer(Task):
         """
 
         data = employee.__dict__.items()
-        data = {k: v for k, v in data if k not in ['_state', 'id', 'photo', 'user_id']}
+        data = {k: v for k, v in data if k not in ['_state', 'id', 'photo', 'user_id', 'email']}
 
         employee = PaidEmployee(**data, payroll=self.payroll)
         employee.save()
