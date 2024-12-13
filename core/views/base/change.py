@@ -19,8 +19,6 @@ class Change(BaseView):
     inline_formset_helper = InlineFormSetHelper()
 
     def can_change(self, obj=None):
-        return True
-
         # Superusers and staff can change anything
         user = self.request.user
         if user.is_superuser or user.is_staff: return True
