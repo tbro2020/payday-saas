@@ -50,7 +50,7 @@ class Create(BaseView):
 
         formsets = [apps.get_model(inline.split('.')[0], model_name=inline.split('.')[-1]) for inline in getattr(model, 'inlines', [])]
         formsets = [inlineformset_factory(model, inline, fields=self.get_inline_form_fields(inline), exclude=('metadata', 'created_by', 'updated_by'), can_delete=True, extra=1) for inline in formsets]
-        formsets = [formset(queryset=formset.model.objects.none()) for formset in formsets]
+        formsets = [formset(request.POST or None, request.FILES or None) for formset in formsets]
 
         if not form.is_valid() or any(not formset.is_valid() for formset in formsets):
             for error in form.errors:
