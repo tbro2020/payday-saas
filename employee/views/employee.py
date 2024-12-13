@@ -6,6 +6,9 @@ from django.apps import apps
 class Employee(Change):
     template_name = "employee/change.html"
 
+    def can_change(self, obj=None):
+        return True
+
     def get_list_display_fields(self):
         model = apps.get_model('employee', 'employee')
         list_display = getattr(model, 'list_display', [])
@@ -20,7 +23,6 @@ class Employee(Change):
             return None
         modelform = modelform_factory(model, fields=missed_fields, layout=Layout(*missed_fields))
         return modelform()
-
 
     def get(self, request, pk):
         self.kwargs['app'] = 'employee'
