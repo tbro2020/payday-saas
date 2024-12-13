@@ -48,7 +48,9 @@ services:
     volumes:
       - .:/app
     depends_on:
-      - worker
+      - master
+      - slave
+      - redis
     env_file:
       - prod.env
     healthcheck:
