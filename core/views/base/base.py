@@ -34,3 +34,42 @@ class BaseView(LoginRequiredMixin, PermissionRequiredMixin, Approvator, Fielder,
     def get_content_type(self):
         app, model = self.kwargs['app'], self.kwargs['model']
         return ContentType.objects.get(app_label=app, model=model)
+    
+    def keywords(self):
+        _keywords = [
+            {'name': _('vrai'), 'meta': 'boolean', 'value': 'True'},
+            {'name': _('faux'), 'meta': 'boolean', 'value': 'False'},
+            {'name': _('null'), 'meta': 'null', 'value': 'None'},
+            {'name': _('vide'), 'meta': 'empty', 'value': ''},
+            {'name': _('aujourdhui'), 'meta': 'date', 'value': 'datetime.date.today()'},
+            {'name': _('maintenant'), 'meta': 'datetime', 'value': 'datetime.datetime.now()'}
+        ]
+        models = [
+            apps.get_model('employee.employee'),
+            apps.get_model('payroll.payroll'),
+            apps.get_model('payroll.payslip'),
+        ]
+        exclude_fields = ['created_by', 'updated_by', 'updated_at', 'created_at']
+        for model in models:
+            for field in model._meta.fields:
+                if field.name in exclude_fields:
+                    continue
+                if not field.is_relation:
+                    _keywords.append({
+                        'name': f'{model._meta.model_name}.{field.verbose_name.lower()}',
+                        'meta': model._meta.verbose_name.lower(),
+                        'value': f'{model._meta.model_name}.{field.name}'
+                    })
+                    continue
+                if not field.related_model:
+                    continue
+                related_model = field.related_model
+                for related_field in related_model._meta.fields:
+                    if related_field.name in exclude_fields:
+                        continue
+                    _keywords.append({
+                        'name': f'{related_field.verbose_name.lower()}',
+                        'meta': related_model._meta.verbose_name.lower(),
+                        'value': f"{model._meta.model_name}.{field.name}.{related_field.name}"
+                    })
+        return _keywords

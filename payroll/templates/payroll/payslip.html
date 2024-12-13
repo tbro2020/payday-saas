@@ -9,43 +9,8 @@
 {% load crispy_forms_filters %}
 
 {% block content %}
-<div class="page-heading">
-    <div class="card">
-        <div class="card-body">
-            <div class="row">
-                <div class="col text-start">
-                    <h3 class="mb-0">{% trans 'Payslip' %} #{{ obj.id }}</h3>
-                    
-                    <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="{% url 'core:home' %}">{% trans 'Dashboard' %}</a></li>
-                        <li class="breadcrumb-item">
-                            <a href="{% url 'payroll:payslips' obj.payroll.pk %}">
-                                {% trans 'Payslips' %}
-                            </a>
-                        </li>
-                        <li class="breadcrumb-item">#{% trans 'Payslip' %} {{ obj.pk }}</li>
-                    </ol>
-                    
-                </div>
 
-                <div class="col text-end">
-                    <div class="btn-group">
-                        {% comment %}<a href="#" class="btn btn-info">{% trans 'Envoyer le bulletin de paie par email' %}</a>{% endcomment %}
-                        <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownDocumentBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            {% trans "Documents" %}
-                        </button>
-                        <div class="dropdown-menu" aria-labelledby="dropdownDocumentBtn">
-                            {% for document in self.documents %}
-                                <a class="dropdown-item btn-list-action" href="{% url 'core:print' document.id 'payroll' 'payslip' %}?pk={{ obj.pk }}">{{ document.name }}</a>
-                            {% endfor %}
-                        </div>
-                        <a href="{% url 'core:delete' 'payroll' 'payslip' obj.pk %}?next={% url 'payroll:payslips' obj.payroll.pk %}" class="btn btn-light-danger">{% trans 'Supprimer' %}</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+{% include "components/change/heading.html" %}
 
 <div class="page-content">
     <div class="col">

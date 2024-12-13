@@ -9,4 +9,5 @@ User = get_user_model()
 @receiver(post_save, sender=Employee)
 def employee_created(sender, instance, created, **kwargs):
     if Preference.get('CREATE_USER_ON_EMPLOYEE', True):
+        if not instance.email: return
         user = instance.create_user()

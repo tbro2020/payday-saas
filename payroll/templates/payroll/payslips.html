@@ -48,13 +48,6 @@
                                 <a href="{% url 'payroll:synthesis' 'sum' obj.pk %}" class="dropdown-item">{% trans 'Par somme' %}</a>
                                 <a href="{% url 'payroll:synthesis' 'count' obj.pk %}" class="dropdown-item">{% trans 'Par eff.' %}</a>
 
-                                {% comment %}
-                                 <a class="dropdown-item" href="{% url 'payroll:synthesis-by-item' obj.pk %}?{{ request.GET.urlencode }}">{% trans "Global" %}</a>
-                                <div class="dropdown-divider"></div>
-                                {% for field in self.sheets %}
-                                    <a class="dropdown-item" href="{% url 'payroll:synthesis-by-employee' obj.pk %}?field={{ field.name }}&{{ request.GET.urlencode }}">{{ field.verbose_name|title }}</a>
-                                {% endfor %}
-                                 {% endcomment %}
                             </div>
                         </span>
 
@@ -71,32 +64,19 @@
                             </div>
                         </span>
 
-                        {% comment %}
-                         <span>
-                            <button class="btn btn-light-primary dropdown-toggle rounded-0" id="dropdown-sheet" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Payroll sheet' %} &nbsp;</button>
-                            <div class="dropdown-menu" aria-labelledby="dropdown-sheet">
-                                <a class="dropdown-item" href="{% url 'payroll:sheet' obj.pk %}?{{ request.GET.urlencode }}">{% trans 'Global' %}</a>
-                                <div class="dropdown-divider"></div>
-                                {% for key, value in self.sheet_fields.items %}
-                                    <a class="dropdown-item" href="{% url 'payroll:sheet' obj.pk %}?group_by={{ key }}&{{ request.GET.urlencode }}">{{ value|title }}</a>
-                                {% endfor %}
-                            </div>
-                        </span>
-                        {% endcomment %}
-
                         <span>
-                            <button class="btn btn-primary dropdown-toggle rounded-0" type="button" id="dropdownDocumentBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                {% trans "Documents" %}
-                            </button>
-                            <div class="dropdown-menu" aria-labelledby="dropdownDocumentBtn">
-                                {% for document in self.documents %}
-                                    {% if document.content_type__model == 'payroll' %}
-                                    <a target="_blank" class="dropdown-item" href="{% url 'core:print' document.id app document.content_type__model %}?pk={{ obj.pk }}">{{ document.name }}</a>
-                                    {% else %}
-                                    <a target="_blank" class="dropdown-item btn-actor" href="{% url 'core:print' document.id app document.content_type__model %}">{{ document.name }}</a>
-                                    {% endif %}
-                                {% endfor %}
-                            </div>
+                            {% with self.documents as documents %}
+                                {% if documents %}
+                                    <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownDocumentBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        {% trans "Documents" %}
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownDocumentBtn">
+                                        {% for document in documents %}
+                                            <a target="_blank" class="dropdown-item btn-list-action" href="{% url 'core:print' document.id app model|getattr:'_meta'|getattr:'model_name' %}?pk={{ obj.pk }}">{{ document.name }}</a>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            {% endwith %}
                         </span>
 
                         {% if request.user in obj.approvers.all %}

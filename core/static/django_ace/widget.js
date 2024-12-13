@@ -1,14 +1,15 @@
 // Define custom autocomplete keywords
-var customKeywords = [
+/* var keywords = [
     { name: 'variable1', value: 'variable_1', meta: 'custom variable' },
     { name: 'variable2', value: 'variable_2', meta: 'custom variable' },
-    // Add more variables as needed
-];
+]; */
+
 
 // Create a custom completer
-var customCompleter = {
+var completers = {
     getCompletions: function(editor, session, pos, prefix, callback) {
-        callback(null, customKeywords.map(function(keyword) {
+        let keywords = JSON.parse(document.getElementById("keywords").textContent);
+        callback(null, keywords.map(function(keyword) {
             return {
                 caption: keyword.name,
                 value: keyword.value,
@@ -38,8 +39,6 @@ var customCompleter = {
     }
 
     function next(elem) {
-        // Credit to John Resig for this function
-        // taken from Pro JavaScript techniques
         do {
             elem = elem.nextSibling;
         } while (elem && elem.nodeType != 1);
@@ -47,8 +46,6 @@ var customCompleter = {
     }
 
     function prev(elem) {
-        // Credit to John Resig for this function
-        // taken from Pro JavaScript techniques
         do {
             elem = elem.previousSibling;
         } while (elem && elem.nodeType != 1);
@@ -109,7 +106,7 @@ var customCompleter = {
             useworker = widget.getAttribute('data-useworker'),
             toolbar = prev(widget);
 
-        // initialize editor and attach to widget element (for use in formset:removed)
+        // Initialize editor and attach to widget element (for use in formset:removed)
         var editor = widget.editor = ace.edit(div);
 
         var main_block = div.parentNode.parentNode;
@@ -122,18 +119,15 @@ var customCompleter = {
             };
         }
 
-        // load initial data
+        // Load initial data
         editor.getSession().setValue(textarea.value);
 
-        // the editor is initially absolute positioned
+        // The editor is initially absolute positioned
         textarea.style.display = "none";
 
-        // Add the custom completer to Ace's language tools
-        editor.completers = [customCompleter];
-
-        // options
+        // Options
         if (mode) {
-            var Mode = require("ace/mode/" + mode).Mode;
+            var Mode = ace.require("ace/mode/" + mode).Mode;
             editor.getSession().setMode(new Mode());
         }
         if (theme) {
@@ -176,7 +170,16 @@ var customCompleter = {
             editor.setOption("useWorker", false);
         }
 
-        // write data back to original textarea
+        // Enable language tools
+        ace.require('ace/ext/language_tools');
+        editor.setOptions({
+            enableBasicAutocompletion: true,
+            enableSnippets: true,
+            enableLiveAutocompletion: false
+        });
+        editor.completers = [completers];
+
+        // Write data back to original textarea
         editor.getSession().on('change', function() {
             textarea.value = editor.getSession().getValue();
         });
@@ -211,18 +214,17 @@ var customCompleter = {
         var widgets = document.getElementsByClassName('django-ace-widget');
 
         for (widget of widgets) {
-
-            // skip the widget in the admin inline empty-form
+            // Skip the widget in the admin inline empty-form
             if (is_empty_form(widget)) {
                 continue;
             }
 
-            // skip already loaded widgets
+            // Skip already loaded widgets
             if (!widget.classList.contains("loading")) {
                 continue;
             }
 
-            widget.className = "django-ace-widget"; // remove `loading` class
+            widget.className = "django-ace-widget"; // Remove `loading` class
 
             apply_widget(widget);
         }

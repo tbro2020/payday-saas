@@ -42,7 +42,8 @@ class Payslips(Change):
             .filter(amount_qp_employee__gte=0).values('name', 'code').distinct())
     
     def get(self, request, pk):
-        self.kwargs['app'], self.kwargs['model'] = 'payroll', 'payroll'
+        app, model = 'payroll', 'payroll'
+        self.kwargs['app'], self.kwargs['model'] = app, model
         app, model = 'payroll', apps.get_model('payroll', 'payroll')
         Payslip = apps.get_model(app, 'payslip')
 

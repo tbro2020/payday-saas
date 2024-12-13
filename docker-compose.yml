@@ -4,44 +4,58 @@ services:
   web:
     build: .
     restart: unless-stopped
-    container_name: server
     command: >
       sh -c "python manage.py migrate && python manage.py collectstatic --noinput &&
-             gunicorn --bind 0.0.0.0:80 payday.wsgi:application"
+             gunicorn --bind 0.0.0.0:8000 payday.wsgi:application"
     volumes:
       - .:/app
+    expose:
+      - "8000"
     ports:
-      - "80:80"
+      - "8000:8000"
     depends_on:
-      - slave
-      - redis
       - minio-init
+      - redis
+      - slave
     env_file:
-      - .env.server
+      - prod.env
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   worker:
     build: .
     restart: unless-stopped
-    container_name: worker
     command: celery -A payday worker -l INFO -E
     volumes:
       - .:/app
     depends_on:
       - web
     env_file:
-      - .env.worker
+      - prod.env
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A payday inspect ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   beat:
     build: .
     restart: unless-stopped
-    container_name: beat
     command: celery -A payday beat -l INFO
     volumes:
       - .:/app
     depends_on:
       - worker
     env_file:
-      - .env.worker
+      - prod.env
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A payday inspect ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   master:
     image: bitnami/postgresql
@@ -49,7 +63,7 @@ services:
     ports:
       - '5432:5432'
     volumes:
-      - master:/bitnami/postgresql
+      - master_data:/bitnami/postgresql
     environment:
       - POSTGRESQL_PGAUDIT_LOG=READ,WRITE
       - POSTGRESQL_LOG_HOSTNAME=true
@@ -60,8 +74,11 @@ services:
       - POSTGRESQL_PASSWORD=payday
       - POSTGRESQL_DATABASE=payday
       - ALLOW_EMPTY_PASSWORD=yes
-    depends_on:
-      - minio-init
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U master -d payday"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   slave:
     image: bitnami/postgresql
@@ -80,35 +97,34 @@ services:
       - POSTGRESQL_REPLICATION_PASSWORD=payday
       - POSTGRESQL_MASTER_PORT_NUMBER=5432
       - ALLOW_EMPTY_PASSWORD=yes
-
-  #pgbouncer:
-  #  image: edoburu/pgbouncer:latest
-  #  container_name: pgbouncer
-  #  restart: unless-stopped
-  #  ports:
-  #    - "6432:6432"
-  #  volumes:
-  #    - ./pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini
-  #    - ./pgbouncer/userlist.txt:/etc/pgbouncer/userlist.txt
-  #  environment:
-  #    - DB_PASSWORD=payday
-  #    - DB_HOST=master
-  #    - DB_USER=payday
-  #    - DB_PORT=5432
-  #  depends_on:
-  #    - slave
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U slave -h master -d payday"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
   
+  metabase:
+    image: metabase/metabase:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - metabase_data:/data
+
   redis:
     image: redis:latest
     container_name: redis
     restart: unless-stopped
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   minio:
     image: minio/minio:latest
     restart: unless-stopped
-    container_name: minio
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -118,8 +134,13 @@ services:
       - MINIO_OPTS=--address :9000 --console-address :9001
     command: server /data --address :9000 --console-address ":9001"
     volumes:
-      - minio:/data
+      - minio_data:/data
       - ./bucket.sh:/docker-entrypoint-init.d/bucket.sh
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   minio-init:
     build:
@@ -128,10 +149,26 @@ services:
     depends_on:
       - minio
     environment:
-      MINIO_BUCKET_NAME: payday
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
+      - MINIO_BUCKET_NAME=payday
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
 
+  nginx:
+    image: nginx:latest
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - web
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+  
 volumes:
-  master:
-  minio:
+  metabase_data:
+  master_data:
+  minio_data:

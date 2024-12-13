@@ -15,4 +15,5 @@ urlpatterns = [
     
     path('payslips/<str:pk>', Payslips.as_view(), name='payslips'),
     path('payslip/<int:pk>', Payslip.as_view(), name='payslip'),
+    path('slips', Slips.as_view(), name='slips'),
 ]

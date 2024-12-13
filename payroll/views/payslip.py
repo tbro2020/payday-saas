@@ -11,8 +11,9 @@ class Payslip(Change):
     template_name = "payroll/payslip.html"
 
     def get(self, request, pk):
-        self.kwargs['app'] = 'payroll'
-        self.kwargs['model'] = 'payslip'
+        app, model = 'payroll', 'payslip'
+        self.kwargs['app'] = app
+        self.kwargs['model'] = model
 
         model = models.Payslip
         obj = get_object_or_404(model, pk=pk)
@@ -21,11 +22,12 @@ class Payslip(Change):
         form = modelform_factory(models.ItemPaid, fields='__all__')
         form = form()
 
-        return render(request, 'payroll/payslip.html', locals())
+        return render(request, self.template_name, locals())
     
     def post(self, request, pk):
-        self.kwargs['app'] = 'payroll'
-        self.kwargs['model'] = 'payslip'
+        app, model = 'payroll', 'payslip'
+        self.kwargs['app'] = app
+        self.kwargs['model'] = model
 
         model = models.Payslip
         obj = get_object_or_404(model, pk=pk)

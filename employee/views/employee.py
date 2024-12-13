@@ -16,6 +16,8 @@ class Employee(Change):
         model = apps.get_model('employee', 'employee')
         obj = model.objects.get(pk=self.kwargs['pk'])
         missed_fields = [field for field in public_fields if not getattr(obj, field)]
+        if not missed_fields:
+            return None
         modelform = modelform_factory(model, fields=missed_fields, layout=Layout(*missed_fields))
         return modelform()
 

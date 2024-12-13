@@ -26,6 +26,13 @@ class Payslip(Base):
         verbose_name_plural = _('fiches de paie')
 
     @property
+    def actions_url(self):
+        return [{
+            'title': _('Imprimer'),
+            'url': reverse_lazy('payroll:slips')+'?pk='+str(self.pk),
+        }]
+
+    @property
     def name(self):
         return f"Fiche de paie de {self.employee.name} de la paie {self.payroll.name}"
     
