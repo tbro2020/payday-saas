@@ -53,7 +53,7 @@ class Change(BaseView):
 
         if not self.can_change(obj=obj):
             messages.warning(request, _('Vous n\'avez pas permission d\'effectuer cette action'))
-            return redirect(reverse_lazy('core:list', kwargs={'app': app, 'model': model._meta.model_name, 'pk': pk}))
+            return redirect(reverse_lazy('core:list', kwargs={'app': app, 'model': model._meta.model_name}))
         
         form = modelform_factory(model, fields=fields)
         form = form(instance=obj)
