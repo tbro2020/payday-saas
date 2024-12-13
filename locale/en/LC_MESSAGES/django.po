@@ -1,0 +1,1619 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-12-13 08:17+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: core/context.py:23 core/templates/components/breadcrumb.html:5
+msgid "Tableau de bord"
+msgstr "Dashboard"
+
+#: core/context.py:30 core/templates/required.html:16
+msgid "Action requise"
+msgstr "Action required"
+
+#: core/context.py:38
+msgid "Notifications"
+msgstr "Notifications"
+
+#: core/context.py:46
+msgid "Paramètres"
+msgstr "Settings"
+
+#: core/context.py:50
+msgid "Menus"
+msgstr "Menus"
+
+#: core/context.py:54
+msgid "Importeur"
+msgstr "Importer"
+
+#: core/context.py:58
+msgid "Modèle de document"
+msgstr "Document template"
+
+#: core/context.py:62
+msgid "Widget"
+msgstr "Widget"
+
+#: core/context.py:66
+msgid "Préférences"
+msgstr "Preferences"
+
+#: core/context.py:70
+msgid "Utilisateurs"
+msgstr "Users"
+
+#: core/context.py:74
+msgid "Autorisations des groupes"
+msgstr "Group permissions"
+
+#: core/context.py:78
+msgid "Approbateur de type de contenu"
+msgstr "Content type approver"
+
+#: core/context.py:82 core/models/job.py:27
+msgid "Job"
+msgstr "Job"
+
+#: core/context.py:86
+msgid "Journal d'activité"
+msgstr "Activity log"
+
+#: core/context.py:93
+msgid "Profil"
+msgstr "Profile"
+
+#: core/context.py:97
+#: core/templates/registration/password_reset_confirm.html:11
+#: core/templates/registration/password_reset_confirm.html:43
+#: templates/registration/password_reset_confirm.html:11
+#: templates/registration/password_reset_confirm.html:43
+msgid "Modifier le mot de passe"
+msgstr "Change password"
+
+#: core/context.py:100
+msgid "Se déconnecter"
+msgstr "Log out"
+
+#: core/models/approval.py:9
+msgid "approuver"
+msgstr "approve"
+
+#: core/models/approval.py:10
+msgid "rejeter"
+msgstr "reject"
+
+#: core/models/approval.py:13 core/models/content_type_approver.py:11
+#: core/models/content_type_approver.py:28 core/models/template.py:10
+msgid "type de contenu"
+msgstr "content type"
+
+#: core/models/approval.py:14
+msgid "clé primaire de l'objet"
+msgstr "object primary key"
+
+#: core/models/approval.py:16
+msgid "action"
+msgstr "action"
+
+#: core/models/approval.py:17 employee/models/base/employee.py:53
+msgid "commentaire"
+msgstr "comment"
+
+#: core/models/approval.py:23
+msgid "Informations"
+msgstr "Information"
+
+#: core/models/approval.py:41 core/models/content_type_approver.py:24
+msgid "approbation"
+msgstr "approval"
+
+#: core/models/approval.py:42 core/models/content_type_approver.py:25
+msgid "approbations"
+msgstr "approvals"
+
+#: core/models/base.py:15 core/models/user.py:14
+msgid "organisation"
+msgstr "organization"
+
+#: core/models/base.py:17 core/models/organization.py:14
+msgid "mis à jour par"
+msgstr "updated by"
+
+#: core/models/base.py:18 core/models/organization.py:15
+msgid "créé par"
+msgstr "created by"
+
+#: core/models/base.py:20 core/models/organization.py:17 core/models/user.py:16
+msgid "mis à jour le/à"
+msgstr "updated at"
+
+#: core/models/base.py:21 core/models/organization.py:18 core/models/user.py:17
+msgid "créé le/à"
+msgstr "created at"
+
+#: core/models/base.py:23 payroll/models/payroll.py:39
+msgid "approuvé"
+msgstr "approved"
+
+#: core/models/base.py:24
+msgid "metadata"
+msgstr "metadata"
+
+#: core/models/base.py:95
+#, python-brace-format
+msgid "Approbation #{model}"
+msgstr "Approval #{model}"
+
+#: core/models/base.py:96
+msgid "Demande #{} a été approuvée"
+msgstr "Request #{} has been approved"
+
+#: core/models/content_type_approver.py:29 employee/models/employee.py:13
+msgid "utilisateur"
+msgstr "user"
+
+#: core/models/content_type_approver.py:41
+msgid "approbateur"
+msgstr "approver"
+
+#: core/models/content_type_approver.py:42 payroll/models/payroll.py:38
+msgid "approbateurs"
+msgstr "approvers"
+
+#: core/models/fields/ace_field.py:14
+msgid "press \"Ctrl+Space\" to get code completion"
+msgstr "press \"Ctrl+Space\" to get code completion"
+
+#: core/models/importer.py:16 payroll/models/payroll.py:19
+msgid "en cours"
+msgstr "in progress"
+
+#: core/models/importer.py:17
+msgid "en attente"
+msgstr "pending"
+
+#: core/models/importer.py:18 payroll/models/payroll.py:20
+msgid "succès"
+msgstr "success"
+
+#: core/models/importer.py:19
+msgid "erreur"
+msgstr "error"
+
+#: core/models/importer.py:23 employee/models/base/employee.py:54
+#: employee/models/status.py:20 employee/models/status.py:21
+#: payroll/models/payroll.py:31 payroll/models/payroll.py:35
+msgid "status"
+msgstr "status"
+
+
+#: core/models/importer.py:24
+msgid "type de contenue"
+msgstr "content type"
+
+#: core/models/importer.py:25 core/models/notification.py:18
+msgid "message"
+msgstr "message"
+
+#: core/models/importer.py:26 employee/models/document.py:11
+#: employee/models/document.py:27
+msgid "document"
+msgstr "document"
+
+#: core/models/importer.py:55
+msgid "importateur"
+msgstr "importer"
+
+#: core/models/importer.py:56
+msgid "importateurs"
+msgstr "importers"
+
+#: core/models/job.py:9
+msgid "horaire"
+msgstr "schedule"
+
+#: core/models/job.py:10
+msgid "quotidien"
+msgstr "daily"
+
+#: core/models/job.py:11
+msgid "hebdomadaire"
+msgstr "weekly"
+
+#: core/models/job.py:12
+msgid "mensuel"
+msgstr "monthly"
+
+#: core/models/job.py:13
+msgid "annuel"
+msgstr "yearly"
+
+#: core/models/job.py:17
+msgid "fréquence"
+msgstr "frequency"
+
+#: core/models/job.py:18
+msgid "job"
+msgstr "job"
+
+#: core/models/job.py:19 core/models/menu.py:17 core/models/organization.py:24
+#: core/models/template.py:12 core/models/widget.py:26
+#: employee/models/agreement.py:6 employee/models/base/employee.py:34
+#: employee/models/branch.py:6 employee/models/designation.py:7
+#: employee/models/direction.py:6 employee/models/document.py:12
+#: employee/models/grade.py:6 employee/models/service.py:12
+#: employee/models/status.py:9 employee/models/sub_direction.py:10
+#: payroll/models/item.py:14 payroll/models/item_paid.py:15
+#: payroll/models/legal_item.py:17 payroll/models/payroll.py:26
+msgid "nom"
+msgstr "name"
+
+#: core/models/job.py:28
+msgid "Jobs"
+msgstr "Jobs"
+
+#: core/models/managers/user.py:15
+msgid "User require an email field"
+msgstr "User requires an email field"
+
+#: core/models/managers/user.py:32
+msgid "Superuser must have is_staff=True."
+msgstr "Superuser must have is_staff=True."
+
+#: core/models/managers/user.py:34
+msgid "Superuser must have is_superuser=True."
+msgstr "Superuser must have is_superuser=True."
+
+#: core/models/menu.py:15
+msgid "icon"
+msgstr "icon"
+
+#: core/models/menu.py:16
+msgid "sous-menu"
+msgstr "submenu"
+
+#: core/models/menu.py:24
+msgid "menu"
+msgstr "menu"
+
+#: core/models/menu.py:25
+msgid "menus"
+msgstr "menus"
+
+#: core/models/notification.py:12
+msgid "de"
+msgstr "from"
+
+#: core/models/notification.py:13
+msgid "à"
+msgstr "to"
+
+#: core/models/notification.py:15
+msgid "rediriger vers"
+msgstr "redirect to"
+
+#: core/models/notification.py:16
+msgid "sujet"
+msgstr "subject"
+
+#: core/models/notification.py:17
+msgid "vu"
+msgstr "seen"
+
+#: core/models/notification.py:41
+msgid "notification"
+msgstr "notification"
+
+#: core/models/notification.py:42
+msgid "notifications"
+msgstr "notifications"
+
+#: core/models/organization.py:20
+msgid "meta"
+msgstr "meta"
+
+#: core/models/organization.py:22
+msgid "logo"
+msgstr "logo"
+
+#: core/models/organization.py:31
+msgid "organization"
+msgstr "organization"
+
+#: core/models/organization.py:32
+msgid "organizations"
+msgstr "organizations"
+
+#: core/models/preference.py:9
+msgid "clé"
+msgstr "key"
+
+#: core/models/preference.py:10
+msgid "valeur"
+msgstr "value"
+
+#: core/models/preference.py:25
+msgid "préférence"
+msgstr "preference"
+
+#: core/models/preference.py:26
+msgid "préférences"
+msgstr "preferences"
+
+#: core/models/template.py:11
+msgid "contenu"
+msgstr "content"
+
+#: core/models/template.py:19
+msgid "modèle de document"
+msgstr "document template"
+
+#: core/models/template.py:20
+msgid "modèles de documents"
+msgstr "document templates"
+
+#: core/models/user.py:20 core/models/widget.py:29
+msgid "permissions"
+msgstr "permissions"
+
+#: core/models/user.py:21
+msgid "groupes"
+msgstr "groups"
+
+#: core/models/user.py:23 employee/models/employee.py:15
+msgid "email"
+msgstr "email"
+
+#: core/models/user.py:24
+msgid "mot de passe"
+msgstr "password"
+
+#: core/models/widget.py:11
+msgid "1/12"
+msgstr "1/12"
+
+#: core/models/widget.py:12
+msgid "2/12"
+msgstr "2/12"
+
+#: core/models/widget.py:13
+msgid "3/12"
+msgstr "3/12"
+
+#: core/models/widget.py:14
+msgid "4/12"
+msgstr "4/12"
+
+#: core/models/widget.py:15
+msgid "5/12"
+msgstr "5/12"
+
+#: core/models/widget.py:16
+msgid "6/12"
+msgstr "6/12"
+
+#: core/models/widget.py:17
+msgid "7/12"
+msgstr "7/12"
+
+#: core/models/widget.py:18
+msgid "8/12"
+msgstr "8/12"
+
+#: core/models/widget.py:19
+msgid "9/12"
+msgstr "9/12"
+
+#: core/models/widget.py:20
+msgid "10/12"
+msgstr "10/12"
+
+#: core/models/widget.py:21
+msgid "11/12"
+msgstr "11/12"
+
+#: core/models/widget.py:22
+msgid "12/12"
+msgstr "12/12"
+
+#: core/models/widget.py:25
+msgid "column"
+msgstr "column"
+
+#: core/models/widget.py:28
+msgid "active"
+msgstr "active"
+
+#: core/models/widget.py:28
+msgid "afficher le widget"
+msgstr "show widget"
+
+#: core/models/widget.py:30
+msgid "template"
+msgstr "template"
+
+#: core/models/widget.py:31
+msgid "view"
+msgstr "view"
+
+#: core/models/widget.py:58
+msgid "widget"
+msgstr "widget"
+
+#: core/models/widget.py:59
+msgid "widgets"
+msgstr "widgets"
+
+#: core/tasks/importer.py:20
+msgid "Vous n'avez pas la permission d'ajouter des données"
+msgstr "You do not have permission to add data"
+
+#: core/tasks/importer.py:26
+msgid "Importation a échoué"
+msgstr "Import failed"
+
+#: core/tasks/importer.py:62
+msgid "Importation réussie"
+msgstr "Import successful"
+
+#: core/tasks/importer.py:63
+msgid "Les données ont été importées avec succès"
+msgstr "The data has been successfully imported"
+
+#: core/tasks/importer.py:70
+msgid "Importation échouée"
+msgstr "Import failed"
+
+#: core/templates/base.html:63
+msgid "Menu"
+msgstr "Menu"
+
+#: core/templates/base.html:145
+msgid "Crafted with"
+msgstr "Crafted with"
+
+#: core/templates/base.html:169
+msgid "You have unsaved changes. Are you sure you want to leave?"
+msgstr "You have unsaved changes. Are you sure you want to leave?"
+
+#: core/templates/change.html:35 core/templates/read.html:70
+#: employee/templates/employee/change.html:240
+msgid "Activities"
+msgstr "Activities"
+
+#: core/templates/components/approvals.html:6
+msgid "Approbation"
+msgstr "Approval"
+
+#: core/templates/components/change/heading.html:18 core/templates/read.html:24
+#: payroll/templates/payroll/payslips.html:83
+msgid "Approuver"
+msgstr "Approve"
+
+#: core/templates/components/change/heading.html:19 core/templates/read.html:25
+msgid "Désapprouver"
+msgstr "Disapprove"
+
+#: core/templates/components/change/heading.html:29 core/templates/list.html:25
+#: core/templates/read.html:33 payroll/templates/payroll/payslips.html:71
+msgid "Documents"
+msgstr "Documents"
+
+#: core/templates/components/change/heading.html:43
+#: core/templates/delete.html:25 core/templates/modal/delete.html:49
+#: core/templates/modal/list.html:37 core/templates/read.html:40
+#: payroll/templates/payroll/payslips.html:87
+msgid "Supprimer"
+msgstr "Delete"
+
+#: core/templates/components/change/heading.html:44
+#: core/templates/create.html:22 core/templates/modal/change.html:19
+#: core/templates/modal/create.html:19
+msgid "Sauvegarder"
+msgstr "Save"
+
+#: core/templates/create.html:16
+msgid "Creer"
+msgstr "Create"
+
+#: core/templates/create.html:21 core/templates/delete.html:24
+#: core/templates/export.html:19 core/templates/modal/change.html:18
+#: core/templates/modal/create.html:18 core/templates/modal/delete.html:48
+#: payroll/templates/payroll/field_selector.html:19
+msgid "Annuler"
+msgstr "Cancel"
+
+#: core/templates/delete.html:11 core/templates/delete.html:17
+msgid "Delete"
+msgstr "Delete"
+
+#: core/templates/delete.html:15
+msgid "Home"
+msgstr "Home"
+
+#: core/templates/delete.html:34
+msgid "Êtes-vous sûr de votre action ?"
+msgstr "Are you sure of your action?"
+
+#: core/templates/delete.html:35
+msgid "Cette action n est pas réversible"
+msgstr "This action is not reversible"
+
+#: core/templates/export.html:14 core/templates/export.html:20
+#: core/templates/list.html:35 payroll/templates/payroll/field_selector.html:14
+#: payroll/templates/payroll/field_selector.html:20
+#: payroll/templates/payroll/payslips.html:86
+msgid "Exporter"
+msgstr "Export"
+
+#: core/templates/export.html:32
+msgid ""
+"Veuillez sélectionner le champ que vous souhaitez voir figurer dans le "
+"rapport"
+msgstr "Please select the field you want to appear in the report"
+
+#: core/templates/export.html:84
+msgid "Regrouper la feuille par"
+msgstr "Group sheet by"
+
+#: core/templates/home.html:30
+msgid "Aucun widget(s)"
+msgstr "No widgets"
+
+#: core/templates/list.html:34
+msgid "Ajouter"
+msgstr "Add"
+
+#: core/templates/list.html:50 payroll/templates/payroll/payslips.html:151
+msgid "Search"
+msgstr "Search"
+
+#: core/templates/list.html:62 core/templates/modal/list.html:15
+msgid "PK"
+msgstr "PK"
+
+#: core/templates/list.html:63 core/templates/modal/list.html:16
+msgid "Name"
+msgstr "Name"
+
+#: core/templates/list.html:92 payroll/templates/payroll/payslips.html:175
+msgid "View"
+msgstr "View"
+
+#: core/templates/list.html:98 core/templates/modal/list.html:43
+msgid "Oupps... We found nothing"
+msgstr "Oops... We found nothing"
+
+#: core/templates/list.html:113 core/templates/list.html:115
+#: payroll/templates/payroll/payslips.html:191
+#: payroll/templates/payroll/payslips.html:193
+msgid "Prev"
+msgstr "Prev"
+
+#: core/templates/list.html:129 core/templates/list.html:131
+#: payroll/templates/payroll/payslips.html:207
+#: payroll/templates/payroll/payslips.html:209
+msgid "Next"
+msgstr "Next"
+
+#: core/templates/list.html:146
+msgid "Filter"
+msgstr "Filter"
+
+#: core/templates/list.html:151 core/templates/organization.html:57
+msgid "Soumettre"
+msgstr "Submit"
+
+#: core/templates/modal/list.html:36 core/templates/required.html:56
+msgid "Voir"
+msgstr "View"
+
+#: core/templates/organization.html:44
+msgid "Créez votre organisation"
+msgstr "Create your organization"
+
+#: core/templates/organization.html:52
+msgid "Utilisateur"
+msgstr "User"
+
+#: core/templates/registration/login.html:17
+#: core/templates/registration/login.html:49
+#: core/templates/registration/password_reset_confirm.html:53
+#: core/templates/registration/password_reset_form.html:47
+#: templates/registration/login.html:17 templates/registration/login.html:59
+#: templates/registration/password_reset_confirm.html:53
+#: templates/registration/password_reset_form.html:47
+msgid "Se connecter"
+msgstr "Log in"
+
+#: core/templates/registration/login.html:18
+#: templates/registration/login.html:18
+msgid "Se connecter avec les informations fournies"
+msgstr "Log in with the provided information"
+
+#: core/templates/registration/login.html:53
+#: templates/registration/login.html:63
+msgid "Mot de passe oublié ?"
+msgstr "Forgot password?"
+
+#: core/templates/registration/password_change.html:20
+#: templates/registration/password_change.html:20
+msgid "sauvegarder"
+msgstr "save"
+
+#: core/templates/registration/password_reset_complete.html:11
+#: templates/registration/password_reset_complete.html:11
+msgid "Votre mot de passe a été défini"
+msgstr "Your password has been set"
+
+#: core/templates/registration/password_reset_complete.html:12
+#: templates/registration/password_reset_complete.html:12
+msgid "Vous pouvez continuer"
+msgstr "You can continue"
+
+#: core/templates/registration/password_reset_complete.html:15
+#: core/templates/registration/password_reset_done.html:19
+#: templates/registration/password_reset_complete.html:15
+#: templates/registration/password_reset_done.html:19
+msgid "Connexion"
+msgstr "Login"
+
+#: core/templates/registration/password_reset_complete.html:15
+#: templates/registration/password_reset_complete.html:15
+msgid "maintenant."
+msgstr "now."
+
+#: core/templates/registration/password_reset_confirm.html:12
+#: templates/registration/password_reset_confirm.html:12
+msgid ""
+"Saisissez votre email et nous vous enverrons le lien de réinitialisation du "
+"mot de passe"
+msgstr "Enter your email and we will send you the password reset link"
+
+#: core/templates/registration/password_reset_confirm.html:47
+#: templates/registration/password_reset_confirm.html:47
+msgid ""
+"Le lien de réinitialisation du mot de passe n'était pas valide, peut-être "
+"parce qu'il a déjà été utilisé."
+msgstr "The password reset link was invalid, possibly because it has already been used."
+
+#: core/templates/registration/password_reset_confirm.html:48
+#: templates/registration/password_reset_confirm.html:48
+msgid "Veuillez demander la réinitialisation de votre mot de passe."
+msgstr "Please request a password reset."
+
+#: core/templates/registration/password_reset_confirm.html:53
+#: core/templates/registration/password_reset_done.html:19
+#: core/templates/registration/password_reset_form.html:46
+#: templates/registration/password_reset_confirm.html:53
+#: templates/registration/password_reset_done.html:19
+#: templates/registration/password_reset_form.html:46
+msgid "Vous vous souvenez de votre compte ?"
+msgstr "Remember your account?"
+
+#: core/templates/registration/password_reset_done.html:11
+#: templates/registration/password_reset_done.html:11
+msgid "Nous vous avons envoyé un courriel"
+msgstr "We have sent you an email"
+
+#: core/templates/registration/password_reset_done.html:12
+#: templates/registration/password_reset_done.html:12
+msgid ""
+"les instructions pour définir votre mot de passe, si un compte existe avec "
+"l'adresse électronique que vous avez indiquée. Vous devriez les recevoir "
+"sous peu."
+msgstr "instructions to set your password, if an account exists with the email address you provided. You should receive them shortly."
+
+#: core/templates/registration/password_reset_done.html:15
+#: templates/registration/password_reset_done.html:15
+msgid ""
+"Si vous ne recevez pas d'e-mail, assurez-vous d'avoir saisi l'adresse avec "
+"laquelle vous vous êtes inscrit et vérifiez votre dossier de courrier "
+"indésirable."
+msgstr "If you do not receive an email, make sure you have entered the address you registered with, and check your spam folder."
+
+#: core/templates/registration/password_reset_form.html:11
+#: templates/registration/password_reset_form.html:11
+msgid "Mot de passe oublié"
+msgstr "Forgot password"
+
+#: core/templates/registration/password_reset_form.html:12
+#: templates/registration/password_reset_form.html:12
+msgid ""
+"Saisissez votre adresse électronique et nous vous enverrons un lien de "
+"réinitialisation du mot de passe."
+msgstr "Enter your email address and we will send you a password reset link."
+
+#: core/templates/required.html:36
+msgid "Modèle"
+msgstr "Model"
+
+#: core/templates/required.html:37
+msgid "Demandeur"
+msgstr "Requester"
+
+#: core/templates/required.html:38
+msgid "Description"
+msgstr "Description"
+
+#: core/templates/required.html:39
+msgid "Créé à"
+msgstr "Created at"
+
+#: core/templates/required.html:40 payroll/templates/payroll/payslip.html:56
+#: payroll/templates/payroll/payslips.html:164
+msgid "Action"
+msgstr "Action"
+
+#: core/templates/required.html:62
+msgid "Oupps... Nous n avons rien trouvé"
+msgstr "Oops... We found nothing"
+
+#: core/templates/required.html:79 payroll/templates/payroll/payslips.html:223
+msgid "Filtre"
+msgstr "Filter"
+
+#: core/views/base/base.py:31
+msgid "You don't have permission to perform this action."
+msgstr "You don't have permission to perform this action."
+
+#: core/views/base/base.py:40
+msgid "vrai"
+msgstr "true"
+
+#: core/views/base/base.py:41
+msgid "faux"
+msgstr "false"
+
+#: core/views/base/base.py:42
+msgid "null"
+msgstr "null"
+
+#: core/views/base/base.py:43
+msgid "vide"
+msgstr "empty"
+
+#: core/views/base/base.py:44
+msgid "aujourdhui"
+msgstr "today"
+
+#: core/views/base/base.py:45
+msgid "maintenant"
+msgstr "now"
+
+#: core/views/base/change.py:55 core/views/base/read.py:38
+msgid "Vous n'avez pas permission d'effectuer cette action"
+msgstr "You don't have permission to perform this action"
+
+#: core/views/base/change.py:89
+#, python-brace-format
+msgid "Le {model} #{pk} a été mis à jour avec succès"
+msgstr "The {model} #{pk} has been successfully updated"
+
+#: core/views/base/create.py:72
+#, python-brace-format
+msgid "Ajout de {model} #{pk}"
+msgstr "Added {model} #{pk}"
+
+#: core/views/base/create.py:74
+#, python-brace-format
+msgid "Le {model} a été créé avec succès"
+msgstr "The {model} has been successfully created"
+
+#: core/views/base/meta/logger.py:19
+msgid "Field '{new_instance._meta.get_field(field).verbose_name}' changed from '{old_value}' to '{new_value}'."
+msgstr "Field '{new_instance._meta.get_field(field).verbose_name}' changed from '{old_value}' to '{new_value}'."
+
+#: core/views/exporter.py:62
+msgid "Please select at least one field to export"
+msgstr "Please select at least one field to export"
+
+#: core/views/organization.py:23 core/views/organization.py:28
+msgid "Veuillez remplir correctement le formulaire"
+msgstr "Please fill out the form correctly"
+
+#: core/views/organization.py:38
+msgid "Votre organisation a été créée avec succès"
+msgstr "Your organization has been successfully created"
+
+#: core/views/password_change.py:28
+msgid "veuillez remplir le formulaire correctement"
+msgstr "please fill out the form correctly"
+
+#: core/views/password_change.py:34
+msgid "votre mot de passe a été mis à jour avec succès"
+msgstr "your password has been successfully updated"
+
+#: core/views/print.py:18
+msgid "Impossible de trouver le modèle d'object"
+msgstr "Unable to find the object template"
+
+#: core/views/print.py:26
+msgid "Impossible de trouver le modèle du document"
+msgstr "Unable to find the document template"
+
+#: employee/models/agreement.py:17
+msgid "contrat"
+msgstr "contract"
+
+#: employee/models/agreement.py:18
+msgid "contrats"
+msgstr "contracts"
+
+#: employee/models/base/employee.py:13
+msgid "cash"
+msgstr "cash"
+
+#: employee/models/base/employee.py:13
+msgid "bank"
+msgstr "bank"
+
+#: employee/models/base/employee.py:13
+msgid "mobile Money"
+msgstr "mobile Money"
+
+#: employee/models/base/employee.py:14
+msgid "marié"
+msgstr "married"
+
+#: employee/models/base/employee.py:14
+msgid "célibataire"
+msgstr "single"
+
+#: employee/models/base/employee.py:14
+msgid "veuf"
+msgstr "widowed"
+
+#: employee/models/base/employee.py:15
+msgid "homme"
+msgstr "male"
+
+#: employee/models/base/employee.py:15
+msgid "femme"
+msgstr "female"
+
+#: employee/models/base/employee.py:18
+msgid "numéro de sécurité sociale"
+msgstr "social security number"
+
+#: employee/models/base/employee.py:19 employee/models/employee.py:14
+msgid "matricule"
+msgstr "registration number"
+
+#: employee/models/base/employee.py:21
+msgid "type de contrat"
+msgstr "contract type"
+
+#: employee/models/base/employee.py:22
+msgid "date d'engagement"
+msgstr "hire date"
+
+#: employee/models/base/employee.py:23
+msgid "photo"
+msgstr "photo"
+
+#: employee/models/base/employee.py:25 employee/models/designation.py:18
+msgid "position"
+msgstr "position"
+
+#: employee/models/base/employee.py:26 employee/models/grade.py:17
+#: payroll/models/payroll.py:33
+msgid "grade"
+msgstr "grade"
+
+#: employee/models/base/employee.py:28 employee/models/service.py:11
+#: employee/models/sub_direction.py:24
+msgid "sous-direction"
+msgstr "sub-division"
+
+#: employee/models/base/employee.py:29 employee/models/service.py:30
+msgid "service"
+msgstr "service"
+
+#: employee/models/base/employee.py:30 employee/models/direction.py:17
+#: employee/models/sub_direction.py:9 payroll/models/payroll.py:30
+msgid "direction"
+msgstr "department"
+
+#: employee/models/base/employee.py:32
+msgid "post-nom"
+msgstr "surname"
+
+#: employee/models/base/employee.py:33
+msgid "prénom"
+msgstr "first name"
+
+#: employee/models/base/employee.py:36 employee/models/child.py:15
+msgid "date de naissance"
+msgstr "date of birth"
+
+#: employee/models/base/employee.py:37
+msgid "genre"
+msgstr "gender"
+
+#: employee/models/base/employee.py:39
+msgid "date de naissance du conjoint"
+msgstr "spouse's date of birth"
+
+#: employee/models/base/employee.py:40
+msgid "conjoint"
+msgstr "spouse"
+
+#: employee/models/base/employee.py:41
+msgid "état civil"
+msgstr "marital status"
+
+#: employee/models/base/employee.py:43
+msgid "numéro de téléphone mobile"
+msgstr "mobile phone number"
+
+#: employee/models/base/employee.py:44
+msgid "adresse physique"
+msgstr "physical address"
+
+#: employee/models/base/employee.py:45
+msgid "informations d'urgence"
+msgstr "emergency information"
+
+#: employee/models/base/employee.py:47 employee/models/branch.py:17
+#: payroll/models/payroll.py:32
+msgid "site"
+msgstr "site"
+
+#: employee/models/base/employee.py:49
+msgid "numéro de compte/paiement"
+msgstr "account/payment number"
+
+#: employee/models/base/employee.py:50
+msgid "mode de paiement"
+msgstr "payment method"
+
+#: employee/models/base/employee.py:51
+msgid "nom du payeur"
+msgstr "payer's name"
+
+#: employee/models/base/employee.py:129 employee/models/child.py:11
+#: employee/models/document.py:10 employee/models/employee.py:104
+#: payroll/models/payslip.py:10 payroll/models/salary_advance.py:9
+msgid "employé"
+msgstr "employee"
+
+#: employee/models/base/employee.py:130 employee/models/employee.py:105
+msgid "employés"
+msgstr "employees"
+
+#: employee/models/branch.py:18
+msgid "sites"
+msgstr "sites"
+
+#: employee/models/child.py:12
+msgid "nom complet"
+msgstr "full name"
+
+#: employee/models/child.py:14
+msgid "certificat de naissance"
+msgstr "birth certificate"
+
+#: employee/models/child.py:30
+msgid "enfant"
+msgstr "child"
+
+#: employee/models/child.py:31
+msgid "enfants"
+msgstr "children"
+
+#: employee/models/designation.py:6
+msgid "jours ouvrables par mois"
+msgstr "working days per month"
+
+#: employee/models/designation.py:19
+msgid "positions"
+msgstr "positions"
+
+#: employee/models/direction.py:18
+msgid "directions"
+msgstr "departments"
+
+#: employee/models/document.py:28
+msgid "documents"
+msgstr "documents"
+
+#: employee/models/employee.py:82
+msgid "bulletins de paie"
+msgstr "payslips"
+
+#: employee/models/grade.py:18
+msgid "grades"
+msgstr "grades"
+
+#: employee/models/service.py:31
+msgid "services"
+msgstr "services"
+
+#: employee/models/sub_direction.py:25
+msgid "sous-directions"
+msgstr "sub-divisions"
+
+#: employee/templates/employee/change.html:48
+msgid "Tableau de presence"
+msgstr "Attendance table"
+
+#: employee/templates/employee/change.html:67
+#: employee/templates/employee/change.html:178
+#: employee/templates/employee/change.html:210
+msgid "voir"
+msgstr "view"
+
+#: employee/templates/employee/change.html:68
+msgid "modifier"
+msgstr "edit"
+
+#: employee/templates/employee/change.html:91
+msgid "Informations manquantes"
+msgstr "Missing information"
+
+#: employee/templates/employee/change.html:92
+msgid "Aidez-nous à compléter "
+msgstr "Help us complete"
+
+#: employee/templates/employee/change.html:95
+msgid "soumettre"
+msgstr "submit"
+
+#: employee/templates/employee/change.html:117
+msgid "Document(s)"
+msgstr "Document(s)"
+
+#: employee/templates/employee/change.html:128
+msgid "aucun document(s)"
+msgstr "no document(s)"
+
+#: employee/templates/employee/change.html:145
+msgid "Enfant(s)"
+msgstr "Child(ren)"
+
+#: employee/templates/employee/change.html:154
+msgid "né le"
+msgstr "born on"
+
+#: employee/templates/employee/change.html:158
+msgid "aucun enfants(s)"
+msgstr "no child(ren)"
+
+#: employee/templates/employee/change.html:175
+msgid "Élément(s) supplémentaires de la paie"
+msgstr "Additional payroll element(s)"
+
+#: employee/templates/employee/change.html:190
+msgid "aucun element(s)"
+msgstr "no element(s)"
+
+#: employee/templates/employee/change.html:207
+msgid "Bulletin de paie"
+msgstr "Payslip"
+
+#: employee/templates/employee/change.html:223
+msgid "aucun bulletin(s) de paie"
+msgstr "no payslip(s)"
+
+#: payroll/filters.py:10 payroll/templates/payroll/payslips.html:110
+msgid "Status"
+msgstr "Status"
+
+#: payroll/filters.py:11
+msgid "Site"
+msgstr "Site"
+
+#: payroll/filters.py:12 payroll/templates/payroll/slip.html:154
+#: payroll/views/payslips.py:30
+msgid "Grade"
+msgstr "Grade"
+
+#: payroll/models/item.py:10 payroll/models/legal_item.py:10
+msgid "Remunerative"
+msgstr "Remunerative"
+
+#: payroll/models/item.py:10 payroll/models/legal_item.py:11
+msgid "Deductible"
+msgstr "Deductible"
+
+#: payroll/models/item.py:12 payroll/models/item_paid.py:12
+#: payroll/models/legal_item.py:15
+msgid "type d'element"
+msgstr "element type"
+
+#: payroll/models/item.py:13 payroll/models/item_paid.py:13
+#: payroll/models/legal_item.py:14
+msgid "code"
+msgstr "code"
+
+#: payroll/models/item.py:16 payroll/models/legal_item.py:19
+msgid "formule/montant quote part employeur"
+msgstr "formula/amount employer share"
+
+#: payroll/models/item.py:17 payroll/models/legal_item.py:20
+msgid "formule/montant quote part employee"
+msgstr "formula/amount employee share"
+
+#: payroll/models/item.py:19 payroll/models/legal_item.py:22
+msgid "condition"
+msgstr "condition"
+
+#: payroll/models/item.py:20 payroll/models/item_paid.py:16
+msgid "temps"
+msgstr "time"
+
+#: payroll/models/item.py:22
+msgid "est éligible à la sécurité sociale"
+msgstr "is eligible for social security"
+
+#: payroll/models/item.py:22
+msgid "Cet élément fera partie du seuil de sécurité sociale"
+msgstr "This element will be part of the social security threshold"
+
+#: payroll/models/item.py:23
+msgid "est impossable"
+msgstr "is taxable"
+
+#: payroll/models/item.py:23
+msgid "Cet élément fera partie du montant brut imposable"
+msgstr "This element will be part of the gross taxable amount"
+
+#: payroll/models/item.py:25 payroll/models/item_paid.py:26
+msgid "est une prime"
+msgstr "is a bonus"
+
+#: payroll/models/item.py:25 payroll/models/item_paid.py:26
+msgid "Cet élément est un bonus"
+msgstr "This element is a bonus"
+
+#: payroll/models/item.py:26 payroll/models/item_paid.py:27
+msgid "est payable"
+msgstr "is payable"
+
+#: payroll/models/item.py:26 payroll/models/item_paid.py:27
+msgid "Cet élément est payable"
+msgstr "This element is payable"
+
+#: payroll/models/item.py:51 payroll/models/special_employee_item.py:10
+msgid "element de paie"
+msgstr "payroll element"
+
+#: payroll/models/item.py:52
+msgid "elements de paie"
+msgstr "payroll elements"
+
+#: payroll/models/item_paid.py:10
+msgid "remunerative"
+msgstr "remunerative"
+
+#: payroll/models/item_paid.py:10
+msgid "deductible"
+msgstr "deductible"
+
+#: payroll/models/item_paid.py:17
+msgid "taux"
+msgstr "rate"
+
+#: payroll/models/item_paid.py:19
+msgid "montant quote part employeur"
+msgstr "employer share amount"
+
+#: payroll/models/item_paid.py:20
+msgid "montant quote part employee"
+msgstr "employee share amount"
+
+#: payroll/models/item_paid.py:22 payroll/models/payslip.py:25
+#: payroll/models/payslip.py:49
+msgid "fiche de paie"
+msgstr "payslip"
+
+#: payroll/models/item_paid.py:23
+msgid "plafond de la sécurité sociale"
+msgstr "social security ceiling"
+
+#: payroll/models/item_paid.py:24
+msgid "montant imposable"
+msgstr "taxable amount"
+
+#: payroll/models/item_paid.py:54
+msgid "element payé"
+msgstr "paid element"
+
+#: payroll/models/item_paid.py:55
+msgid "elements payé"
+msgstr "paid elements"
+
+#: payroll/models/legal_item.py:39
+msgid "Retenue légale"
+msgstr "Legal withholding"
+
+#: payroll/models/legal_item.py:40
+msgid "Retenues légales"
+msgstr "Legal withholdings"
+
+#: payroll/models/paid_employee.py:9 payroll/models/payroll.py:280
+#: payroll/models/payslip.py:11
+msgid "paie"
+msgstr "payroll"
+
+#: payroll/models/paid_employee.py:19
+msgid "employé rémunéré"
+msgstr "paid employee"
+
+#: payroll/models/paid_employee.py:20
+msgid "employés rémunéré"
+msgstr "paid employees"
+
+#: payroll/models/payroll.py:15
+msgid "laisser vide pour tous"
+msgstr "leave blank for all"
+
+#: payroll/models/payroll.py:18
+msgid "avertissement"
+msgstr "warning"
+
+#: payroll/models/payroll.py:23
+msgid "éléments additionnels"
+msgstr "additional elements"
+
+#: payroll/models/payroll.py:24
+msgid "canevas"
+msgstr "template"
+
+#: payroll/models/payroll.py:27
+msgid "du"
+msgstr "from"
+
+#: payroll/models/payroll.py:28
+msgid "au"
+msgstr "to"
+
+#: payroll/models/payroll.py:36
+msgid "net global"
+msgstr "total net"
+
+#: payroll/models/payroll.py:281
+msgid "paies"
+msgstr "payrolls"
+
+#: payroll/models/payslip.py:13
+msgid "plafond cnss/cnsap"
+msgstr "cnss/cnsap ceiling"
+
+#: payroll/models/payslip.py:14
+msgid "brut imposable"
+msgstr "taxable gross"
+
+#: payroll/models/payslip.py:16
+msgid "brut"
+msgstr "gross"
+
+#: payroll/models/payslip.py:17
+msgid "net"
+msgstr "net"
+
+#: payroll/models/payslip.py:26 payroll/models/payslip.py:50
+msgid "fiches de paie"
+msgstr "payslips"
+
+#: payroll/models/payslip.py:31
+msgid "Imprimer"
+msgstr "Print"
+
+#: payroll/models/salary_advance.py:10
+msgid "durée"
+msgstr "duration"
+
+#: payroll/models/salary_advance.py:10
+msgid "nombre de mois"
+msgstr "number of months"
+
+#: payroll/models/salary_advance.py:11 payroll/models/salary_advance.py:39
+msgid "montant"
+msgstr "amount"
+
+#: payroll/models/salary_advance.py:12 payroll/models/salary_advance.py:40
+msgid "date"
+msgstr "date"
+
+#: payroll/models/salary_advance.py:21
+msgid "Informations sur l'avance de salaire"
+msgstr "Salary advance information"
+
+#: payroll/models/salary_advance.py:34
+msgid "avance sur salaire"
+msgstr "salary advance"
+
+#: payroll/models/salary_advance.py:35
+msgid "avances sur salaire"
+msgstr "salary advances"
+
+#: payroll/models/salary_advance.py:38
+msgid "avance de salaire"
+msgstr "salary advance"
+
+#: payroll/models/salary_advance.py:56
+msgid "paiement d'avance de salaire"
+msgstr "salary advance payment"
+
+#: payroll/models/salary_advance.py:57
+msgid "paiements d'avance de salaire"
+msgstr "salary advance payments"
+
+#: payroll/models/special_employee_item.py:9
+msgid "employee"
+msgstr "employee"
+
+#: payroll/models/special_employee_item.py:11
+msgid "montant qp employé"
+msgstr "employee share amount"
+
+#: payroll/models/special_employee_item.py:11
+#: payroll/models/special_employee_item.py:12
+msgid "laisser vide pour utiliser la formule de l'element"
+msgstr "leave blank to use the element formula"
+
+#: payroll/models/special_employee_item.py:12
+msgid "montant qp employeur"
+msgstr "employer share amount"
+
+#: payroll/models/special_employee_item.py:13
+msgid "date de fin"
+msgstr "end date"
+
+#: payroll/models/special_employee_item.py:13
+msgid "laisser vide pour une date illimitée"
+msgstr "leave blank for unlimited date"
+
+#: payroll/models/special_employee_item.py:39
+#: payroll/models/special_employee_item.py:40
+msgid "element special pour l'employé"
+msgstr "special element for the employee"
+
+#: payroll/templates/payroll/field_selector.html:32
+msgid "Veuillez sélectionner le champ que vous souhaitez voir figurer dans la **colonne** du tableau"
+msgstr "Please select the field you want to appear in the **column** of the table"
+
+#: payroll/templates/payroll/field_selector.html:77
+msgid "Veuillez sélectionner le champ que vous souhaitez voir figurer dans la **ligne** du tableau"
+msgstr "Please select the field you want to appear in the **row** of the table"
+
+#: payroll/templates/payroll/listing.html:26
+#: payroll/templates/payroll/synthesis.html:44
+msgid "Direction des ressources humaines"
+msgstr "Human Resources Department"
+
+#: payroll/templates/payroll/listing.html:30
+#: payroll/templates/payroll/payslips.html:55
+msgid "Listing"
+msgstr "Listing"
+
+#: payroll/templates/payroll/listing.html:31
+#: payroll/templates/payroll/synthesis.html:51
+msgid "Generated on"
+msgstr "Generated on"
+
+#: payroll/templates/payroll/payslip.html:50
+#: payroll/templates/payroll/slip.html:84
+#: payroll/templates/payroll/slip.html:111
+msgid "Code"
+msgstr "Code"
+
+#: payroll/templates/payroll/payslip.html:51
+msgid "Nom"
+msgstr "Name"
+
+#: payroll/templates/payroll/payslip.html:52
+msgid "Montant QPE"
+msgstr "Employer Share Amount"
+
+#: payroll/templates/payroll/payslip.html:53
+msgid "Montant QPP"
+msgstr "Employee Share Amount"
+
+#: payroll/templates/payroll/payslip.html:54
+msgid "Taxable"
+msgstr "Taxable"
+
+#: payroll/templates/payroll/payslip.html:55
+msgid "Sécurité sociale"
+msgstr "Social Security"
+
+#: payroll/templates/payroll/payslip.html:72
+msgid "Remove"
+msgstr "Remove"
+
+#: payroll/templates/payroll/payslip.html:88
+msgid "Save"
+msgstr "Save"
+
+#: payroll/templates/payroll/payslips.html:45
+#: payroll/templates/payroll/synthesis.html:48
+msgid "Synthesis"
+msgstr "Synthesis"
+
+#: payroll/templates/payroll/payslips.html:48
+msgid "Par somme"
+msgstr "By sum"
+
+#: payroll/templates/payroll/payslips.html:49
+msgid "Par eff."
+msgstr "By eff."
+
+#: payroll/templates/payroll/payslips.html:115
+msgid "Fiches de paie"
+msgstr "Payslips"
+
+#: payroll/templates/payroll/payslips.html:120
+msgid "Net à payer global"
+msgstr "Total net payable"
+
+#: payroll/templates/payroll/payslips.html:133
+msgid "Approbateur(s)"
+msgstr "Approver(s)"
+
+#: payroll/templates/payroll/payslips.html:161
+#: payroll/templates/payroll/slip.html:36
+#: payroll/templates/payroll/slip.html:165
+msgid "Matricule"
+msgstr "Registration number"
+
+#: payroll/templates/payroll/payslips.html:162
+msgid "Full name"
+msgstr "Full name"
+
+#: payroll/templates/payroll/payslips.html:163
+msgid "Net"
+msgstr "Net"
+
+#: payroll/templates/payroll/slip.html:15
+msgid "Fiche de paie"
+msgstr "Payslip"
+
+#: payroll/templates/payroll/slip.html:39
+#: payroll/templates/payroll/slip.html:166
+msgid "Nom complet"
+msgstr "Full name"
+
+#: payroll/templates/payroll/slip.html:42
+msgid "Fonction"
+msgstr "Function"
+
+#: payroll/templates/payroll/slip.html:45
+msgid "Catégorie"
+msgstr "Category"
+
+#: payroll/templates/payroll/slip.html:48
+msgid "Sit. Fam."
+msgstr "Family status"
+
+#: payroll/templates/payroll/slip.html:49
+msgid "with"
+msgstr "with"
+
+#: payroll/templates/payroll/slip.html:51
+msgid "N. Sec. Social"
+msgstr "Social Security No."
+
+#: payroll/templates/payroll/slip.html:57 payroll/views/payslips.py:28
+msgid "Banque"
+msgstr "Bank"
+
+#: payroll/templates/payroll/slip.html:60
+msgid "Compte"
+msgstr "Account"
+
+#: payroll/templates/payroll/slip.html:63
+msgid "Salaire bar."
+msgstr "Base salary"
+
+#: payroll/templates/payroll/slip.html:66
+msgid "Taux appl."
+msgstr "Applied rate"
+
+#: payroll/templates/payroll/slip.html:69
+msgid "Date engag."
+msgstr "Hire date"
+
+#: payroll/templates/payroll/slip.html:72
+#: payroll/templates/payroll/slip.html:167
+msgid "Centre"
+msgstr "Center"
+
+#: payroll/templates/payroll/slip.html:85
+#: payroll/templates/payroll/slip.html:112
+msgid "Libellé"
+msgstr "Label"
+
+#: payroll/templates/payroll/slip.html:86
+msgid "Taux"
+msgstr "Rate"
+
+#: payroll/templates/payroll/slip.html:87
+msgid "Temps"
+msgstr "Time"
+
+#: payroll/templates/payroll/slip.html:88
+msgid "À payer"
+msgstr "To be paid"
+
+#: payroll/templates/payroll/slip.html:113
+msgid "Retenir"
+msgstr "To retain"
+
+#: payroll/templates/payroll/slip.html:136
+msgid "Plafond CNSS"
+msgstr "CNSS ceiling"
+
+#: payroll/templates/payroll/slip.html:139
+msgid "Brut imposable"
+msgstr "Taxable gross"
+
+#: payroll/templates/payroll/slip.html:144
+msgid "NET A PAYER"
+msgstr "NET TO PAY"
+
+#: payroll/templates/payroll/slip.html:145
+msgid "Currency"
+msgstr "Currency"
+
+#: payroll/templates/payroll/slip.html:157
+msgid "Periode"
+msgstr "Period"
+
+#: payroll/templates/payroll/slip.html:168
+msgid "Net à payer"
+msgstr "Net payable"
+
+#: payroll/templates/payroll/slip.html:169
+msgid "Signature"
+msgstr "Signature"
+
+#: payroll/templates/payroll/synthesis.html:49
+msgid "Nombre"
+msgstr "Number"
+
+#: payroll/templates/payroll/synthesis.html:49
+msgid "Somme"
+msgstr "Sum"
+
+#: payroll/views/payslip.py:42
+msgid "Remplissez correctement le formulaire"
+msgstr "Please fill out the form correctly"
+
+#: payroll/views/payslip.py:57
+msgid "L'element a été ajouté avec succès"
+msgstr "The element has been successfully added"
+
+#: payroll/views/payslips.py:27
+msgid "Département"
+msgstr "Department"
+
+#: payroll/views/payslips.py:29
+msgid "Zone"
+msgstr "Zone"
+
+#: payroll/views/payslips.py:31
+msgid "Grade par catégorie"
+msgstr "Grade by category"
+
+#: payroll/views/slips.py:21
+msgid "No payslips found"
+msgstr "No payslips found"
