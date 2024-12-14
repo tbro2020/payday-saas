@@ -6,8 +6,9 @@ from django.apps import apps
 class Employee(Change):
     template_name = "employee/change.html"
 
+    # Review this to make sure only authorized user can see the form
     def can_change(self, obj=None):
-        return True
+        return False
 
     def get_list_display_fields(self):
         model = apps.get_model('employee', 'employee')
