@@ -16,7 +16,6 @@ services:
     depends_on:
       - minio-init
       - redis
-      - slave
     env_file:
       - prod.env
     healthcheck:
@@ -49,7 +48,6 @@ services:
       - .:/app
     depends_on:
       - master
-      - slave
       - redis
     env_file:
       - prod.env
@@ -112,6 +110,13 @@ services:
       - "3000:3000"
     volumes:
       - metabase_data:/data
+    environment:
+      - MB_DB_TYPE=postgres
+      - MB_DB_DBNAME=metabase
+      - MB_DB_PORT=5432
+      - MB_DB_USER=metabase
+      - MB_DB_PASS=yourpassword
+      - MB_DB_HOST=master
 
   redis:
     image: redis:latest
@@ -124,6 +129,25 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+
+  device:
+    image: python:3.10-slim
+    restart: unless-stopped
+    volumes:
+      - .:/app
+    environment:
+      - WEBHOOK_URL=http://web:8000/api/v1/hook/device/
+      - AUTHORIZATION_TOKEN=${AUTHORIZATION_TOKEN}
+      - BROKER_URL=redis://redis:6379/0
+    ports:
+      - "7788:7788"
+    command: >
+      sh -c "
+      pip install --no-cache-dir fastapi uvicorn celery redis httpx python-dotenv &&
+      uvicorn device:app --host 0.0.0.0 --port 7788 --workers 4
+      "
+    depends_on:
+      - web
 
   minio:
     image: minio/minio:latest
