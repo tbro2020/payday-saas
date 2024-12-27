@@ -13,8 +13,10 @@ class CreateOrganization(View):
 
     def get(self, request):
         organization = modelform_factory(Organization, fields=['logo', 'name'])
-        user = UserCreationForm()
-        return render(request, self.template_name, locals())
+        return render(request, self.template_name, {
+            'organization': organization(),
+            'user': UserCreationForm()
+        })
     
     def post(self, request):
         organization = modelform_factory(Organization, fields=['logo', 'name'])
@@ -22,7 +24,7 @@ class CreateOrganization(View):
         if not organization.is_valid():
             messages.error(request, _("Veuillez remplir correctement le formulaire"))
             return render(request, self.template_name, locals())
-        # organization.save()
+
         user = UserCreationForm(request.POST, request.FILES or None)
         if not user.is_valid():
             messages.error(request, _("Veuillez remplir correctement le formulaire"))

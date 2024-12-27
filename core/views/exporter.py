@@ -6,7 +6,6 @@ from django.shortcuts import render
 
 from .base.base import BaseView
 from django.apps import apps
-from django.db import models
 import pandas as pd
 
 

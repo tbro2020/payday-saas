@@ -103,21 +103,6 @@ services:
       timeout: 10s
       retries: 3
   
-  metabase:
-    image: metabase/metabase:latest
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    volumes:
-      - metabase_data:/data
-    environment:
-      - MB_DB_TYPE=postgres
-      - MB_DB_DBNAME=metabase
-      - MB_DB_PORT=5432
-      - MB_DB_USER=metabase
-      - MB_DB_PASS=yourpassword
-      - MB_DB_HOST=master
-
   redis:
     image: redis:latest
     container_name: redis
