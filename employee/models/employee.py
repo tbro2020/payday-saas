@@ -97,6 +97,11 @@ class Employee(BaseEmployee):
             group = Group.objects.filter(name=group).first()
             if group: user.groups.add(group)
 
+            password = preference.get('DEFAULT_USER_PASSWORD')
+            if not password: 
+                user.set_password(password)
+                user.save()
+                
         self.user = user
         self.save()
 
