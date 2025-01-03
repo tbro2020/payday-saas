@@ -5,7 +5,7 @@ from django.db import models
 
 class CaptureWidget(Widget):
     allow_multiple_selected = False
-    template_name = 'widgets/capture.html'
+    template_name = 'widgets/capture-field.html'
 
     def format_value(self, value):
         """File input never renders a value."""
@@ -149,6 +149,12 @@ class CaptureWidget(Widget):
         '''
         
 class CaptureField(models.ImageField):
+    def __init__(self, *args, **kwargs):
+        self.level = kwargs.pop('level', 0)
+        self.inline = kwargs.pop('inline', False)
+        
+        super().__init__(*args, **kwargs)
+        
     def formfield(self, **kwargs):
         kwargs['widget'] = CaptureWidget
         return super().formfield(**kwargs)

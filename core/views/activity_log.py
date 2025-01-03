@@ -10,7 +10,7 @@ class ActivityLog(List):
         list_display_order = {field: i for i, field in enumerate(list_display)}
         return sorted([field for field in model._meta.fields if field.name in list_display], key=lambda field: list_display_order[field.name])
     
-    def get_list_filter(self, model):
+    def get_list_filter(self):
         return ['content_type', 'action_flag', 'action_time']
 
     def get(self, request):

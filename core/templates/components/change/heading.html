@@ -11,17 +11,6 @@
                 </div>
 
                 <div class="col text-end">
-                    {% with approbations=self.approbations %}
-                        {% if request.user.email in approbations and not approbations|getattr:request.user.email %}
-                            {% with content_type=self.get_content_type %}
-                            <div class="btn-group">
-                                <a href="{% url 'core:create' 'core' 'approval' %}?content_type={{ content_type.pk }}&object_pk={{ obj.pk }}&action=approve&next={{ request.path }}" class="btn btn-light-success">{% trans 'Approuver' %}</a>
-                                <a href="{% url 'core:create' 'core' 'approval' %}?content_type={{ content_type.pk }}&object_pk={{ obj.pk }}&action=reject&next={{ request.path }}" class="btn btn-light-warning">{% trans 'Désapprouver' %}</a>
-                            </div>
-                            {% endwith %}
-                        {% endif %}
-                    {% endwith %}
-
                     <div class="btn-group">
                         {% with self.documents as documents %}
                             {% if documents %}
@@ -36,12 +25,10 @@
                             {% endif %}
                         {% endwith %}
 
-                        {% for action in obj.actions_url %}
-                            <a href="{{ action.url }}" class="btn btn-light-info">{{ action.title|title }}</a>
+                        {% for button in self.get_action_buttons %}
+                            {{ button.render }}
                         {% endfor %}
 
-                        <a href="{% url 'core:delete' app model|getattr:'_meta'|getattr:'model_name' obj.pk %}" class="btn btn-light-danger">{% trans 'Supprimer' %}</a>
-                        <button type="submit" form="form-{{ model|getattr:'_meta'|getattr:'model_name' }}" class="btn btn-light-success">{% trans 'Sauvegarder' %}</button>
                     </div>
                 </div>
             </div>

@@ -9,12 +9,14 @@
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       
       <title>{{ organization.name|default:'PayDay' }}</title>
+      <script src="{% static 'assets/js/jquery-3.7.0.min.js' %}"></script>
+
       <link rel="stylesheet" href="{% static 'assets/css/main/app.css' %}">
       <link rel="stylesheet" href="{% static 'assets/css/main/app-dark.css' %}">
-      <link rel="shortcut icon" href="{% static 'assets/images/logo/favicon.svg' %}" type="image/x-icon">
-      <link rel="shortcut icon" href="{% static 'assets/images/logo/favicon.png' %}" type="image/png">
       <link rel="stylesheet" href="{% static 'assets/css/shared/iconly.css' %}">
-      <script src="{% static 'assets/js/jquery-3.7.0.min.js' %}" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+      <link rel="shortcut icon" href="{% static 'assets/images/logo/favicon.png' %}" type="image/png">
+      <link rel="shortcut icon" href="{% static 'assets/images/logo/favicon.svg' %}" type="image/x-icon">
+      
       <style>
          html{
             font-size: 10px;
@@ -23,6 +25,7 @@
             display: none !important;
          }
       </style>
+
    </head>
    <body>
       <div id="app">
@@ -64,6 +67,7 @@
                      {% for el in menus %}
                          {% if el.children or el.forced %}
                          <li
+                              id="menu-item-{{ el.title|slugify }}"
                              class="sidebar-item {% if el.children %}has-sub{% endif %} {% if request.path == el.href %}active{% endif %}">
                              <a href="{{ el.href }}" class='sidebar-link'>
                                  <i class="bi {{ el.icon }}"></i>
@@ -73,7 +77,7 @@
                               {% if el.children %}
                                   <ul class="submenu {{ el.class }}">
                                      {% for child in el.children %}
-                                          <li class="submenu-item {% if request.path == child.href %}active{% endif %}">
+                                          <li id="submenu-item-{{ child.title|slugify }}" class="submenu-item {% if request.path == child.href %}active{% endif %}">
                                              <a href="{{ child.href }}">{{ child.title|title }}</a>
                                           </li>
                                      {% endfor %}
@@ -97,7 +101,7 @@
                 {% endif %}
                 <nav class="navbar navbar-expand navbar-light navbar-top p-0">
                     <div class="container-fluid">
-                        <a href="#" class="burger-btn d-block">
+                        <a href="#" class="sidebar-toggler burger-btn d-block">
                             <i class="bi bi-justify fs-3"></i>
                         </a>
 
@@ -107,11 +111,17 @@
                             <span class="navbar-toggler-icon"></span>
                         </button>
                         <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                           <ul class="navbar-nav ms-auto mb-lg-0">
+                           <ul class="navbar-nav ms-auto mb-lg-0 lang-switcher-dropdown-menu">
                               <li class="nav-item dropdown me-3">
                                   <a class="nav-link nav-icon icon-class active dropdown-toggle text-gray-600" href="#" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
                                       {{ LANGUAGE_CODE|upper }}
                                   </a>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                       {% get_available_languages as LANGUAGES %}
+                                       {% for lang in LANGUAGES %}
+                                             <li><a class="dropdown-item lang-item" data-value="{{ lang.0 }}">{{ lang.1 }}</a></li>
+                                       {% endfor %}
+                                    </ul>
                               </li>
                            </ul>
                            <div class="dropdown">
@@ -148,30 +158,129 @@
             </footer>
          </div>
       </div>
-      <script src="{% static 'assets/js/bootstrap.js' %}"></script>
-      <script src="{% static 'assets/js/app.js' %}"></script>
-      <script>
-         $(document).ready(function(){
-            $("a[href='{% url 'logout' %}']").click(function(e) {
-               e.preventDefault();
-               $('<form action="'+$(this).attr('href')+'" method="post">{% csrf_token %}</form>').appendTo('body').submit();
-           });
+      <div id="modal" class="modal fade">
+         <div id="dialog" class="modal-dialog" hx-target="this"></div>
+      </div>
 
-            let isModified = false;
-            $('form :input').on('input', () => isModified = true);
-            $('button[type="submit"]').on('click', function() { 
-               isModified = false; 
-               $(this).closest('form').submit(); 
+      {% if not self.DEBUG %}<!--Start of Tawk.to Script-->
+      <script type="text/javascript">
+         var Tawk_API = Tawk_API || {};
+         var Tawk_LoadStart = new Date();
+
+         (function () {
+            var s1 = document.createElement('script');
+            var s0 = document.getElementsByTagName('script')[0];
+
+            s1.async = true;
+            s1.src = 'https://embed.tawk.to/6776d9c3af5bfec1dbe5e824/1igk459sb';
+            s1.charset = 'UTF-8';
+            s1.setAttribute('crossorigin', '*');
+
+            s0.parentNode.insertBefore(s1, s0);
+         })();
+      </script>
+      <!--End of Tawk.to Script-->
+      {% endif %}
+      
+   </body>
+
+   {% comment %}<script src="{% static 'assets/js/htmx.min.js' %}" defer></script>{% endcomment %}
+   <script src="https://unpkg.com/htmx.org@1.6.1" defer></script>
+   <script src="{% static 'assets/js/bootstrap.js' %}"></script>
+   <script src="{% static 'assets/js/app.js' %}"></script>
+
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/7.2.0/intro.min.js" referrerpolicy="no-referrer"></script>
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/7.2.0/introjs.css" />
+   <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
+
+   
+   <script>
+      var results = [], steps = [];
+
+      function slugify(str) {
+         return str.trim()
+                     .toLowerCase()
+                     .replace(/[^a-z0-9 -]/g, '') // Remove non-alphanumeric characters
+                     .replace(/\s+/g, '-')        // Replace spaces with hyphens
+                     .replace(/-+/g, '-');        // Remove consecutive hyphens
+      }
+
+      $(document).ready(() => {
+         let isModified = false;
+
+         $('form :input').on('input', () => isModified = true);
+
+         $('button[type="submit"]').on('click', function() {
+            isModified = false;
+            $(this).closest('form').submit();
+         });
+
+         $(window).on('beforeunload', (e) => {
+            if (!isModified) return;
+            const message = '{% trans "You have unsaved changes. Are you sure you want to leave?" %}';
+            e.returnValue = message;
+            return message;
+         });
+
+         document.body.addEventListener('htmx:configRequest', (event) => {
+            event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+         });
+
+         const modal = new bootstrap.Modal(document.getElementById("modal"));
+
+         htmx.on("hidden.bs.modal", () => {
+            document.getElementById("dialog").innerHTML = "";
+         });
+
+         htmx.on("htmx:beforeSwap", (e) => {
+            if (e.detail.target.id === "dialog" && !e.detail.xhr.response) {
+               modal.hide();
+               e.detail.shouldSwap = false;
+            }
+         });
+
+         htmx.on("htmx:afterSwap", (e) => {
+            if (e.detail.target.id === "dialog") {
+               modal.show();
+            } else {
+               modal.hide();
+            }
+         });
+
+         if (localStorage.getItem(window.location.pathname) !== null) {
+            $('[id^="menu-item-"]').each(function() {
+               if (!$(this).find('ul.module').length) {
+                  $(this).find('ul').removeClass('active');
+               }
             });
+         }
 
-            $(window).on('beforeunload', (e) => {
-                if (isModified) {
-                    const message = '{% trans "You have unsaved changes. Are you sure you want to leave?" %}';
-                    e.returnValue = message;
-                    return message;
-                }
+         // Change the language
+         $('.lang-item').click(function() {
+            $.ajax({
+               url: '{% url 'set_language' %}',
+               type: 'POST',
+               data: {
+                  language: $(this).data('value'),
+                  csrfmiddlewaretoken: Cookies.get('csrftoken')
+               },
+               async: false,
+               success: function() {
+                  location.reload();
+               }
             });
          });
-      </script>
-   </body>
+
+         // Initialize IntroJS
+         introJs().setOptions({
+            steps: steps.concat(results),
+            dontShowAgain: localStorage.getItem(window.location.pathname) !== null
+         }).oncomplete(() => {
+            localStorage.setItem(window.location.pathname, true);
+         }).start();
+      });
+
+   </script>
+
+
 </html>

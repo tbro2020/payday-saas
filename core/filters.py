@@ -6,7 +6,11 @@ from django import forms
 import django_filters
 
 class AdvanceFilterSet(django_filters.FilterSet):
-    q = django_filters.CharFilter(label=str, method='search', widget=forms.TextInput(attrs={'class': 'form-control d-none'}))
+    q = django_filters.CharFilter(
+        label=str, 
+        method='search', 
+        widget=forms.TextInput(attrs={'class': 'form-control d-none'})
+    )
     
     def search(self, queryset, name, value):
         """
@@ -22,7 +26,6 @@ class AdvanceFilterSet(django_filters.FilterSet):
         if not fields:
             fields = [field.name for field in model._meta.fields if isinstance(field, (CharField, TextField))]
         
-        fields = [fields] if isinstance(fields, str) else fields
         query = reduce(lambda q, field: q | Q(**{f"{field}__icontains": value}), fields, Q())
         return queryset.filter(query)
 
@@ -30,10 +33,15 @@ class AdvanceFilterSet(django_filters.FilterSet):
         """
         Filters the queryset based on hard filters (all valid field filters in the request data).
         """
+        # Extracting non-empty query parameters
         query_params = {k: v for k, v in self.data.items() if v}
         valid_fields = {field.name for field in self._meta.model._meta.fields}
 
-        filter_params = {k: v for k, v in query_params.items() if k.split("__")[0] in valid_fields}
+        # Filtering parameters that correspond to valid fields
+        filter_params = {
+            k: v for k, v in query_params.items() if k.split("__")[0] in valid_fields
+        }
+        
         return self.queryset.filter(**filter_params)
 
 

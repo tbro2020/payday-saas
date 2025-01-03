@@ -76,8 +76,8 @@
                                 {% endif %}
                             {% endwith %}
 
-                            {% for action in obj.actions_url %}
-                                <a href="{{ action.url }}" class="btn btn-light-info">{{ action.title|title }}</a>
+                            {% for button in self.get_action_buttons %}
+                                {{ button.render }}
                             {% endfor %}
                         </span>
 

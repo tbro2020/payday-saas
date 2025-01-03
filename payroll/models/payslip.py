@@ -26,10 +26,12 @@ class Payslip(Base):
         verbose_name_plural = _('fiches de paie')
 
     @property
-    def actions_url(self):
+    def get_action_buttons(self):
         return [{
-            'title': _('Imprimer'),
+            'text': _('Imprimer'),
             'url': reverse_lazy('payroll:slips')+'?pk='+str(self.pk),
+            'classes': 'btn btn-light-info',
+            'tag': 'a',
         }]
 
     @property

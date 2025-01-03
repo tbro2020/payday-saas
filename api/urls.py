@@ -1,11 +1,24 @@
-from django.urls import path
+from rest_framework.routers import DefaultRouter
+from django.urls import path, include
 from .views import *
 
 app_name = 'api'
 
+from django.urls import path
+from .views import ApiViewSet
+
 urlpatterns = [
     path('autocomplete/<str:app>/<str:model>/<str:to_field>', Autocomplete.as_view(), name='autocomplete'),
-    path('detail/<str:app>/<str:model>/<int:pk>', Detail.as_view(), name='detail'),
-    path('create/<str:app>/<str:model>', Create.as_view(), name='create'),
-    path('list/<str:app>/<str:model>', List.as_view(), name='list')
+
+    path('v1/<str:app>/<str:model>', ApiViewSet.as_view({
+        'get': 'list', 
+        'post': 'create'
+    }), name='list'),
+
+    path('v1/<str:app>/<str:model>/<int:pk>', ApiViewSet.as_view({
+        'get': 'retrieve', 
+        'put': 'update', 
+        'patch': 'partial_update', 
+        'delete': 'destroy'
+    }), name='detail'),
 ]

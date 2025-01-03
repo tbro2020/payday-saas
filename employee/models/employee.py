@@ -76,10 +76,12 @@ class Employee(BaseEmployee):
         return list()
     
     @property
-    def actions_url(self):
+    def get_action_buttons(self):
         return [{
             'url': reverse_lazy('core:list', kwargs={'app': 'payroll', 'model': 'payslip'}) + '?employee__registration_number=' + self.registration_number,
-            'title': _('bulletins de paie')
+            'text': _('bulletins de paie'),
+            'classes': 'btn btn-light-info',
+            'tag': 'a',
         }]
     
     def create_user(self):

@@ -3,13 +3,18 @@ from django.db import models
 from dal import autocomplete
 
 class ModelSelectField(models.ForeignKey):
-    null = True
     on_delete = models.SET_NULL
+    default = None
+    null = True
 
     def __init__(self, *args, **kwargs):
+        self.on_delete = kwargs.pop('on_delete', self.on_delete)
+        self.default = kwargs.pop('default', self.default)
+        self.null = kwargs.pop('null', self.null)
         self.inline = kwargs.pop('inline', False)
-        self.approver = kwargs.pop('approver', False)
-        super().__init__(*args, **kwargs)
+        self.level = kwargs.pop('level', 0)
+
+        super().__init__(null=self.null, on_delete=self.on_delete, default=self.default, *args, **kwargs)
     
     def formfield(self, **kwargs):
         to_field = getattr(self, 'foreign_related_fields', None)

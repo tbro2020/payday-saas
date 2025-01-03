@@ -10,42 +10,41 @@
     height: 40px !important;
   }
 </style>
-<form hx-post="{{ request.path }}" class="modal-content" id="form">
+<form hx-post="{{ request.get_full_path }}" class="modal-content" id="form">
     {% csrf_token %}
     <div class="modal-header">
       <h5 class="modal-title">{{ model|getattr:'_meta'|getattr:'verbose_name'|title }}</h5>
     </div>
     <div class="modal-body">
-
+      {% for obj in qs %}
         <dl class="row">
             {% for field in model|getattr:"_meta"|getattr:"fields" %}
-
-                {% if field.get_internal_type == 'ForeignKey' or field.get_internal_type == 'OneToOneField' %}
-                <dt class="col-sm-3 text-capitalized">{{ field.verbose_name }}</dt>
-                <dd class="col-sm-9">
-
-                    <dl class="row">
-                        {% for sub_field in field.remote_field.model|getattr:"_meta"|getattr:"fields" %}
-                            <dt class="col-sm-3 text-capitalized">{{ sub_field.verbose_name|title }}</dt>
-                            <dd class="col-sm-9">{{ obj|getattr:field.name|getattr:sub_field.name }}</dd>
-                        {% endfor %}
-                    </dl>
-
-                </dd>
-                {% else %}
-                    {% with obj|getattr:field.name as value %}
-                        {% if value %}
-                            <dt class="col-sm-3 text-capitalized">{{ field.verbose_name|title }}</dt>
-                            <dd class="col-sm-9">{{ value }}</dd>
-                        {% endif %}
-                    {% endwith %}
-                {% endif %}
+                {% with obj|getattr:field.name as value %}
+                    {% if value %}
+                        <dt class="col-sm-3 text-capitalized">{{ field.verbose_name|title }}</dt>
+                        <dd class="col-sm-9">{{ value }}</dd>
+                    {% endif %}
+                {% endwith %}
             {% endfor %}
         </dl>
-
+        {% if not forloop.last %}
+          <hr />
+        {% endif %}
+      {% endfor %}
     </div>
     <div class="modal-footer">
       <button class="btn btn-primary" type="button" data-bs-dismiss="modal">{% trans 'Annuler' %}</button>
       <button class="btn btn-danger" type="submit">{% trans 'Supprimer' %}</button>
     </div>
 </form>
+
+{% comment %}<script>
+    // Hide the modal and refresh the main page after the form submission
+    document.querySelector('#delete-form').addEventListener('htmx:afterRequest', function(evt) {
+        // Hide the modal (assuming you are using Bootstrap for the modal)
+        bootstrap.Modal(document.getElementById("modal")).hide();
+        alert('Suppression effectuée avec succès');
+        // Refresh the main page
+        // window.location.reload();
+    });
+</script>{% endcomment %}

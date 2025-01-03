@@ -45,18 +45,6 @@
   <body class="container-fluid">
     {% for template in templates %}
     <div class="page-break">
-      {% comment %}<header>
-        {% static 'assets/images/logo/logo.svg' as logo_url %}
-        <div class="row">
-          <div class="col">
-            <img src="{{ request.organization.logo.url|default:logo_url }}" alt="Logo" class="float-start" width="128"> 
-          </div>
-          <div class="col text-end" style="font-size: 12px;">
-            {% url 'core:change' app model|getattr:'_meta'|getattr:'model_name' obj.pk as qr_url %}
-            {% qr_from_text qr_url size="T" %}
-          </div>
-        </div>
-      </header>{% endcomment %}
       {{ template|safe }}
     </div>
     {% endfor %}

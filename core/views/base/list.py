@@ -5,27 +5,40 @@ from django.shortcuts import render
 from django.apps import apps
 from .base import BaseView
 
-get_name_of_fields = lambda _list: list(map(lambda x: x.name, _list))
-
 class List(BaseView):
     action = ["view"]
     template_name = "list.html"
 
     def get_queryset_actions(self):
-        app, model = self.kwargs['app'], self.kwargs['model']
-        model = apps.get_model(app, model_name=model)
+        model = self.get_model()
+        actions = getattr(model, 'actions', [])
         return [{
             'title': getattr(action, 'short_description'),
             'name': getattr(action, '__name__')
-        } for action in getattr(model, 'actions', [])]
+        } for action in actions]
 
-    def get_list_display(self, model):
+    def get_list_filter(self):
+        model = self.get_model()
+        return getattr(model, 'list_filter', [])
+
+    def get_list_display(self):
+        model = self.get_model()
         list_display = getattr(model, 'list_display', [])
         list_display_order = {field: i for i, field in enumerate(list_display)}
-        return sorted([field for field in model._meta.fields if field.name in list_display], key=lambda field: list_display_order[field.name])
-    
-    def get_list_filter(self, model):
-        return getattr(model, 'list_filter', [])
+        return sorted([field for field in model._meta.fields 
+                       if field.name in list_display], key=lambda field: list_display_order[field.name])
+
+    def widgets(self):
+        model = self.get_model()
+        app_label, model_name = model._meta.app_label, model._meta.model_name
+        perm = f"{app_label}.view_{model_name}"
+        if not self.request.user.has_perm(perm):
+            return []
+        
+        return apps.get_model('core.widget').objects.filter(**{
+            'content_type__app_label': model._meta.app_label.lower(),
+            'content_type__model': model._meta.model_name.lower()
+        })
 
     def get(self, request, app, model):
         model = apps.get_model(app, model_name=model)
@@ -33,28 +46,16 @@ class List(BaseView):
         if hasattr(model, 'list_url'):
             return redirect(getattr(model, 'list_url'))
 
-        list_display = self.get_list_display(model)
-        list_filter = self.get_list_filter(model)
-
         # get queryset based on user 
-        qs = model.objects.all()
-        if hasattr(model.objects, 'related_to'):
-            qs = model.objects.related_to(user=request.user)
-        
-        # select and prefetch related
-        qs = qs.select_related().prefetch_related()
-
-        # apply hard filter based on fields
-        fields = [field.name for field in model._meta.fields]
-        query = {k:v for k, v in request.GET.dict().items() if k.split('__')[0] in fields}
-        query = {k: v for k, v in query.items() if v not in [None, 'unknown', 'true', 'false']}
-        qs = qs.filter(**query)
+        qs = self.get_queryset().select_related().prefetch_related()
 
         # apply soft filter based on list_filter
-        filter = filter_set_factory(model, fields=list_filter)
+        filter = filter_set_factory(model, fields=self.get_list_filter())
         filter = filter(request.GET, queryset=qs)
-        qs = filter.qs
+        qs = filter.hard_filter()
 
         paginator = Paginator(qs.order_by('-id'), 100)
         qs = paginator.page(int(request.GET.dict().get('page', 1)))
-        return render(request, getattr(model, "change_list_template", self.template_name), locals())
+
+        template = self.get_template_name()
+        return render(request, template, locals())

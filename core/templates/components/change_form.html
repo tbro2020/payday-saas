@@ -1,27 +1,41 @@
 {% load core %}
+{% load static %}
+
 {% load i18n %}
 {% load crispy_forms_tags %}
 
-{% with model_name=model|getattr:'_meta'|getattr:'model_name' model_verbose_name=model|getattr:'_meta'|getattr:'verbose_name' %}
+{% with alias=model|getattr:'_meta'|getattr:'model_name' verbose=model|getattr:'_meta'|getattr:'verbose_name' %}
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.formset/1.2.2/jquery.formset.min.js"
-    integrity="sha512-ltwjKsDTo3hW/wV66ZaEkf2wOAFxmg7rWM76J8kOcYKLSKy44WBYO/BFaNNH3NGDS8BSz3meB9wtSnm41oL+pA=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.36.2/ext-language_tools.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.formset/1.2.2/jquery.formset.min.js"></script>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+<script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
 
-<form method="post" enctype="multipart/form-data" class="page-content" id="form-{{ model_name }}">
+<style>
+    .delete-row{
+        display: none;
+    }
+    .modal-editor { 
+        height: 70vh; 
+    }
+</style>
+
+
+<{{ form.form_tag }} method="post" enctype="multipart/form-data" class="page-content" id="form-{{ alias }}">
     <div class="card">
         <div class="card-body">
             <ul class="nav nav-tabs" id="myTab" role="tablist" id="content-tab">
                 <li class="nav-item" role="presentation">
                     <a class="nav-link active"
-                       data-bs-toggle="tab" href="#{{ model_name }}">
-                       {{ model_verbose_name|title }}</a>
+                       data-bs-toggle="tab" href="#{{ alias }}">
+                       {{ verbose|title }}</a>
                 </li>
 
                 {% for formset in formsets %}
                     <li class="nav-item" role="presentation">
                         <a class="nav-link"
-                            data-bs-toggle="tab" href="#{{ formset.model|getattr:'_meta'|getattr:'model_name' }}">
+                            data-bs-toggle="tab" href="#{{ formset.model|getattr:'_meta'|getattr:'alias' }}">
                             {{ formset.model|getattr:'_meta'|getattr:'verbose_name_plural'|title }}
                         </a>
                     </li>
@@ -29,53 +43,42 @@
             </ul>
 
             <div class="tab-content">
-                <div class="tab-pane fade active show" id="{{ model_name }}">
+                <div class="tab-pane fade active show" id="{{ alias }}">
                     <div class="mt-2 pt-2">
                         {% crispy form %}
                     </div>
                 </div>
 
                 {% for formset in formsets %}
-                <div class="tab-pane fade" id="{{ formset.model|getattr:'_meta'|getattr:'model_name' }}">
+                <div class="tab-pane fade" id="{{ formset.model|getattr:'_meta'|getattr:'alias' }}">
                     <div class="mt-2 pt-2" id="formset-{{ forloop.counter }}">
                         {{ formset.non_form_errors }}
                         {% crispy formset self.inline_formset_helper %}
                     </div>
 
                     {% if not formset.fk.unique %}
-                    <script>$(function(){$('#formset-{{ forloop.counter }} tbody tr').formset({prefix: '{{ formset.prefix }}'});})</script>
+                        <script>
+                            $(() => $('#formset-{{ forloop.counter }} tbody tr').formset({prefix: '{{ formset.prefix }}'}));
+                        </script>
                     {% endif %}
                 </div>
                 {% endfor %}
             </div>
         </div>
     </div>
-</form>
-<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
-<script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
- <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.36.2/ext-language_tools.js" crossorigin="anonymous"></script>
+</{{ form.form_tag }}>
 
 {{ self.keywords|json_script:"keywords" }}
 
-<script type="text/javascript">
-    $(document).ready(function() {
-        // $('.dynamic-form').formset({addText: "Ajouter", deleteText: 'Retirer'});
-        // $('.datepicker').datepicker({dateFormat: 'dd/mm/yy'});
-        $('.datepicker').datepicker();
-        const inputs = document.querySelectorAll('input[id*="DELETE"]');
-        inputs.forEach(input => input.type = 'checkbox');
+<script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+{% url 'core:change' app alias pk|default:0 as changer %}
 
-        $('a[data-bs-toggle="tab"]').on('show.bs.tab', function(e) {
-            localStorage.setItem('payday-last-active-tab', $(e.target).attr('href'));
-        });
-        var activeTab = localStorage.getItem('payday-last-active-tab');
-        if(activeTab == null || activeTab == undefined) return;
-        $(document.querySelectorAll('a[href="'+activeTab+'"]')[0]).tab("show");
-
-        {% if not request.user.is_superuser or not request.user.is_staff %}
-        $('select[name="employee"]').prop('disabled', true);
-        $('select[name="employee"]').select2();  // Reinitialize if necessary
-        {% endif %}
-    });
+{% if changer == request.path and pk %}
+<script>
+    const api_change_url = "{% url 'api:detail' app alias pk %}";
 </script>
+{% endif %}
+
+
+<script src="{% static 'js/script.js' %}"></script>
 {% endwith %}

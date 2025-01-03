@@ -1,11 +1,9 @@
 from django.utils.translation import gettext as _
 from django.db import models
-
 from crispy_forms.layout import Layout, Row, Column
 from django.template import Context, Template
 
-from core.models import fields
-from core.models import Base
+from core.models import fields, Base
 
 class BootstrapColumn(models.TextChoices):
     COL_1 = 'col-md-1 col-xs-12', _('1/12')
@@ -22,38 +20,65 @@ class BootstrapColumn(models.TextChoices):
     COL_12 = 'col-md-12 col-xs-12', _('12/12')
 
 class Widget(Base):
-    column = models.CharField(verbose_name=_('column'), max_length=30, choices=BootstrapColumn.choices, default=BootstrapColumn.COL_12)
-    name = models.CharField(verbose_name=_('nom'), max_length=100)
+    content_type = fields.ModelSelectField(
+        'contenttypes.contenttype',
+        verbose_name=_('type de contenu')
+    )
+    column = models.CharField(
+        verbose_name=_('colonne'),
+        max_length=30,
+        choices=BootstrapColumn.choices,
+        default=BootstrapColumn.COL_12
+    )
+    name = models.CharField(
+        verbose_name=_('nom'),
+        max_length=100
+    )
 
-    active = models.BooleanField(verbose_name=_('active'), help_text=_('afficher le widget'), default=True)
-    permissions = fields.ModelSelect2Multiple('auth.permission', verbose_name=_('permissions'), blank=True)
-    template = fields.AceField(mode='html', verbose_name=_('template'))
-    view = fields.AceField(mode='python', verbose_name=_('view'))
+    """
+    permissions = fields.ModelSelect2Multiple(
+        'core.permission',
+        verbose_name=_('permissions'),
+        blank=True
+    )
+    """
+
+    template = fields.AceField(
+        mode='html',
+        verbose_name=_('modèle')
+    )
+    view = fields.AceField(
+        mode='python',
+        verbose_name=_('vue')
+    )
+
+    is_active = models.BooleanField(
+        verbose_name=_('est actif'),
+        default=True
+    )
 
     list_display = ('id', 'name', 'column', 'updated_at')
     layout = Layout(
+        Column('content_type'),
         Row(
             Column('name'),
             Column('column'),
         ),
-        'permissions',
         Row(
             Column('template'),
             Column('view'),
-        ),
-        'active',
+        )
     )
 
-    def has_permission(self, user):
-        if user.is_superuser or all([user.has_perm(str(permission)) for permission in self.permissions.all()]):
-            return True
-        return False
-
     def render(self, request=None):
+        _locals = {}
         template = Template(self.template)
-        exec(self.view, globals(), locals())
-        return template.render(Context(locals()))
+        exec(self.view, globals(), _locals)
+        return template.render(Context(_locals))
 
     class Meta:
         verbose_name = _('widget')
         verbose_name_plural = _('widgets')
+
+from simple_history import register
+register(Widget)

@@ -7,14 +7,32 @@ from django.db import models
 from .base import Base
 
 class Template(Base):
-    content_type = fields.ModelSelectField(ContentType, verbose_name=_('type de contenu'), on_delete=models.CASCADE)
-    content = fields.HTMLField(_('contenu'), null=True, default=None)
-    name = fields.CharField(_('nom'), max_length=100, unique=True)
+    content_type = fields.ModelSelectField(
+        ContentType, 
+        verbose_name=_('type de contenu'), 
+        on_delete=models.CASCADE
+    )
+    content = fields.HTMLField(
+        verbose_name=_('contenu'), 
+        null=True, 
+        default=None
+    )
+    name = fields.CharField(
+        verbose_name=_('nom'), 
+        max_length=100, 
+        unique=True
+    )
     
-    layout = Layout(Row(Column('content_type'), Column('name')), 'content')
+    layout = Layout(
+        Row(Column('content_type'), Column('name')), 
+        'content'
+    )
     list_display = ('id', 'content_type', 'name')
-    search_field = ('name')
+    search_fields = ('name',)
 
     class Meta:
         verbose_name = _('modèle de document')
         verbose_name_plural = _('modèles de documents')
+
+from simple_history import register
+register(Template)

@@ -1,31 +1,44 @@
-from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.contenttypes.models import ContentType
-from crispy_forms.layout import Layout
 from django.contrib import messages
 
 from django.utils.translation import gettext as _
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 
+from core.mixins import FielderMixin, LoggerMixin
 from django.views import View
 from django.apps import apps
-from .meta import *
 
-class BaseView(LoginRequiredMixin, PermissionRequiredMixin, Approvator, Fielder, Logger, Documentor, View):
+from django.conf import settings
+
+class BaseView(LoginRequiredMixin, PermissionRequiredMixin, FielderMixin, LoggerMixin, View):
+    actions = []
     template_name = None
-    action = []
+    DEBUG = settings.DEBUG
 
-    def get_action(self):
-        return self.action
-
-    def get_permission_required(self):
-        if not self.request.user.is_authenticated:
-            return []
-        app, model = self.kwargs.get('app'), self.kwargs.get('model')
-        if app and model:
-            return [f"{app}.{act}_{model}" for act in self.get_action()]
+    def get_actions(self):
+        return self.actions
+    
+    def get_action_buttons(self):
         return []
     
+    def get_template_name(self):
+        return getattr(self.get_model(), 'list_template', self.template_name)
+    
+    def get_queryset(self):
+        model = self.get_model()
+        rls = self.request.user.get_user_rls(
+            app=model._meta.app_label,
+            model=model._meta.model_name
+        )
+        return model.objects.filter(**rls)
+
+    def get_permission_required(self):
+        if not self.request.user.is_authenticated: return []
+        app, model = self.kwargs.get('app'), self.kwargs.get('model')
+        return [f"{app}.{action}_{model}" for action in self.get_actions()]
+        
     def handle_no_permission(self):
         if self.get_permission_required():
             messages.warning(self.request, _("You don't have permission to perform this action."))
@@ -34,6 +47,10 @@ class BaseView(LoginRequiredMixin, PermissionRequiredMixin, Approvator, Fielder,
     def get_content_type(self):
         app, model = self.kwargs['app'], self.kwargs['model']
         return ContentType.objects.get(app_label=app, model=model)
+    
+    def get_model(self):
+        app, model = self.kwargs['app'], self.kwargs['model']
+        return apps.get_model(app, model_name=model)
     
     def keywords(self):
         _keywords = [
@@ -45,9 +62,9 @@ class BaseView(LoginRequiredMixin, PermissionRequiredMixin, Approvator, Fielder,
             {'name': _('maintenant'), 'meta': 'datetime', 'value': 'datetime.datetime.now()'}
         ]
         models = [
-            apps.get_model('employee.employee'),
-            apps.get_model('payroll.payroll'),
-            apps.get_model('payroll.payslip'),
+            #apps.get_model('employee.employee'),
+            #apps.get_model('payroll.payroll'),
+            #apps.get_model('payroll.payslip'),
         ]
         exclude_fields = ['created_by', 'updated_by', 'updated_at', 'created_at']
         for model in models:

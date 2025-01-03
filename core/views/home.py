@@ -18,7 +18,7 @@ class Home(BaseView):
             return None
 
     def get(self, request):
-        if not request.user.is_staff:
+        if not any([request.user.is_staff, request.user.is_superuser]):
             if employee:=self.get_employee():
                 return redirect(employee.get_absolute_url())
             return redirect(reverse_lazy('core:password-change'))
@@ -27,5 +27,5 @@ class Home(BaseView):
             'title': widget.name,
             'content': widget.render(request),
             'column': widget.column,
-        } for widget in Widget.objects.filter(active=True) if widget.has_permission(request.user)]
+        } for widget in Widget.objects.all()]
         return render(request, self.template_name, locals())

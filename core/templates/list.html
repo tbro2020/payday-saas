@@ -10,7 +10,7 @@
 {% block content %}
 <div class="page-heading">
     <div class="card">
-        <div class="card-body">
+        <div class="card-body" id="list-idenfication-card">
             <div class="row">
                 <div class="col text-start">
                     <h3 class="m-0">{{ model|getattr:'_meta'|getattr:'verbose_name_plural'|title }}</h3>
@@ -32,6 +32,9 @@
                             {% endif %}
                         {% endwith %}
                         <a href="{% url 'core:create' app model|getattr:'_meta'|getattr:'model_name' %}" class="btn btn-light-success">{% trans 'Ajouter' %}</a>
+                        <a 
+                            class="btn btn-light-danger selected"
+                            href="{% url 'core:delete' app model|getattr:'_meta'|getattr:'model_name' %}">{% trans "Delete" %}</a>
                         <a href="{% url 'core:exporter' app model|getattr:'_meta'|getattr:'model_name' %}?{{ request.GET.urlencode }}" class="btn btn-light-primary btn-actor">{% trans 'Exporter' %}</a>
                     </div>
                 </div>
@@ -41,8 +44,26 @@
 </div>
 
 <div class="page-content">
+    {% if self.widgets %}
     <div class="row">
-        <div class="{% if list_filter %}col-md-9{% else %}col{% endif %} col-sm-12 col-xs-12">
+        {% for widget in self.widgets %}
+            <div class="{{ widget.column }}">
+                {{ widget.render }}
+            </div>
+        {% empty %}
+            <div class="col">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h4>{% trans 'Aucun widget(s)' %}</h4>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="{% if self.get_list_filter %}col-md-9{% else %}col{% endif %} col-sm-12 col-xs-12">
             <div class="card">
                 <div class="card-header">
                     <form method="get" class="input-group mb-0">
@@ -56,7 +77,7 @@
                             <thead>
                                 <tr class="text-uppercase">
                                     <th><input type="checkbox" class="form-check-input" id="master-checkbox"/></th>
-                                    {% for field in list_display %}
+                                    {% for field in self.get_list_display %}
                                         <th>{{ field.verbose_name }}</th>
                                     {% empty %}
                                         <th>{% trans 'PK' %}</th>
@@ -69,7 +90,7 @@
                                 {% for obj in qs %}
                                 <tr data-id="{{ obj.id }}">
                                     <td><input type="checkbox" class="form-check-input" value="{{ obj.pk }}" /></td>
-                                    {% for field in list_display %}
+                                    {% for field in self.get_list_display %}
                                         {% if field.get_internal_type == 'FloatField' %}
                                             <td>{{ obj|getattr:field.name|intcomma|default:'-' }}</td>
                                         {% elif field.get_internal_type == 'BooleanField' %}
@@ -94,7 +115,7 @@
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="{{ list_display|length|add:3 }}" class="text-center">
+                                    <td colspan="{{ self.get_list_display|length|add:3 }}" class="text-center">
                                         {% trans 'Oupps... We found nothing' %}
                                     </td>
                                 </tr>
@@ -106,7 +127,7 @@
             </div>
             
             <div class="card">
-                <div class="card-body text-center">
+                <div class="card-body text-center" id="pagination-card">
                      <nav aria-label="Page navigation example">
                        <ul class="pagination justify-content-center mb-0">
                          {% if qs.has_previous %}
@@ -137,10 +158,10 @@
             
         </div>
         
-        {% if list_filter %}
+        {% if self.get_list_filter %}
         <div class="col-md-3 col-sm-12">
             <div class="card">
-                <div class="card-body">
+                <div class="card-body" id="filter-card">
                     <div class="card-title row">
                         <div class="col">
                             <h3 class="mb-0">{% trans 'Filter' %}</h3>
@@ -164,14 +185,13 @@
     </div>
 </div>
 
+{% comment %}
 <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
 <script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+{% endcomment %}
 
 <script>
     $(function() {
-        $('.datepicker').datepicker({dateFormat: 'dd/mm/yy'});
-        $('.datetimeinput').datepicker({dateFormat: 'dd/mm/yy'});
-
         $("#master-checkbox").change(function() {
             let value = $(this).is(":checked");
             $("input[type='checkbox']").attr("checked", value);
@@ -181,14 +201,17 @@
             let checked = $('input:checked').map((_, el) => el.value).get();
             let selected = $('input:checked').filter((_, el) => el.value !== "on").map((_, el) => el.value).get();
 
-            $('.btn-actor').each(function() {
-                let url = $(this).attr('href').split("?")[0] + "?";
-                if(selected.length > 0){
-                    $(this).attr('href', url+"pk__in=" + selected.join(","));
-                }else{
+            $('.selected').each(function() {
+                let url = $(this).attr('href');
+                url = url.split("?")[0] + "?";
+            
+                if (selected.length > 0) {
+                    $(this).attr('href', url + "pk__in=" + selected.join(","));
+                } else {
                     $(this).attr('href', url);
                 }
             });
+            
         });
 
         $("#filter-form").submit(function() {
@@ -197,6 +220,27 @@
             }).prop("disabled", true);
             return true;
         });
+    
+        // Initial Steps for IntroJS
+        steps = [{
+            element: '#list-idenfication-card',
+            intro: '{% trans "Il s agit de la fiche d identification d une page. Elle contient le titre de la page ainsi que le chemin" %}',
+        }, {
+            element: '.btn-group',
+            intro: 'Il s agit des boutons d action. Vous pouvez ajouter, supprimer ou exporter des enregistrements à partir d ici.',
+        }, {
+            element: '.input-group',
+            intro: 'Il s agit de la barre de recherche. Vous pouvez l utiliser pour rechercher des enregistrements spécifiques.',
+        }, {
+            element: '.table',
+            intro: 'Il s agit du tableau des enregistrements. Vous pouvez consulter, modifier ou supprimer des enregistrements à partir de ce tableau.',
+        }, {
+            element: "#filter-card",
+            intro: 'Il s agit de la carte filtre. Vous pouvez l utiliser pour filtrer les enregistrements.',
+        }, {
+            element: "#pagination-card",
+            intro: 'Il s agit de la carte de pagination. Vous pouvez l utiliser pour naviguer entre les pages.',
+        }];
     });
 </script>
 {% endblock %}

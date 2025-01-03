@@ -1,4 +1,4 @@
-from core.models import UserContentTypeApprover, Approval
+# from core.models import UserContentTypeApprover, Approval
 from django.shortcuts import render
 from django.apps import apps
 from .base import BaseView
@@ -7,6 +7,7 @@ class ActionRequired(BaseView):
     template_name = 'required.html'
 
     def get(self, request):
+        """
         fields = [f'content_type_approver__content_type__{field}' for field in ['app_label', 'model']]
         approvers = UserContentTypeApprover.objects.filter(user=request.user)
         approvers = approvers.values(*fields).distinct()
@@ -35,5 +36,5 @@ class ActionRequired(BaseView):
                 'model_verbose': model._meta.verbose_name,
                 'description': f'{obj.created_by} is requesting your approval',
             } for obj in model.objects.filter(id__in=list(set(ids) - set(list(approvals))))]
-
+        """
         return render(request, self.template_name, locals())

@@ -8,20 +8,11 @@
 {% block content %}
 {% get_current_language as LANGUAGE_CODE %}
 
-<script src="{% static 'assets/extensions/apexcharts/apexcharts.min.js' %}"></script>
-
 <div class="page-content">
     <div class="row">
         {% for widget in widgets %}
             <div class="{{ widget.column }}">
-                <div class="card">
-                    <div class="card-header">
-                        <h4 class="card-title">{{ widget.title }}</h4>
-                    </div>
-                    <div class="card-body">
-                        {{ widget.content }}
-                    </div>
-                </div>
+                {{ widget.content }}
             </div>
         {% empty %}
             <div class="col">
@@ -34,4 +25,43 @@
         {% endfor %}
     </div>
 </div>
+
+{{ menus|json_script:"menus" }}
+
+<script>
+    $(function() {
+        // Initial Steps for IntroJS
+        steps = [
+            {
+                element: '.menu',
+                intro: "{% trans "Menu de navigation pour accéder aux différentes pages" %}"
+            },
+            {
+                element: '.theme-toggle',
+                intro: "{% trans "Changer le thème" %}"
+            },
+            {
+                element: '.lang-switcher-dropdown-menu',
+                intro: "{% trans "Changer la langue" %}"
+            },
+            {
+                element: '.user-menu',
+                intro: "{% trans "Utilisateur connecté" %}"
+            }
+        ];
+    
+        // Generate Results Array
+        results = JSON.parse(document.getElementById('menus').textContent).flatMap(menu => 
+            menu.children && Array.isArray(menu.children) ? menu.children.map(child => ({
+                element: `#submenu-item-${slugify(child.title)}`,
+                intro: child.description || "No description available"
+            }))
+            : {
+                element: `#menu-item-${slugify(menu.title)}`,
+                intro: menu.description || "No description available"
+            }
+        );
+    });
+</script>
+
 {% endblock %}

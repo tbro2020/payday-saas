@@ -4,8 +4,9 @@ from dal import autocomplete
 
 class ModelSelect2Multiple(models.ManyToManyField):
     def __init__(self, *args, **kwargs):
+        self.level = kwargs.pop('level', 0)
         self.inline = kwargs.pop('inline', False)
-        self.approver = kwargs.pop('approver', False)
+        
         super().__init__(*args, **kwargs)
 
     def formfield(self, **kwargs):

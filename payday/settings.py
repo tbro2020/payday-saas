@@ -65,13 +65,15 @@ INSTALLED_APPS = [
     "phonenumber_field",
     "corsheaders",
     "django_extensions",
+    "django_htmx",
     "djcelery_email",
+    "simple_history",
 
     "core",
     "api",
 
-    "employee",
-    "payroll"
+    #"employee",
+    #"payroll"
 ]
 
 MIDDLEWARE = [
@@ -85,7 +87,11 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_currentuser.middleware.ThreadLocalUserMiddleware",
-    "core.middleware.organization.OrganizationMiddleware"
+    "django.middleware.locale.LocaleMiddleware",
+    "django_htmx.middleware.HtmxMiddleware",
+    "simple_history.middleware.HistoryRequestMiddleware",
+    "core.middleware.OrganizationMiddleware",
+    # "core.middleware.CoreMiddleware"
 ]
 
 if DEBUG:
@@ -145,8 +151,8 @@ REDIS_PORT = os.getenv('REDIS_PORT', 6379)
 
 
 # Cache settings default memory and redis cache
-CACHE_BACKEND = os.getenv('CACHE_BACKEND', 'django.core.cache.backends.dummy.DummyCache')
-CACHE_LOCATION = os.getenv('CACHE_LOCATION',  '')
+CACHE_BACKEND = os.getenv('CACHE_BACKEND', 'django.core.cache.backends.locmem.LocMemCache')
+CACHE_LOCATION = os.getenv('CACHE_LOCATION',  'unique-snowflake')
 
 CACHES = {
     "default": {
@@ -191,7 +197,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-LANGUAGE_CODE = "en"
+LANGUAGE_CODE = "fr"
 
 TIME_ZONE = "UTC"
 
@@ -201,10 +207,13 @@ USE_TZ = True
 
 LOCALE_PATHS = [BASE_DIR / 'locale']
 
+LANGUAGES = [
+    ('fr', 'French'),
+    ('en', 'English'),
+]
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
-
-from storages.backends.s3boto3 import S3Boto3Storage
 
 STATIC_URL = 'static/'
 STATIC_URL = os.getenv("STATIC_URL", STATIC_URL)
@@ -257,7 +266,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
+        #'rest_framework.permissions.IsAuthenticated',
     ),
 }
 

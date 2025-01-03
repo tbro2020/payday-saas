@@ -25,11 +25,12 @@ from django.contrib import admin
 urlpatterns = [
     path('tinymce/', include('tinymce.urls')),
     path('', include('django.contrib.auth.urls')),
+    path('i18n/', include('django.conf.urls.i18n')),
     
     path('', include('core.urls')),
     path('api/', include('api.urls')),
-    path('payroll/', include('payroll.urls')),
-    path('employee/', include('employee.urls')),
+    #path('payroll/', include('payroll.urls')),
+    #path('employee/', include('employee.urls')),
 ]
 
 if settings.DEBUG:

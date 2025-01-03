@@ -8,23 +8,7 @@
 
 {% block content %}
 
-<div class="page-heading">
-    <div class="card">
-        <div class="card-body">
-            <div class="row">
-                <div class="col text-start">
-                    <h3 class="m-0">{% trans 'Creer' %} {{ model|getattr:'_meta'|getattr:'verbose_name' }}</h3>
-                    {% include 'components/breadcrumb.html' %}
-                </div>
-
-                <div class="col text-end">
-                    <a href="{% url 'core:list' app model|getattr:'_meta'|getattr:'model_name' %}" class="btn btn-light-danger">{% trans 'Annuler' %}</a>
-                    <button type="submit" form="form-{{ model|getattr:'_meta'|getattr:'model_name' }}" class="btn btn-light-success">{% trans 'Sauvegarder' %}</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+{% include 'components/change/heading.html' %}
 
 <div class="page-content">
     <section>
@@ -35,4 +19,17 @@
         </div>
     </section>
 </div>
+
+<script>
+    $(function() {
+        steps = [{
+            element: "#myTab",
+            intro: '{% trans "Cet onglet vous permet de passer d une section à l autre du formulaire." %}',
+        },{
+            element: "#id__metadata",
+            intro: '{% trans "Ce champ de saisie des métadonnées est utilisé pour stocker des informations sur les métadonnées, au format JSON." %}',
+        }];
+    });
+</script>
+
 {% endblock %}

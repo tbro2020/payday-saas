@@ -14,6 +14,7 @@ from payroll.models import *
 from celery import Task
 import pandas as pd
 
+from dask.distributed import Client
 from datetime import datetime
 from payday.celery import app
 import json
